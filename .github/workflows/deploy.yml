@@ -47,3 +47,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify the deployed page serves the production bundle
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          for attempt in $(seq 1 24); do
+            if page_html=$(curl -fsSL "${PAGE_URL}?workflow_run=${GITHUB_RUN_ID}&check=${attempt}") \
+              && printf '%s' "$page_html" | grep -Eq 'src="\./assets/index-[^"]+\.js"' \
+              && ! printf '%s' "$page_html" | grep -q '/src/main.tsx'; then
+              echo "GitHub Pages is serving the Vite production bundle."
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "GitHub Pages did not serve the built Vite bundle after deployment."
+          exit 1
