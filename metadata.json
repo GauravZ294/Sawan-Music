@@ -1,0 +1,7 @@
+{
+  "name": "SwarSync - Music Player & AI Studio",
+  "description": "All-genre, multi-language music streaming system featuring Dolby Sound, 3D spatial audio virtualizer, AI mood tagging, and synced karaoke lyrics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
