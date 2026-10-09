@@ -58,6 +58,23 @@ input[type="range"] {
   accent-color: #1db954;
 }
 
+.account-field {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #71717a;
+  border-radius: 6px;
+  background: #121212;
+  padding: 0 12px;
+  color: white;
+  font: inherit;
+  font-size: 14px;
+}
+
+.account-field:focus {
+  outline: 2px solid #1ed760;
+  outline-offset: 1px;
+}
+
 /* Spotify card elevation */
 .spotify-card {
   background-color: #181818;

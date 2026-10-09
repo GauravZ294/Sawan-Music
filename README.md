@@ -16,5 +16,6 @@ View your app in AI Studio: https://ai.studio/apps/912b46d1-7535-49b0-9ed4-c0769
 1. Install dependencies:
    `npm install`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+3. Set `YOUTUBE_API_KEY` in `.env.local` to enable live, paginated YouTube music search. Enable YouTube Data API v3 for the Google Cloud project that owns this key. For Vercel, add `YOUTUBE_API_KEY` under the project’s Environment Variables and redeploy.
+4. Run the app:
    `npm run dev`

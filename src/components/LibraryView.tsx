@@ -20,7 +20,6 @@ import {
   Share2,
   Download,
   HardDrive,
-  RefreshCw,
   Youtube,
   Tv,
   Check,
@@ -29,20 +28,18 @@ import {
   Flame,
   Radio,
   ExternalLink,
-  PanelLeftClose,
-  PanelLeftOpen,
   Tags,
   Tag,
   Coffee,
   Headphones,
   Sliders,
   Zap,
-  Globe,
   Sun,
   Moon,
   Sunrise,
 } from 'lucide-react';
 import { MOOD_DEFINITIONS } from '../utils/aiMoodTagger';
+import type { MusicProfile } from './AccountModal';
 
 interface LibraryViewProps {
   currentView: ViewMode;
@@ -64,15 +61,14 @@ interface LibraryViewProps {
   onOpenYouTubeExplore: () => void;
   onToggleVideoCanvas: () => void;
   isVideoCanvasOpen: boolean;
-  // Panel close & expand props
-  isLeftPanelCollapsed?: boolean;
-  onToggleLeftPanel?: () => void;
   // AI Mood Tagger props
   onOpenMoodTagger?: () => void;
   onTagSongMood?: (song: Song) => void;
   // Dolby Audio Enhancer & Loader props
   onOpenDolbyModal?: () => void;
-  onTriggerIntroLoader?: () => void;
+  profile?: MusicProfile | null;
+  onOpenAccount?: (mode: 'signup' | 'login') => void;
+  onSignOut?: () => void;
 }
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
@@ -89,23 +85,21 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onDeleteSong,
   onSelectPlaylist,
   onCreatePlaylist,
-  onOpenAiStudio,
   onOpenImmersiveMode,
-  onOpenSystemScanner,
   onOpenYouTubeExplore,
   onToggleVideoCanvas,
   isVideoCanvasOpen,
-  isLeftPanelCollapsed = false,
-  onToggleLeftPanel,
   onOpenMoodTagger,
   onTagSongMood,
   onOpenDolbyModal,
-  onTriggerIntroLoader,
+  profile = null,
+  onOpenAccount,
+  onSignOut,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'regular' | 'remix' | 'lofi' | 'mashup'>('all');
   const [moodFilter, setMoodFilter] = useState<string>('all');
-  const [languageFilter, setLanguageFilter] = useState<string>('all');
   const [genreFilter, setGenreFilter] = useState<string>('all');
   const [activeMenuSongId, setActiveMenuSongId] = useState<string | null>(null);
 
@@ -186,11 +180,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       result = result.filter((s) => s.category === categoryFilter);
     }
 
-    // Filter by Language
-    if (languageFilter !== 'all') {
-      result = result.filter((s) => (s.language || 'Hindi').toLowerCase() === languageFilter.toLowerCase());
-    }
-
     // Filter by Genre
     if (genreFilter !== 'all') {
       result = result.filter((s) => (s.genre || '').toLowerCase().includes(genreFilter.toLowerCase()));
@@ -225,7 +214,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     }
 
     return result;
-  }, [songs, playlists, currentView, selectedPlaylistId, categoryFilter, moodFilter, languageFilter, genreFilter, searchQuery]);
+  }, [songs, playlists, currentView, selectedPlaylistId, categoryFilter, moodFilter, genreFilter, searchQuery]);
 
   // Specific categories for home shelf rows
   const regularHits = useMemo(() => songs.filter((s) => s.category === 'regular'), [songs]);
@@ -260,28 +249,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       {/* Spotify Top Bar */}
       <header className="sticky top-0 z-30 h-16 px-6 bg-[#121212]/95 backdrop-blur-md flex items-center justify-between border-b border-zinc-800/40 shrink-0">
         <div className="flex items-center gap-3 flex-1 max-w-2xl">
-          {/* Bar Icon Button to Close or Expand the Left Panel */}
-          {onToggleLeftPanel && (
-            <button
-              onClick={onToggleLeftPanel}
-              className={`h-9 px-2.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 ${
-                isLeftPanelCollapsed
-                  ? 'bg-[#1db954] text-black shadow-lg shadow-[#1db954]/25 hover:bg-[#1ed760]'
-                  : 'bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700/60'
-              }`}
-              title={isLeftPanelCollapsed ? 'Expand left panel (Ctrl+B)' : 'Close left panel (Ctrl+B)'}
-            >
-              {isLeftPanelCollapsed ? (
-                <PanelLeftOpen size={18} className="stroke-[2.5]" />
-              ) : (
-                <PanelLeftClose size={18} className="stroke-[2.5]" />
-              )}
-              <span className="hidden xl:inline">
-                {isLeftPanelCollapsed ? 'Expand Panel' : 'Close Panel'}
-              </span>
-            </button>
-          )}
-
           {/* Back & Forward Circles */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button className="w-8 h-8 rounded-full bg-black/60 hover:bg-black text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
@@ -299,6 +266,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
             />
             <input
+              id="library-search"
+              name="librarySearch"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -317,75 +286,30 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         </div>
 
         {/* Right Action Buttons */}
-        <div className="flex items-center gap-2.5 shrink-0 ml-4">
-          {/* Dolby Sound Suite Button */}
-          {onOpenDolbyModal && (
-            <button
-              onClick={onOpenDolbyModal}
-              className="px-3.5 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-400 text-xs font-bold rounded-full flex items-center gap-1.5 shadow-sm transition-all hover:scale-102"
-              title="Dolby Audio & 3D Spatial Audio Suite"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              <Zap size={14} className="fill-emerald-400" />
-              <span className="hidden sm:inline">Dolby Audio</span>
-            </button>
+        <div className="relative flex items-center gap-2.5 shrink-0 ml-4">
+          {profile ? (
+            <div className="relative">
+              <button onClick={() => setIsAccountMenuOpen((open) => !open)} aria-label="Open account menu" aria-expanded={isAccountMenuOpen} className="flex items-center gap-2 rounded-full bg-zinc-800 p-1 pr-2 text-white hover:bg-zinc-700">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#1db954] to-emerald-300 text-xs font-extrabold text-black">{profile.name.trim().slice(0, 1).toUpperCase() || 'S'}</span>
+                <span className="hidden max-w-24 truncate text-xs font-semibold sm:inline">{profile.name}</span>
+              </button>
+              {isAccountMenuOpen && (
+                <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-xl border border-zinc-700 bg-[#282828] p-2 text-sm text-zinc-100 shadow-2xl">
+                  <div className="border-b border-zinc-700 px-3 py-2">
+                    <p className="font-bold text-white">{profile.name}</p>
+                    <p className="truncate text-xs text-zinc-400">{profile.email}</p>
+                  </div>
+                  <button onClick={() => { setIsAccountMenuOpen(false); onSelectView('all-songs'); }} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-zinc-700">Recently played</button>
+                  <button onClick={() => { setIsAccountMenuOpen(false); onSignOut?.(); }} className="mt-1 block w-full border-t border-zinc-700 px-3 pt-3 pb-2 text-left hover:text-[#1ed760]">Log out</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button onClick={() => onOpenAccount?.('signup')} className="rounded-full px-3 py-2 text-xs font-bold text-zinc-300 hover:text-white">Sign up</button>
+              <button onClick={() => onOpenAccount?.('login')} className="rounded-full bg-white px-4 py-2 text-xs font-extrabold text-black transition hover:scale-[1.03]">Log in</button>
+            </div>
           )}
-
-          {/* AI Mood Tagger Action Button */}
-          {onOpenMoodTagger && (
-            <button
-              onClick={onOpenMoodTagger}
-              className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold rounded-full flex items-center gap-1.5 shadow-sm transition-all hover:scale-102"
-              title="AI Mood Tagger (Workout, Relaxing, Party, etc.)"
-            >
-              <Tags size={14} className="text-amber-400" />
-              <span className="hidden md:inline">AI Mood Tagger</span>
-            </button>
-          )}
-
-          {/* Fetch from YouTube Primary Button */}
-          <button
-            onClick={onOpenYouTubeExplore}
-            className="px-3.5 py-1.5 bg-[#242424] hover:bg-[#303030] border border-red-500/40 text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-sm transition-all hover:scale-102"
-          >
-            <Youtube size={15} className="text-red-500" />
-            <span className="hidden sm:inline">YouTube Fetch</span>
-          </button>
-
-          {/* Catch Downloads Button */}
-          <button
-            onClick={onOpenSystemScanner}
-            className="px-3 py-1.5 bg-[#242424] hover:bg-[#303030] text-zinc-300 hover:text-white text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all"
-          >
-            <Download size={14} className="text-cyan-400" />
-            <span className="hidden md:inline">Catch Media</span>
-          </button>
-
-          {/* AI Lyria Studio */}
-          <button
-            onClick={onOpenAiStudio}
-            className="px-3 py-1.5 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-700/50 text-purple-200 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all"
-          >
-            <Sparkles size={14} className="text-purple-400" />
-            <span className="hidden lg:inline">AI Lyria</span>
-          </button>
-
-          {/* Replay Intro Animation Button */}
-          {onTriggerIntroLoader && (
-            <button
-              onClick={onTriggerIntroLoader}
-              className="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white text-xs font-medium rounded-full flex items-center gap-1 transition-all"
-              title="Replay animated intro logo screen"
-            >
-              <RefreshCw size={13} />
-              <span className="hidden xl:inline">Intro</span>
-            </button>
-          )}
-
-          {/* User profile avatar badge */}
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1db954] to-emerald-300 flex items-center justify-center text-black font-extrabold text-xs shadow-md">
-            SS
-          </div>
         </div>
       </header>
 
@@ -555,49 +479,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           </div>
         )}
 
-        {/* Triple Filter Bars: Languages, Format Categories & AI Mood Labels */}
+        {/* Format Categories & AI Mood Labels */}
         <div className="space-y-2.5 bg-[#18181b]/50 p-3 rounded-2xl border border-zinc-800/60 shadow-md">
-          {/* 1. Language Filter Bar */}
+          {/* Format Categories Filter (Originals, Lo-Fi, Remix, Mashup) */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1 shrink-0 pr-1">
-              <Globe size={13} />
-              Language:
-            </span>
-
-            {[
-              { id: 'all', label: 'All Languages' },
-              { id: 'Hindi', label: '🇮🇳 Hindi' },
-              { id: 'Punjabi', label: '👳 Punjabi' },
-              { id: 'Tamil', label: '🌴 Tamil' },
-              { id: 'Telugu', label: '🏛️ Telugu' },
-              { id: 'Malayalam', label: '🥥 Malayalam' },
-              { id: 'Bengali', label: '🌸 Bengali' },
-              { id: 'Marathi', label: '🚩 Marathi' },
-              { id: 'Gujarati', label: '🪔 Gujarati' },
-              { id: 'English', label: '🌍 English' },
-              { id: 'Korean', label: '🇰🇷 Korean' },
-              { id: 'Spanish', label: '💃 Spanish' },
-              { id: 'Urdu', label: '🕊️ Urdu' },
-            ].map((lang) => {
-              const isSelected = languageFilter.toLowerCase() === lang.id.toLowerCase();
-              return (
-                <button
-                  key={lang.id}
-                  onClick={() => setLanguageFilter(lang.id)}
-                  className={`text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap transition-all ${
-                    isSelected
-                      ? 'bg-teal-400 text-black shadow-md shadow-teal-400/20 font-extrabold scale-102'
-                      : 'bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white border border-zinc-800'
-                  }`}
-                >
-                  {lang.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 2. Format Categories Filter (Originals, Lo-Fi, Remix, Mashup) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-t border-zinc-800/40 pt-2">
             <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider shrink-0 pr-1">
               Format:
             </span>
@@ -622,7 +507,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             ))}
           </div>
 
-          {/* 3. AI Mood Labels Filter Bar (Workout, Relaxing, Party, Romantic, etc.) */}
+          {/* AI Mood Labels Filter Bar (Workout, Relaxing, Party, Romantic, etc.) */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-t border-zinc-800/40 pt-2">
             <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0 pr-1">
               <Tags size={13} />

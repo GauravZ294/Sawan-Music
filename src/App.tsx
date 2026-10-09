@@ -24,12 +24,23 @@ import { YouTubeVideoCanvas } from './components/YouTubeVideoCanvas';
 import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
 import { DolbyAudioModal } from './components/DolbyAudioModal';
 import { AppLoader } from './components/AppLoader';
+import { AccountModal, type MusicProfile } from './components/AccountModal';
 import { Download, Sparkles, Home, Library, WandSparkles } from 'lucide-react';
 
 const STORAGE_KEY_SONGS = 'swarsync_spotify_songs_v4';
 const STORAGE_KEY_PLAYLISTS = 'swarsync_spotify_playlists_v4';
+const STORAGE_KEY_PROFILE = 'sawan_music_profile_v1';
 
 export default function App() {
+  const [profile, setProfile] = useState<MusicProfile | null>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_PROFILE);
+      return stored ? JSON.parse(stored) as MusicProfile : null;
+    } catch {
+      return null;
+    }
+  });
+  const [accountModalMode, setAccountModalMode] = useState<'signup' | 'login' | null>(null);
   // Library State (persisted in localStorage, initialized with full Bollywood catalog)
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
@@ -220,6 +231,12 @@ export default function App() {
   // Audio Playback Handlers
   const handlePlaySong = useCallback(
     (song: Song) => {
+      if (!profile) {
+        setPlaybackError('Log in to your Sawan - music profile to play songs.');
+        setAccountModalMode('login');
+        return;
+      }
+
       setActiveSong(song);
       setCurrentTime(0);
       setDuration(song.duration || 180);
@@ -254,7 +271,7 @@ export default function App() {
         }
       );
     },
-    [songs]
+    [songs, profile]
   );
 
   const handlePauseSong = useCallback(() => {
@@ -264,9 +281,23 @@ export default function App() {
 
   const handleResumeSong = useCallback(() => {
     if (!activeSong) return;
+    if (!profile) {
+      setAccountModalMode('login');
+      return;
+    }
     setIsPlaying(true);
     audioEngine.resume();
-  }, [activeSong]);
+  }, [activeSong, profile]);
+
+  const handleSignOut = useCallback(() => {
+    audioEngine.stop();
+    setIsPlaying(false);
+    setYoutubePlaybackStarted(false);
+    setIsVideoCanvasOpen(false);
+    setProfile(null);
+    setPlaybackError(null);
+    try { localStorage.removeItem(STORAGE_KEY_PROFILE); } catch {}
+  }, []);
 
   const handlePlayPause = useCallback(() => {
     if (isPlaying) {
@@ -568,12 +599,12 @@ export default function App() {
               onOpenYouTubeExplore={() => setShowYouTubeExploreModal(true)}
               onToggleVideoCanvas={() => setIsVideoCanvasOpen((prev) => !prev)}
               isVideoCanvasOpen={isVideoCanvasOpen}
-              isLeftPanelCollapsed={isSidebarCollapsed}
-              onToggleLeftPanel={() => setIsSidebarCollapsed((prev) => !prev)}
               onOpenMoodTagger={() => handleOpenMoodTagger()}
               onTagSongMood={(song) => handleOpenMoodTagger(song)}
               onOpenDolbyModal={() => setShowDolbyModal(true)}
-              onTriggerIntroLoader={() => setShowIntroLoader(true)}
+              profile={profile}
+              onOpenAccount={(mode) => setAccountModalMode(mode)}
+              onSignOut={handleSignOut}
             />
 
             {/* Split Synced Lyrics Side Drawer (Spotify Karaoke) */}
@@ -643,6 +674,19 @@ export default function App() {
         <button onClick={() => setCurrentView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>Studio</span></button>
         <button onClick={() => setShowYouTubeExploreModal(true)}><Sparkles size={19} /><span>Explore</span></button>
       </nav>
+      {accountModalMode && (
+        <AccountModal
+          mode={accountModalMode}
+          savedProfile={profile}
+          onClose={() => setAccountModalMode(null)}
+          onChangeMode={setAccountModalMode}
+          onComplete={(nextProfile) => {
+            setProfile(nextProfile);
+            try { localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(nextProfile)); } catch {}
+            setAccountModalMode(null);
+          }}
+        />
+      )}
       {playbackError && (
         <div role="alert" className="fixed bottom-24 left-1/2 z-50 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 rounded-xl border border-amber-500/30 bg-zinc-900 px-4 py-3 text-xs text-amber-100 shadow-2xl">
           <span>{playbackError}</span>

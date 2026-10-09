@@ -11,11 +11,98 @@ export default function handler(req, res) {
     const url = new URL(req.url || '/', 'https://localhost');
     const queryValue = req.query?.q ?? url.searchParams.get('q');
     const categoryValue = req.query?.category ?? url.searchParams.get('category');
+    const marketValue = req.query?.market ?? url.searchParams.get('market');
+    const pageTokenValue = req.query?.pageToken ?? url.searchParams.get('pageToken');
     const query = (Array.isArray(queryValue) ? queryValue[0] : queryValue) || 'Bollywood Trending Songs 2024';
     const category = ((Array.isArray(categoryValue) ? categoryValue[0] : categoryValue) || 'all').toLowerCase();
+    const market = ((Array.isArray(marketValue) ? marketValue[0] : marketValue) || 'all').toLowerCase();
+    const pageToken = Array.isArray(pageTokenValue) ? pageTokenValue[0] : pageTokenValue;
     const normalizedQuery = query.trim().toLowerCase();
 
+    const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+    if (youtubeApiKey) {
+      const marketQuery = {
+        all: '',
+        bollywood: ' Bollywood official song',
+        hollywood: ' official music video',
+        south: ' Tamil Telugu Malayalam Kannada official movie song',
+      }[market] || '';
+      const categoryQuery = {
+        all: '',
+        regular: ' original song',
+        remix: ' official remix',
+        lofi: ' official lofi',
+        mashup: ' official mashup',
+      }[category] || '';
+      const params = new URLSearchParams({
+        key: youtubeApiKey,
+        part: 'snippet',
+        q: `${query}${marketQuery}${categoryQuery}`.trim(),
+        type: 'video',
+        videoEmbeddable: 'true',
+        maxResults: '25',
+        order: 'relevance',
+      });
+      if (pageToken) params.set('pageToken', pageToken);
+      if (market === 'bollywood' || market === 'south') params.set('regionCode', 'IN');
+      if (market === 'hollywood') params.set('regionCode', 'US');
+
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
+      const payload = await response.json();
+      if (!response.ok) {
+        const reason = payload?.error?.errors?.[0]?.reason;
+        console.error('YouTube Data API search failed:', response.status, reason || payload?.error?.message);
+        return res.status(response.status === 403 ? 503 : response.status).json({
+          success: false,
+          error: reason === 'quotaExceeded'
+            ? 'YouTube search quota has been reached. Please try again later.'
+            : 'YouTube could not complete this search. Please try another query.',
+        });
+      }
+
+      const dateAdded = new Date().toISOString().slice(0, 10);
+      const songs = (payload.items || []).filter((item) => item.id?.videoId).map((item) => {
+        const videoId = item.id.videoId;
+        const snippet = item.snippet || {};
+        return {
+          id: `youtube-${videoId}`,
+          title: snippet.title || 'YouTube music video',
+          artist: snippet.channelTitle || 'YouTube channel',
+          album: '',
+          category: ['regular', 'remix', 'lofi', 'mashup'].includes(category) ? category : 'regular',
+          genre: market === 'all' ? 'Music' : market,
+          mood: 'Music',
+          year: Number((snippet.publishedAt || '').slice(0, 4)) || new Date().getFullYear(),
+          duration: 0,
+          youtubeId: videoId,
+          channelTitle: snippet.channelTitle || '',
+          coverUrl: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+          isYoutubeSource: true,
+          isFavorite: false,
+          playlistIds: [],
+          dateAdded,
+          playCount: 0,
+        };
+      });
+
+      return res.status(200).json({
+        success: true,
+        count: songs.length,
+        query,
+        market,
+        songs,
+        nextPageToken: payload.nextPageToken || null,
+      });
+    }
+
     let songs = CATALOG;
+    if (market !== 'all' && market !== 'bollywood') {
+      return res.status(503).json({
+        success: false,
+        error: 'Global music search needs a YouTube Data API key. Add YOUTUBE_API_KEY to this Vercel project’s environment variables and redeploy.',
+      });
+    }
     if (category !== 'all') songs = songs.filter((song) => song.category === category);
     if (normalizedQuery) {
       const matches = songs.filter((song) =>
@@ -39,7 +126,13 @@ export default function handler(req, res) {
       playCount: 20,
     }));
 
-    return res.status(200).json({ success: true, count: formattedSongs.length, query, songs: formattedSongs });
+    return res.status(200).json({
+      success: true,
+      count: formattedSongs.length,
+      query,
+      songs: formattedSongs,
+      warning: 'Showing the curated Bollywood catalog. Configure YOUTUBE_API_KEY for live global YouTube search.',
+    });
   } catch (error) {
     console.error('YouTube search function failed:', error);
     return res.status(500).json({ success: false, error: 'YouTube search failed. Please try again shortly.' });

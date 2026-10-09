@@ -524,6 +524,8 @@ Return a clean JSON array of analysis objects:
 app.get('/api/youtube/search', async (req, res) => {
   const query = ((req.query.q as string) || 'Bollywood Trending Songs 2024').trim();
   const categoryFilter = ((req.query.category as string) || 'all').toLowerCase();
+  const market = ((req.query.market as string) || 'all').toLowerCase();
+  const pageToken = (req.query.pageToken as string) || '';
 
   const getFilteredFallback = () => {
     let list = [...BOLLYWOOD_FALLBACK_CATALOG];
@@ -544,134 +546,102 @@ app.get('/api/youtube/search', async (req, res) => {
     return list;
   };
 
-  try {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
-      const fallbackSongs = getFilteredFallback().map((s) => ({
-        ...s,
-        bpm: 80,
-        lyrics: s.lyricsExcerpt,
-        coverUrl: `https://img.youtube.com/vi/${s.youtubeId}/hqdefault.jpg`,
-        youtubeUrl: `https://www.youtube.com/watch?v=${s.youtubeId}`,
-        isYoutubeSource: true,
-        isFavorite: false,
-        playlistIds: [],
-        dateAdded: new Date().toISOString().split('T')[0],
-        playCount: Math.floor(Math.random() * 50) + 10,
-      }));
-      return res.json({ success: true, count: fallbackSongs.length, query, songs: fallbackSongs });
-    }
+  // Search YouTube itself when a server-side Data API key is configured.
+  const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+  if (youtubeApiKey) {
+    try {
+      const marketQuery: Record<string, string> = {
+        all: '',
+        bollywood: ' Bollywood official song',
+        hollywood: ' official music video',
+        south: ' Tamil Telugu Malayalam Kannada official movie song',
+      };
+      const categoryQuery: Record<string, string> = {
+        all: '', regular: ' original song', remix: ' official remix', lofi: ' official lofi', mashup: ' official mashup',
+      };
+      const params = new URLSearchParams({
+        key: youtubeApiKey,
+        part: 'snippet',
+        q: `${query}${marketQuery[market] || ''}${categoryQuery[categoryFilter] || ''}`.trim(),
+        type: 'video',
+        videoEmbeddable: 'true',
+        maxResults: '25',
+        order: 'relevance',
+      });
+      if (pageToken) params.set('pageToken', pageToken);
+      if (market === 'bollywood' || market === 'south') params.set('regionCode', 'IN');
+      if (market === 'hollywood') params.set('regionCode', 'US');
 
-    const ai = getGenAI();
-    const prompt = `You are an expert Bollywood music database and YouTube music curator.
-The user is searching for Bollywood music with the query: "${query}" (category filter: "${categoryFilter}").
-Find 6 to 10 popular, real, authentic Bollywood tracks matching this search query (including category: regular, remix, lofi, or mashup).
-
-For each song, return:
-- id: unique slug
-- title: exact track title
-- titleDevanagari: title in Hindi Devanagari script
-- artist: singers and music directors
-- artistDevanagari: artist name in Devanagari
-- album: movie or album name
-- category: one of 'regular', 'remix', 'lofi', 'mashup'
-- genre: genre description
-- mood: mood tag
-- year: release year (number)
-- duration: estimated duration in seconds
-- youtubeId: real, valid YouTube Video ID for the official song/video
-- channelTitle: YouTube channel name
-- lyricsExcerpt: 2-3 lines of key lyrics in Hindi
-
-Return ONLY a JSON array under the key "songs".`;
-
-    const interactionPromise = ai.interactions.create({
-      model: 'gemini-3.8-flash',
-      input: prompt,
-      response_format: {
-        type: Type.OBJECT,
-        properties: {
-          songs: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                id: { type: Type.STRING },
-                title: { type: Type.STRING },
-                titleDevanagari: { type: Type.STRING },
-                artist: { type: Type.STRING },
-                artistDevanagari: { type: Type.STRING },
-                album: { type: Type.STRING },
-                category: { type: Type.STRING },
-                genre: { type: Type.STRING },
-                mood: { type: Type.STRING },
-                year: { type: Type.INTEGER },
-                duration: { type: Type.INTEGER },
-                youtubeId: { type: Type.STRING },
-                channelTitle: { type: Type.STRING },
-                lyricsExcerpt: { type: Type.STRING },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI Search Timeout')), 3000)
-    );
-
-    const interaction: any = await Promise.race([interactionPromise, timeoutPromise]);
-
-
-    let songs = [];
-    const lastStep = interaction.steps?.at(-1);
-    if (lastStep?.type === 'model_output') {
-      const textContent = lastStep.content?.find((c: any) => c.type === 'text');
-      if (textContent?.text) {
-        try {
-          const parsed = JSON.parse(textContent.text.trim());
-          songs = parsed.songs || [];
-        } catch {}
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
+      const payload: any = await response.json();
+      if (!response.ok) {
+        const reason = payload?.error?.errors?.[0]?.reason;
+        return res.status(response.status === 403 ? 503 : response.status).json({
+          success: false,
+          error: reason === 'quotaExceeded'
+            ? 'YouTube search quota has been reached. Please try again later.'
+            : 'YouTube could not complete this search. Please try another query.',
+        });
       }
+
+      const dateAdded = new Date().toISOString().slice(0, 10);
+      const songs = (payload.items || []).filter((item: any) => item.id?.videoId).map((item: any) => {
+        const videoId = item.id.videoId;
+        const snippet = item.snippet || {};
+        return {
+          id: `youtube-${videoId}`,
+          title: snippet.title || 'YouTube music video',
+          artist: snippet.channelTitle || 'YouTube channel',
+          album: '',
+          category: ['regular', 'remix', 'lofi', 'mashup'].includes(categoryFilter) ? categoryFilter : 'regular',
+          genre: market === 'all' ? 'Music' : market,
+          mood: 'Music',
+          year: Number((snippet.publishedAt || '').slice(0, 4)) || new Date().getFullYear(),
+          duration: 0,
+          youtubeId: videoId,
+          channelTitle: snippet.channelTitle || '',
+          coverUrl: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+          isYoutubeSource: true,
+          isFavorite: false,
+          playlistIds: [],
+          dateAdded,
+          playCount: 0,
+        };
+      });
+      return res.json({ success: true, count: songs.length, query, market, songs, nextPageToken: payload.nextPageToken || null });
+    } catch (err: any) {
+      console.error('YouTube Data API search failed:', err?.message);
+      return res.status(502).json({ success: false, error: 'YouTube search is temporarily unavailable. Please try again.' });
     }
-
-    if (!songs || songs.length === 0) {
-      songs = getFilteredFallback();
-    }
-
-    const formattedSongs = songs.map((s: any) => ({
-      ...s,
-      bpm: s.bpm || 80,
-      lyrics: s.lyricsExcerpt || `${s.title} by ${s.artist}`,
-      coverUrl: s.youtubeId
-        ? `https://img.youtube.com/vi/${s.youtubeId}/hqdefault.jpg`
-        : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80',
-      youtubeUrl: s.youtubeId ? `https://www.youtube.com/watch?v=${s.youtubeId}` : undefined,
-      isYoutubeSource: true,
-      isFavorite: false,
-      playlistIds: [],
-      dateAdded: new Date().toISOString().split('T')[0],
-      playCount: Math.floor(Math.random() * 50) + 10,
-    }));
-
-    return res.json({ success: true, count: formattedSongs.length, query, songs: formattedSongs });
-  } catch (err: any) {
-    console.error('YouTube search fallback triggered:', err?.message);
-    const fallbackSongs = getFilteredFallback().map((s) => ({
-      ...s,
-      bpm: 80,
-      lyrics: s.lyricsExcerpt,
-      coverUrl: `https://img.youtube.com/vi/${s.youtubeId}/hqdefault.jpg`,
-      youtubeUrl: `https://www.youtube.com/watch?v=${s.youtubeId}`,
-      isYoutubeSource: true,
-      isFavorite: false,
-      playlistIds: [],
-      dateAdded: new Date().toISOString().split('T')[0],
-      playCount: Math.floor(Math.random() * 50) + 10,
-    }));
-    return res.json({ success: true, count: fallbackSongs.length, query, songs: fallbackSongs });
   }
+
+  if (market !== 'all' && market !== 'bollywood') {
+    return res.status(503).json({
+      success: false,
+      error: 'Global music search needs a YouTube Data API key. Add YOUTUBE_API_KEY to the deployment environment and redeploy.',
+    });
+  }
+
+  const fallbackSongs = getFilteredFallback().map((song) => ({
+    ...song,
+    bpm: 80,
+    lyrics: song.lyricsExcerpt,
+    coverUrl: `https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`,
+    youtubeUrl: `https://www.youtube.com/watch?v=${song.youtubeId}`,
+    isYoutubeSource: true,
+    isFavorite: false,
+    playlistIds: [],
+    dateAdded: new Date().toISOString().slice(0, 10),
+    playCount: 0,
+  }));
+  return res.json({
+    success: true,
+    count: fallbackSongs.length,
+    query,
+    songs: fallbackSongs,
+    warning: 'Showing the curated Bollywood catalog. Configure YOUTUBE_API_KEY for live global YouTube search.',
+  });
 });
 
 // Configure Vite or Static serving

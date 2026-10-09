@@ -26,14 +26,15 @@ interface YouTubeExploreModalProps {
 }
 
 const POPULAR_QUERIES = [
-  { label: '🔥 Bollywood 2024 Hits', query: 'Latest Bollywood Songs 2024', category: 'regular' },
-  { label: '🎧 Bollywood Lo-Fi Slowed', query: 'Bollywood Lo-Fi Slowed Reverb Songs', category: 'lofi' },
-  { label: '⚡ Bollywood DJ Club Remix', query: 'Bollywood Party Club Remix DJ Chetas', category: 'remix' },
-  { label: '🪕 Romantic Bollywood Mashup', query: 'Best Bollywood Romantic Mashup Medley', category: 'mashup' },
-  { label: '💖 Arijit Singh Melodies', query: 'Arijit Singh Best Songs Jukebox', category: 'regular' },
-  { label: '🌙 Midnight Hindi Chill', query: 'Hindi Chill Lo-Fi Midnight Vibes', category: 'lofi' },
-  { label: '✨ 90s Evergreen Retro', query: '90s Evergreen Bollywood Hits', category: 'regular' },
+  { label: '🇮🇳 Bollywood Hits', query: 'Latest Bollywood songs', category: 'regular', market: 'bollywood' },
+  { label: '🇺🇸 Hollywood Hits', query: 'Popular Hollywood songs', category: 'regular', market: 'hollywood' },
+  { label: '🌴 South Indian Hits', query: 'Latest South Indian movie songs', category: 'regular', market: 'south' },
+  { label: '🎧 Bollywood Lo-Fi', query: 'Bollywood Lo-Fi Slowed Reverb Songs', category: 'lofi', market: 'bollywood' },
+  { label: '⚡ Bollywood DJ Remix', query: 'Bollywood Party Club Remix DJ Chetas', category: 'remix', market: 'bollywood' },
+  { label: '🪕 Romantic Mashup', query: 'Best Bollywood Romantic Mashup Medley', category: 'mashup', market: 'bollywood' },
 ];
+
+type MusicMarket = 'all' | 'bollywood' | 'hollywood' | 'south';
 
 export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
   isOpen,
@@ -42,25 +43,38 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
   onAddSongToLibrary,
   existingSongIds,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('Bollywood Trending Songs 2024');
+  const [searchQuery, setSearchQuery] = useState('popular music');
+  const [selectedMarket, setSelectedMarket] = useState<MusicMarket>('all');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'regular' | 'remix' | 'lofi' | 'mashup'>('all');
   const [results, setResults] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchWarning, setSearchWarning] = useState<string | null>(null);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set(existingSongIds));
+  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
 
   useEffect(() => {
     setAddedIds(new Set(existingSongIds));
   }, [existingSongIds]);
 
-  const handleFetchYouTube = async (queryToSearch = searchQuery, cat = categoryFilter) => {
+  const handleFetchYouTube = async (
+    queryToSearch = searchQuery,
+    cat = categoryFilter,
+    market = selectedMarket,
+    pageToken?: string
+  ) => {
     if (!queryToSearch.trim()) return;
     setIsLoading(true);
     setError(null);
+    setSearchWarning(null);
+    if (!pageToken) {
+      setResults([]);
+      setNextPageToken(null);
+    }
 
     try {
       const res = await fetch(
-        `/api/youtube/search?q=${encodeURIComponent(queryToSearch)}&category=${cat}`
+        `/api/youtube/search?q=${encodeURIComponent(queryToSearch)}&category=${cat}&market=${market}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`
       );
       const contentType = res.headers.get('content-type') || '';
       if (!contentType.includes('application/json')) {
@@ -73,7 +87,9 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `YouTube search failed (${res.status}).`);
       if (data.success && Array.isArray(data.songs)) {
-        setResults(data.songs);
+        setResults((previous) => pageToken ? [...previous, ...data.songs] : data.songs);
+        setNextPageToken(data.nextPageToken || null);
+        setSearchWarning(data.warning || null);
       } else {
         setError(data.error || 'No songs found on YouTube.');
       }
@@ -88,7 +104,7 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
   // Initial search on first open
   useEffect(() => {
     if (isOpen && results.length === 0) {
-      handleFetchYouTube('Bollywood Trending Songs 2024', 'all');
+      handleFetchYouTube('popular music', 'all', 'all');
     }
   }, [isOpen]);
 
@@ -116,7 +132,7 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                 </span>
               </h2>
               <p className="text-xs text-zinc-400">
-                Explore, stream, and save Bollywood Regular songs, Remixes, Lo-Fi, and Mashups directly to Spotify
+                Discover original music videos from Bollywood, Hollywood, South India, and around the world
               </p>
             </div>
           </div>
@@ -144,10 +160,12 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
               />
               <input
+                id="youtube-music-search"
+                name="youtubeMusicSearch"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Bollywood songs, artists, remixes, lofi, or mashups (e.g. Arijit Singh, Chahun Main Ya Naa, Jawan Remix)..."
+                placeholder="Search songs, artists, films, or albums across music markets..."
                 className="w-full pl-11 pr-4 py-3 bg-[#242424] border border-zinc-700/80 rounded-full text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#1db954] focus:ring-1 focus:ring-[#1db954] transition-all"
               />
             </div>
@@ -170,6 +188,33 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
             </button>
           </form>
 
+          {/* Music Markets */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-xs text-zinc-400 font-semibold mr-1">Market:</span>
+            {[
+              { id: 'all', label: 'All Markets' },
+              { id: 'bollywood', label: 'Bollywood' },
+              { id: 'hollywood', label: 'Hollywood' },
+              { id: 'south', label: 'South Indian' },
+            ].map((market) => (
+              <button
+                key={market.id}
+                onClick={() => {
+                  const nextMarket = market.id as MusicMarket;
+                  setSelectedMarket(nextMarket);
+                  handleFetchYouTube(searchQuery, categoryFilter, nextMarket);
+                }}
+                className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
+                  selectedMarket === market.id
+                    ? 'bg-[#1db954] text-black font-bold shadow-md'
+                    : 'bg-[#282828] text-zinc-300 hover:bg-[#333333]'
+                }`}
+              >
+                {market.label}
+              </button>
+            ))}
+          </div>
+
           {/* Category Chips */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <span className="text-xs text-zinc-400 font-semibold mr-1">Category:</span>
@@ -185,7 +230,7 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                 onClick={() => {
                   const newCat = cat.id as any;
                   setCategoryFilter(newCat);
-                  handleFetchYouTube(searchQuery, newCat);
+                  handleFetchYouTube(searchQuery, newCat, selectedMarket);
                 }}
                 className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
                   categoryFilter === cat.id
@@ -207,7 +252,8 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                 onClick={() => {
                   setSearchQuery(preset.query);
                   setCategoryFilter(preset.category as any);
-                  handleFetchYouTube(preset.query, preset.category as any);
+                  setSelectedMarket(preset.market as MusicMarket);
+                  handleFetchYouTube(preset.query, preset.category as any, preset.market as MusicMarket);
                 }}
                 className="text-xs px-3 py-1 rounded-full bg-[#242424] hover:bg-[#303030] border border-zinc-800 text-zinc-300 hover:text-white shrink-0 transition-colors"
               >
@@ -223,10 +269,10 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
             <div className="py-20 flex flex-col items-center justify-center text-center">
               <Loader2 size={36} className="text-[#1db954] animate-spin mb-3" />
               <p className="text-sm font-semibold text-zinc-200">
-                Fetching Bollywood catalog from YouTube...
+                Searching YouTube music across markets...
               </p>
               <p className="text-xs text-zinc-500 mt-1">
-                Searching official channels (T-Series, Sony Music, Zee Music) with original thumbnails
+                Finding embeddable original music videos and their YouTube audio
               </p>
             </div>
           )}
@@ -234,6 +280,12 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
           {error && !isLoading && (
             <div className="p-4 bg-red-950/40 border border-red-900/50 rounded-xl text-center text-sm text-red-300">
               {error}
+            </div>
+          )}
+
+          {searchWarning && !error && (
+            <div className="rounded-lg border border-amber-700/50 bg-amber-950/30 px-4 py-3 text-center text-xs leading-relaxed text-amber-200">
+              {searchWarning}
             </div>
           )}
 
@@ -357,13 +409,21 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                 </div>
               );
             })}
+          {nextPageToken && !isLoading && !error && (
+            <button
+              onClick={() => handleFetchYouTube(searchQuery, categoryFilter, selectedMarket, nextPageToken)}
+              className="mx-auto mt-3 block rounded-full border border-zinc-700 px-5 py-2 text-sm font-semibold text-zinc-200 hover:border-zinc-500 hover:bg-zinc-800"
+            >
+              Load more results
+            </button>
+          )}
         </div>
 
         {/* Footer */}
         <div className="youtube-hub-footer p-4 px-6 bg-[#121212] border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
           <div className="youtube-hub-footer-note flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#1db954]" />
-            <span>High quality original YouTube audio & cover art streaming</span>
+            <span>YouTube videos play their original audio • Search across music markets</span>
           </div>
           <button
             onClick={onClose}

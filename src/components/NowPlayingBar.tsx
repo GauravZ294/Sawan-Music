@@ -260,6 +260,8 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
 
             {/* Hidden native input for smooth seeking */}
             <input
+              id="playback-position"
+              name="playbackPosition"
               type="range"
               min={0}
               max={duration || 100}
@@ -353,6 +355,8 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
             </div>
 
             <input
+              id="playback-volume"
+              name="playbackVolume"
               type="range"
               min={0}
               max={1}
