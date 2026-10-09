@@ -19,7 +19,7 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
     'Tuning High-Fidelity Equalizer & Sub-Bass Resonator...',
     'Loading Multi-Genre & Multi-Language Music Catalog...',
     'Calibrating Background Listening & Audio Effects...',
-    'Ready to Stream • Welcome to SwarSync',
+    'Ready to Stream • Welcome to Sawan - music',
   ];
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
         <div className="space-y-1 mb-2">
           <div className="flex items-center justify-center gap-2">
             <h1 className="text-3xl font-black tracking-wider text-white font-['Plus_Jakarta_Sans',sans-serif]">
-              SWAR<span className="text-[#1db954]">SYNC</span>
+              Sawan <span className="text-[#1db954]">- music</span>
             </h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-black tracking-widest bg-[#1db954]/20 border border-[#1db954]/40 text-[#1db954] uppercase">
               Pro
