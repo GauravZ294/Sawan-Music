@@ -422,6 +422,9 @@ class AudioEngine {
     // If song has a direct audioSrc (data url, blob, or remote mp3)
     if (song.audioSrc) {
       this.playAudioSource(song.audioSrc, startFromSecond);
+    } else if (song.youtubeId) {
+      // YouTube-backed songs are played by the YouTube embed, never by the synth fallback.
+      this.isSynthPlaying = false;
     } else {
       // Use procedural synth based on audioPreset
       this.playGenerativePreset(song, startFromSecond);
@@ -679,6 +682,7 @@ class AudioEngine {
   }
 
   public seek(seconds: number) {
+    if (this.currentSong?.youtubeId && !this.currentSong.audioSrc) return;
     if (this.audioElement && this.currentSong?.audioSrc) {
       this.audioElement.currentTime = seconds;
     } else if (this.currentSong) {
@@ -733,6 +737,9 @@ class AudioEngine {
   }
 
   public getIsPlaying(): boolean {
+    if (this.currentSong?.youtubeId && !this.currentSong.audioSrc) {
+      return !this.isPaused;
+    }
     if (this.audioElement && this.currentSong?.audioSrc) {
       return !this.audioElement.paused && !this.audioElement.ended;
     }

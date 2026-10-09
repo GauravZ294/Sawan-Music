@@ -84,6 +84,7 @@ export default function App() {
   });
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const [seekVersion, setSeekVersion] = useState<number>(0);
   const [duration, setDuration] = useState<number>(() => activeSong?.duration || 202);
   const [volume, setVolume] = useState<number>(0.85);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
@@ -100,6 +101,7 @@ export default function App() {
   const [showSystemScannerModal, setShowSystemScannerModal] = useState<boolean>(false);
   const [showYouTubeExploreModal, setShowYouTubeExploreModal] = useState<boolean>(false);
   const [isVideoCanvasOpen, setIsVideoCanvasOpen] = useState<boolean>(false);
+  const [youtubePlaybackStarted, setYoutubePlaybackStarted] = useState<boolean>(false);
   const [isDraggingFiles, setIsDraggingFiles] = useState<boolean>(false);
   const dragCounter = useRef(0);
 
@@ -221,6 +223,8 @@ export default function App() {
       setIsPlaying(true);
       setCurrentTime(0);
       setDuration(song.duration || 180);
+      setIsVideoCanvasOpen(Boolean(song.youtubeId));
+      setYoutubePlaybackStarted(Boolean(song.youtubeId && !song.audioSrc));
 
       // Increment play count
       setSongs((prev) =>
@@ -270,6 +274,7 @@ export default function App() {
 
   const handleSeek = useCallback((seconds: number) => {
     setCurrentTime(seconds);
+    setSeekVersion((version) => version + 1);
     audioEngine.seek(seconds);
   }, []);
 
@@ -578,8 +583,22 @@ export default function App() {
         {/* Floating YouTube Video Canvas (Now Playing View) */}
         <YouTubeVideoCanvas
           song={activeSong}
+          isActive={youtubePlaybackStarted}
           isPlaying={isPlaying}
           isOpen={isVideoCanvasOpen}
+          currentTime={currentTime}
+          seekVersion={seekVersion}
+          volume={volume}
+          onTimeUpdate={(time, dur) => {
+            setCurrentTime(time);
+            if (dur > 0) setDuration(dur);
+          }}
+          onPlaybackChange={(playing) => {
+            setIsPlaying(playing);
+            if (playing) audioEngine.resume();
+            else audioEngine.pause();
+          }}
+          onEnded={handleNextSong}
           onClose={() => setIsVideoCanvasOpen(false)}
         />
 
