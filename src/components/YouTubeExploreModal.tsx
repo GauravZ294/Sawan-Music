@@ -62,7 +62,16 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
       const res = await fetch(
         `/api/youtube/search?q=${encodeURIComponent(queryToSearch)}&category=${cat}`
       );
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          res.status === 404
+            ? 'YouTube search API is unavailable on this deployment. Please redeploy the latest version.'
+            : 'The server returned an unexpected response. Please try again shortly.'
+        );
+      }
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `YouTube search failed (${res.status}).`);
       if (data.success && Array.isArray(data.songs)) {
         setResults(data.songs);
       } else {

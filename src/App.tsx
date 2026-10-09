@@ -24,7 +24,7 @@ import { YouTubeVideoCanvas } from './components/YouTubeVideoCanvas';
 import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
 import { DolbyAudioModal } from './components/DolbyAudioModal';
 import { AppLoader } from './components/AppLoader';
-import { Download, Sparkles } from 'lucide-react';
+import { Download, Sparkles, Home, Library, WandSparkles } from 'lucide-react';
 
 const STORAGE_KEY_SONGS = 'swarsync_spotify_songs_v4';
 const STORAGE_KEY_PLAYLISTS = 'swarsync_spotify_playlists_v4';
@@ -476,7 +476,7 @@ export default function App() {
   ).length;
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-black text-[#b3b3b3] select-none relative font-sans">
+    <div className="app-shell flex h-screen w-screen overflow-hidden bg-black text-[#b3b3b3] select-none relative font-sans">
       {/* Full-screen Drag and Drop Overlay for System Downloads */}
       {isDraggingFiles && (
         <div className="absolute inset-0 z-50 bg-[#1db954]/90 backdrop-blur-md border-4 border-dashed border-white flex flex-col items-center justify-center gap-4 text-center p-6 animate-in fade-in duration-150 pointer-events-none text-black">
@@ -608,6 +608,12 @@ export default function App() {
           onOpenDolbyModal={() => setShowDolbyModal(true)}
         />
       </main>
+      <nav className="mobile-nav" aria-label="Primary navigation">
+        <button onClick={() => setCurrentView('all-songs')} aria-current={currentView === 'all-songs' ? 'page' : undefined}><Home size={19} /><span>Home</span></button>
+        <button onClick={() => setCurrentView('playlists')} aria-current={currentView === 'playlists' || currentView === 'playlist-detail' ? 'page' : undefined}><Library size={19} /><span>Library</span></button>
+        <button onClick={() => setCurrentView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>Studio</span></button>
+        <button onClick={() => setShowYouTubeExploreModal(true)}><Sparkles size={19} /><span>Explore</span></button>
+      </nav>
 
       {/* YouTube Explore & Live Fetch Modal */}
       <YouTubeExploreModal
