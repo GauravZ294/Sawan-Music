@@ -85,6 +85,7 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [seekVersion, setSeekVersion] = useState<number>(0);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
   const [duration, setDuration] = useState<number>(() => activeSong?.duration || 202);
   const [volume, setVolume] = useState<number>(0.85);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
@@ -220,11 +221,20 @@ export default function App() {
   const handlePlaySong = useCallback(
     (song: Song) => {
       setActiveSong(song);
-      setIsPlaying(true);
       setCurrentTime(0);
       setDuration(song.duration || 180);
-      setIsVideoCanvasOpen(Boolean(song.youtubeId));
+      setIsVideoCanvasOpen(Boolean(song.youtubeId && !song.audioSrc));
       setYoutubePlaybackStarted(Boolean(song.youtubeId && !song.audioSrc));
+
+      if (!song.audioSrc && !song.youtubeId) {
+        audioEngine.stop();
+        setIsPlaying(false);
+        setPlaybackError('No original audio is available for this track. Import an audio file or choose a YouTube track.');
+        return;
+      }
+
+      setPlaybackError(null);
+      setIsPlaying(true);
 
       // Increment play count
       setSongs((prev) =>
@@ -633,6 +643,12 @@ export default function App() {
         <button onClick={() => setCurrentView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>Studio</span></button>
         <button onClick={() => setShowYouTubeExploreModal(true)}><Sparkles size={19} /><span>Explore</span></button>
       </nav>
+      {playbackError && (
+        <div role="alert" className="fixed bottom-24 left-1/2 z-50 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-3 rounded-xl border border-amber-500/30 bg-zinc-900 px-4 py-3 text-xs text-amber-100 shadow-2xl">
+          <span>{playbackError}</span>
+          <button onClick={() => setPlaybackError(null)} aria-label="Dismiss" className="text-zinc-400 hover:text-white">×</button>
+        </div>
+      )}
 
       {/* YouTube Explore & Live Fetch Modal */}
       <YouTubeExploreModal

@@ -35,10 +35,6 @@ class AudioEngine {
   private dryGain: GainNode | null = null;
   private dolbyOutputGain: GainNode | null = null;
 
-  // Generative synth timer
-  private synthInterval: any = null;
-  private synthStartTime: number = 0;
-  private isSynthPlaying: boolean = false;
   private currentSong: Song | null = null;
   private isPaused: boolean = false;
   private playbackRate: number = 1.0;
@@ -424,10 +420,10 @@ class AudioEngine {
       this.playAudioSource(song.audioSrc, startFromSecond);
     } else if (song.youtubeId) {
       // YouTube-backed songs are played by the YouTube embed, never by the synth fallback.
-      this.isSynthPlaying = false;
     } else {
-      // Use procedural synth based on audioPreset
-      this.playGenerativePreset(song, startFromSecond);
+      // Missing media is silent: never substitute generated tones for a recording.
+      this.isPaused = true;
+      this.onTimeUpdateCb?.(startFromSecond, song.duration || 0);
     }
   }
 
@@ -461,203 +457,6 @@ class AudioEngine {
     });
   }
 
-  private playGenerativePreset(song: Song, startFromSecond: number) {
-    this.isSynthPlaying = true;
-    let currentSecond = startFromSecond;
-    const duration = song.duration || 180;
-
-    // Bollywood Chords for Chahun Main Ya Naa: Dm - Bb - C - Am - F
-    // Frequency map for D minor progression:
-    const chordProgressions: Record<string, number[][]> = {
-      chahun_main_acoustic: [
-        [146.83, 220.00, 261.63, 293.66], // Dm (D3, A3, C4, D4)
-        [116.54, 174.61, 233.08, 293.66], // Bb (Bb2, F3, Bb3, D4)
-        [130.81, 196.00, 261.63, 329.63], // C  (C3, G3, C4, E4)
-        [110.00, 164.81, 220.00, 261.63], // Am (A2, E3, A3, C4)
-        [174.61, 220.00, 261.63, 349.23], // F  (F3, A3, C4, F4)
-        [130.81, 164.81, 196.00, 261.63], // C  (C3, E3, G3, C4)
-      ],
-      tum_hi_ho_ballad: [
-        [146.83, 220.00, 293.66, 349.23], // Dm
-        [196.00, 246.94, 293.66, 392.00], // Gm
-        [130.81, 196.00, 261.63, 329.63], // C
-        [174.61, 220.00, 261.63, 349.23], // F
-      ],
-      kesariya_sufi: [
-        [196.00, 246.94, 293.66, 392.00], // G
-        [164.81, 196.00, 246.94, 329.63], // Em
-        [130.81, 164.81, 196.00, 261.63], // C
-        [146.83, 220.00, 293.66, 369.99], // D
-      ],
-      ambient_sitar: [
-        [110.00, 164.81, 220.00, 329.63], // A tanpura drone
-        [110.00, 146.83, 220.00, 293.66], // D drone
-      ],
-      synth_wave: [
-        [130.81, 164.81, 196.00, 246.94], // C
-        [110.00, 130.81, 164.81, 220.00], // Am
-        [174.61, 220.00, 261.63, 329.63], // F
-        [196.00, 246.94, 293.66, 349.23], // G
-      ],
-    };
-
-    const preset = song.audioPreset || 'chahun_main_acoustic';
-    const chords = chordProgressions[preset] || chordProgressions['chahun_main_acoustic'];
-
-    let step = 0;
-    const intervalMs = 250; // 16th note feel at approx 75-80 BPM
-
-    this.synthInterval = setInterval(() => {
-      if (this.isPaused) return;
-
-      currentSecond += (intervalMs / 1000) * this.playbackRate;
-      if (this.onTimeUpdateCb) {
-        this.onTimeUpdateCb(currentSecond, duration);
-      }
-
-      if (currentSecond >= duration) {
-        this.stop();
-        if (this.onEndedCb) this.onEndedCb();
-        return;
-      }
-
-      // Procedural Note triggering for lush acoustic ambiance
-      if (this.audioCtx && this.audioCtx.state === 'running') {
-        const chordIdx = Math.floor(step / 16) % chords.length;
-        const chordNotes = chords[chordIdx];
-        const now = this.audioCtx.currentTime;
-
-        // Bass root note every measure start
-        if (step % 8 === 0) {
-          this.triggerBassNote(chordNotes[0] * 0.5, now);
-        }
-
-        // Acoustic Arpeggio pluck
-        if (step % 2 === 0) {
-          const noteIdx = (step / 2) % chordNotes.length;
-          const noteFreq = chordNotes[noteIdx];
-          this.triggerAcousticPluck(noteFreq, now, preset);
-        }
-
-        // Soft melodic Indian bansuri/vocal lead flute motif
-        if (step % 4 === 0 && Math.random() > 0.3) {
-          const melodyScale = [
-            chordNotes[0] * 2,
-            chordNotes[1] * 2,
-            chordNotes[2] * 2,
-            chordNotes[3] ? chordNotes[3] * 2 : chordNotes[0] * 2.5,
-          ];
-          const melodyFreq = melodyScale[Math.floor(Math.random() * melodyScale.length)];
-          this.triggerFluteNote(melodyFreq, now);
-        }
-
-        // Soft percussion / tabla rhythm
-        if (step % 4 === 0) {
-          this.triggerTablaBeat(now, step % 8 === 0 ? 'dha' : 'tin');
-        }
-      }
-
-      step++;
-    }, intervalMs);
-  }
-
-  private triggerAcousticPluck(freq: number, time: number, preset: string) {
-    if (!this.audioCtx) return;
-    try {
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-
-      osc.type = preset === 'synth_wave' ? 'sawtooth' : 'triangle';
-      osc.frequency.setValueAtTime(freq, time);
-
-      // Warm acoustic envelope
-      gain.gain.setValueAtTime(0.001, time);
-      gain.gain.linearRampToValueAtTime(0.12, time + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.9);
-
-      osc.connect(gain);
-      gain.connect(this.eqFilters[0]);
-
-      osc.start(time);
-      osc.stop(time + 0.95);
-    } catch {
-      // Audio node may be stopped
-    }
-  }
-
-  private triggerBassNote(freq: number, time: number) {
-    if (!this.audioCtx) return;
-    try {
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, time);
-
-      gain.gain.setValueAtTime(0.001, time);
-      gain.gain.linearRampToValueAtTime(0.2, time + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + 1.8);
-
-      osc.connect(gain);
-      gain.connect(this.eqFilters[0]);
-
-      osc.start(time);
-      osc.stop(time + 1.85);
-    } catch {}
-  }
-
-  private triggerFluteNote(freq: number, time: number) {
-    if (!this.audioCtx) return;
-    try {
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-
-      osc.type = 'sine';
-      // Subtle vibrato
-      osc.frequency.setValueAtTime(freq, time);
-      osc.frequency.linearRampToValueAtTime(freq * 1.01, time + 0.3);
-      osc.frequency.linearRampToValueAtTime(freq, time + 0.6);
-
-      gain.gain.setValueAtTime(0.001, time);
-      gain.gain.linearRampToValueAtTime(0.08, time + 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.8);
-
-      osc.connect(gain);
-      gain.connect(this.eqFilters[0]);
-
-      osc.start(time);
-      osc.stop(time + 0.85);
-    } catch {}
-  }
-
-  private triggerTablaBeat(time: number, stroke: 'dha' | 'tin') {
-    if (!this.audioCtx) return;
-    try {
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-
-      if (stroke === 'dha') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(120, time);
-        osc.frequency.exponentialRampToValueAtTime(60, time + 0.12);
-
-        gain.gain.setValueAtTime(0.18, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
-      } else {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(320, time);
-        gain.gain.setValueAtTime(0.06, time);
-        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
-      }
-
-      osc.connect(gain);
-      gain.connect(this.eqFilters[0]);
-
-      osc.start(time);
-      osc.stop(time + 0.22);
-    } catch {}
-  }
-
   public pause() {
     this.isPaused = true;
     if (this.audioElement) {
@@ -685,22 +484,15 @@ class AudioEngine {
     if (this.currentSong?.youtubeId && !this.currentSong.audioSrc) return;
     if (this.audioElement && this.currentSong?.audioSrc) {
       this.audioElement.currentTime = seconds;
-    } else if (this.currentSong) {
-      // Restart procedural synth from requested second
-      this.playSong(this.currentSong, this.onTimeUpdateCb!, this.onEndedCb!, seconds);
     }
   }
 
   public stop() {
-    if (this.synthInterval) {
-      clearInterval(this.synthInterval);
-      this.synthInterval = null;
-    }
     if (this.audioElement) {
       this.audioElement.pause();
       this.audioElement.currentTime = 0;
     }
-    this.isSynthPlaying = false;
+    this.isPaused = true;
   }
 
   public setVolume(vol: number) {
@@ -743,7 +535,7 @@ class AudioEngine {
     if (this.audioElement && this.currentSong?.audioSrc) {
       return !this.audioElement.paused && !this.audioElement.ended;
     }
-    return this.isSynthPlaying && !this.isPaused;
+    return false;
   }
 }
 
