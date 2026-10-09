@@ -100,16 +100,16 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-zinc-100">
+    <div className="youtube-hub-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="youtube-hub-modal relative w-full max-w-4xl max-h-[90vh] bg-[#181818] border border-zinc-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-zinc-100">
         {/* Top Header */}
-        <div className="p-6 border-b border-zinc-800/80 bg-[#121212]/90 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="youtube-hub-header p-6 border-b border-zinc-800/80 bg-[#121212]/90 flex items-center justify-between">
+          <div className="youtube-hub-heading flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-500 shadow-md">
               <Youtube size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+              <h2 className="youtube-hub-title text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 Fetch from YouTube & Online Hub
                 <span className="text-xs bg-red-950 text-red-400 border border-red-800/60 font-semibold px-2 py-0.5 rounded-full">
                   Live Sync
@@ -130,13 +130,13 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
         </div>
 
         {/* Search & Filter Controls */}
-        <div className="p-6 pb-3 space-y-4 bg-[#181818]">
+        <div className="youtube-hub-controls p-6 pb-3 space-y-4 bg-[#181818]">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleFetchYouTube();
             }}
-            className="flex items-center gap-2"
+            className="youtube-hub-search flex items-center gap-2"
           >
             <div className="relative flex-1">
               <Search
@@ -218,7 +218,7 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
         </div>
 
         {/* Results List */}
-        <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-2.5">
+        <div className="youtube-hub-results flex-1 overflow-y-auto p-6 pt-2 space-y-2.5">
           {isLoading && (
             <div className="py-20 flex flex-col items-center justify-center text-center">
               <Loader2 size={36} className="text-[#1db954] animate-spin mb-3" />
@@ -250,9 +250,9 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
               return (
                 <div
                   key={song.id || idx}
-                  className="group flex items-center justify-between p-3 rounded-xl bg-[#202020] hover:bg-[#2a2a2a] border border-zinc-800/60 hover:border-zinc-700 transition-all"
+                  className="youtube-hub-song group flex items-center justify-between p-3 rounded-xl bg-[#202020] hover:bg-[#2a2a2a] border border-zinc-800/60 hover:border-zinc-700 transition-all"
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="youtube-hub-song-info flex items-center gap-3.5 min-w-0">
                     {/* Thumbnail */}
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-zinc-900 border border-zinc-800">
                       <img
@@ -274,7 +274,7 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                     </div>
 
                     {/* Metadata */}
-                    <div className="min-w-0">
+                    <div className="youtube-hub-song-copy min-w-0">
                       <div className="flex items-center gap-2">
                         <h4 className="text-sm font-bold text-white truncate group-hover:text-[#1db954] transition-colors">
                           {song.title}
@@ -323,7 +323,7 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-2 shrink-0 ml-4">
+                  <div className="youtube-hub-song-actions flex items-center gap-2 shrink-0 ml-4">
                     <button
                       onClick={() => onPlaySong(song)}
                       className="px-3 py-1.5 bg-[#1db954] hover:bg-[#1ed760] text-black font-bold text-xs rounded-full flex items-center gap-1.5 shadow transition-transform active:scale-95"
@@ -360,8 +360,8 @@ export const YouTubeExploreModal: React.FC<YouTubeExploreModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 px-6 bg-[#121212] border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
-          <div className="flex items-center gap-2">
+        <div className="youtube-hub-footer p-4 px-6 bg-[#121212] border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
+          <div className="youtube-hub-footer-note flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#1db954]" />
             <span>High quality original YouTube audio & cover art streaming</span>
           </div>

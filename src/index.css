@@ -75,6 +75,57 @@ input[type="range"] {
 
 .mobile-nav { display: none; }
 
+/* YouTube search modal: keep song metadata and actions readable on phones. */
+@media (max-width: 767px) {
+  .youtube-hub-backdrop {
+    align-items: stretch;
+    padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom));
+  }
+  .youtube-hub-modal {
+    width: 100%;
+    max-width: none;
+    max-height: 100%;
+    min-height: 0;
+    border-radius: 14px;
+  }
+  .youtube-hub-header {
+    flex: 0 0 auto;
+    padding: 14px 12px;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .youtube-hub-heading { min-width: 0; gap: 9px; }
+  .youtube-hub-heading > div:first-child { width: 36px; height: 36px; flex: 0 0 36px; }
+  .youtube-hub-heading > div:first-child svg { width: 20px; height: 20px; }
+  .youtube-hub-title { flex-wrap: wrap; gap: 4px 6px; font-size: 15px; line-height: 1.25; }
+  .youtube-hub-header p { margin-top: 3px; font-size: 10px; line-height: 1.4; }
+  .youtube-hub-header > button { flex: 0 0 auto; padding: 5px; }
+  .youtube-hub-controls { flex: 0 0 auto; padding: 12px 12px 4px; }
+  .youtube-hub-search { align-items: stretch; flex-direction: column; gap: 8px; }
+  .youtube-hub-search > div { width: 100%; flex: 0 0 auto; }
+  .youtube-hub-search input { padding-top: 11px; padding-bottom: 11px; font-size: 13px; }
+  .youtube-hub-search input::placeholder { color: #71717a; }
+  .youtube-hub-search > button { width: 100%; justify-content: center; padding: 10px 14px; }
+  .youtube-hub-controls > div:nth-child(2) { gap: 6px; }
+  .youtube-hub-controls > div:nth-child(2) > span { flex-basis: 100%; }
+  .youtube-hub-controls > div:nth-child(2) > button { padding: 6px 10px; }
+  .youtube-hub-controls > div:nth-child(3) { margin-right: -12px; padding-right: 12px; }
+  .youtube-hub-results { min-height: 0; padding: 10px 10px 12px; }
+  .youtube-hub-song { align-items: stretch; flex-direction: column; gap: 10px; padding: 10px; }
+  .youtube-hub-song-info { width: 100%; gap: 10px; }
+  .youtube-hub-song-info > div:first-child { width: 48px; height: 48px; flex: 0 0 48px; }
+  .youtube-hub-song-copy { flex: 1; width: 0; }
+  .youtube-hub-song-copy > div:first-child { min-width: 0; }
+  .youtube-hub-song-copy h4 { min-width: 0; font-size: 12px; }
+  .youtube-hub-song-copy > div:nth-child(2) { min-width: 0; font-size: 10px; }
+  .youtube-hub-song-copy > p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .youtube-hub-song-actions { width: 100%; margin-left: 0; gap: 8px; }
+  .youtube-hub-song-actions > button { min-width: 0; flex: 1 1 0; justify-content: center; padding: 8px 6px; font-size: 11px; white-space: nowrap; }
+  .youtube-hub-footer { flex: 0 0 auto; padding: 10px 12px; gap: 10px; }
+  .youtube-hub-footer-note { min-width: 0; font-size: 10px; line-height: 1.35; }
+  .youtube-hub-footer > button { flex: 0 0 auto; padding: 7px 12px; }
+}
+
 @media (max-width: 767px) {
   html, body, #root { width: 100%; min-width: 0; height: 100%; overflow: hidden; }
   .app-shell { height: 100dvh; width: 100%; }
