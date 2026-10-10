@@ -43,6 +43,7 @@ import type { MusicProfile } from './AccountModal';
 
 interface LibraryViewProps {
   currentView: ViewMode;
+  onSelectView: (view: ViewMode) => void;
   songs: Song[];
   playlists: Playlist[];
   selectedPlaylistId: string | null;
@@ -58,7 +59,7 @@ interface LibraryViewProps {
   onOpenAiStudio: () => void;
   onOpenImmersiveMode: () => void;
   onOpenSystemScanner: () => void;
-  onOpenYouTubeExplore: () => void;
+  onBrowseCatalog: () => void;
   onToggleVideoCanvas: () => void;
   isVideoCanvasOpen: boolean;
   // AI Mood Tagger props
@@ -73,6 +74,7 @@ interface LibraryViewProps {
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
   currentView,
+  onSelectView,
   songs,
   playlists,
   selectedPlaylistId,
@@ -86,7 +88,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onSelectPlaylist,
   onCreatePlaylist,
   onOpenImmersiveMode,
-  onOpenYouTubeExplore,
+  onBrowseCatalog,
   onToggleVideoCanvas,
   isVideoCanvasOpen,
   onOpenMoodTagger,
@@ -271,7 +273,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="What do you want to play? (Songs, artists, lyrics, or mood)..."
+              data-catalog-search aria-label="Search available songs" placeholder="Search available songs, artists, albums, or mood..."
               className="w-full pl-10 pr-4 py-2 bg-[#242424] hover:bg-[#2a2a2a] focus:bg-[#242424] border border-transparent focus:border-zinc-600 rounded-full text-xs text-white placeholder-zinc-400 focus:outline-none transition-all"
             />
             {searchQuery && (
@@ -430,11 +432,11 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 },
                 {
                   id: 'youtube-shelf',
-                  title: 'YouTube Live Search Hub',
-                  subtitle: 'Stream Any Bollywood Song',
+                  title: 'Browse song catalog',
+                  subtitle: 'Search songs available on Sawan',
                   cover:
                     'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80',
-                  action: onOpenYouTubeExplore,
+                  action: onBrowseCatalog,
                 },
               ].map((tile) => {
                 const targetSong = tile.songId ? songs.find((s) => s.id === tile.songId) : null;
@@ -758,7 +760,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   }`}
                 >
                   <Tv size={13} />
-                  <span>{isVideoCanvasOpen ? 'Hide Video' : 'YouTube Video'}</span>
+                  <span>{isVideoCanvasOpen ? 'Minimize Video' : 'YouTube Video'}</span>
                 </button>
               )}
             </div>

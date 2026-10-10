@@ -6,6 +6,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Song, Playlist, ViewMode } from './types/music';
 import { INITIAL_SONGS, INITIAL_PLAYLISTS } from './data/initialLibrary';
+import importedCatalog from './data/youtubeCatalog.json';
+import { buildSiteCatalog, restoreLibrary } from './utils/siteCatalog';
 import { audioEngine } from './utils/audioEngine';
 import { convertFilesToSongs } from './utils/systemMediaScanner';
 import { Sidebar } from './components/Sidebar';
@@ -19,7 +21,6 @@ import { AutoOrganizeModal } from './components/AutoOrganizeModal';
 import { AudioImportModal } from './components/AudioImportModal';
 import { CreatePlaylistModal } from './components/CreatePlaylistModal';
 import { SystemMediaScannerModal } from './components/SystemMediaScannerModal';
-import { YouTubeExploreModal } from './components/YouTubeExploreModal';
 import { YouTubeVideoCanvas } from './components/YouTubeVideoCanvas';
 import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
 import { DolbyAudioModal } from './components/DolbyAudioModal';
@@ -30,6 +31,14 @@ import { Download, Sparkles, Home, Library, WandSparkles } from 'lucide-react';
 const STORAGE_KEY_SONGS = 'swarsync_spotify_songs_v4';
 const STORAGE_KEY_PLAYLISTS = 'swarsync_spotify_playlists_v4';
 const STORAGE_KEY_PROFILE = 'sawan_music_profile_v1';
+
+// Imported metadata is refreshed by the owner; visitors search this local snapshot.
+const catalogAge = importedCatalog.updatedAt ? Date.now() - Date.parse(importedCatalog.updatedAt) : Infinity;
+const catalogIsFresh = catalogAge < 30 * 24 * 60 * 60 * 1000;
+const excludedVideoIds = [...importedCatalog.excludedVideoIds,
+  ...(!catalogIsFresh ? (importedCatalog.songs as Song[]).map((song) => song.youtubeId!) : [])];
+const SITE_SONGS = buildSiteCatalog(INITIAL_SONGS,
+  catalogIsFresh ? importedCatalog.songs as Song[] : [], excludedVideoIds);
 
 export default function App() {
   const [profile, setProfile] = useState<MusicProfile | null>(() => {
@@ -47,28 +56,10 @@ export default function App() {
       const saved = localStorage.getItem(STORAGE_KEY_SONGS);
       if (saved) {
         const parsed: Song[] = JSON.parse(saved);
-        // Ensure all INITIAL_SONGS are present
-        const initialMap = new Map(INITIAL_SONGS.map((s) => [s.id, s]));
-        const merged: Song[] = [];
-        const seenIds = new Set<string>();
-
-        // First keep initial catalog
-        for (const s of INITIAL_SONGS) {
-          seenIds.add(s.id);
-          merged.push(s);
-        }
-
-        // Then append any user imported/caught tracks
-        for (const s of parsed) {
-          if (!seenIds.has(s.id)) {
-            seenIds.add(s.id);
-            merged.push(s);
-          }
-        }
-        return merged;
+        if (Array.isArray(parsed)) return restoreLibrary(SITE_SONGS, parsed, excludedVideoIds);
       }
     } catch {}
-    return INITIAL_SONGS;
+    return SITE_SONGS;
   });
 
   const [playlists, setPlaylists] = useState<Playlist[]>(() => {
@@ -111,7 +102,6 @@ export default function App() {
   const [showAudioImportModal, setShowAudioImportModal] = useState<boolean>(false);
   const [showCreatePlaylistModal, setShowCreatePlaylistModal] = useState<boolean>(false);
   const [showSystemScannerModal, setShowSystemScannerModal] = useState<boolean>(false);
-  const [showYouTubeExploreModal, setShowYouTubeExploreModal] = useState<boolean>(false);
   const [isVideoCanvasOpen, setIsVideoCanvasOpen] = useState<boolean>(false);
   const [youtubePlaybackStarted, setYoutubePlaybackStarted] = useState<boolean>(false);
   const [isDraggingFiles, setIsDraggingFiles] = useState<boolean>(false);
@@ -231,7 +221,7 @@ export default function App() {
   // Audio Playback Handlers
   const handlePlaySong = useCallback(
     (song: Song) => {
-      if (!profile) {
+      if (!profile && !song.youtubeId) {
         setPlaybackError('Log in to your Sawan - music profile to play songs.');
         setAccountModalMode('login');
         return;
@@ -281,7 +271,7 @@ export default function App() {
 
   const handleResumeSong = useCallback(() => {
     if (!activeSong) return;
-    if (!profile) {
+    if (!profile && !activeSong.youtubeId) {
       setAccountModalMode('login');
       return;
     }
@@ -517,6 +507,11 @@ export default function App() {
     [isPlaying, handlePlaySong]
   );
 
+  const handleBrowseCatalog = () => {
+    setCurrentView('all-songs');
+    requestAnimationFrame(() => document.querySelector<HTMLInputElement>('[data-catalog-search]')?.focus());
+  };
+
   const systemMediaCount = songs.filter(
     (s) => s.isSystemMedia || s.playlistIds?.includes('system-downloads')
   ).length;
@@ -556,7 +551,7 @@ export default function App() {
         onImportAudio={() => setShowAudioImportModal(true)}
         onAutoOrganize={() => setShowAutoOrganizeModal(true)}
         onOpenSystemScanner={() => setShowSystemScannerModal(true)}
-        onOpenYouTubeExplore={() => setShowYouTubeExploreModal(true)}
+        onBrowseCatalog={handleBrowseCatalog}
         onOpenAiStudio={() => setCurrentView('ai-studio')}
         onOpenMoodTagger={() => handleOpenMoodTagger()}
         onOpenDolbyModal={() => setShowDolbyModal(true)}
@@ -581,6 +576,7 @@ export default function App() {
             {/* Library Table / Grids */}
             <LibraryView
               currentView={currentView}
+              onSelectView={setCurrentView}
               songs={songs}
               playlists={playlists}
               selectedPlaylistId={selectedPlaylistId}
@@ -596,7 +592,7 @@ export default function App() {
               onOpenAiStudio={() => setCurrentView('ai-studio')}
               onOpenImmersiveMode={() => setShowImmersiveModal(true)}
               onOpenSystemScanner={() => setShowSystemScannerModal(true)}
-              onOpenYouTubeExplore={() => setShowYouTubeExploreModal(true)}
+              onBrowseCatalog={handleBrowseCatalog}
               onToggleVideoCanvas={() => setIsVideoCanvasOpen((prev) => !prev)}
               isVideoCanvasOpen={isVideoCanvasOpen}
               onOpenMoodTagger={() => handleOpenMoodTagger()}
@@ -672,7 +668,7 @@ export default function App() {
         <button onClick={() => setCurrentView('all-songs')} aria-current={currentView === 'all-songs' ? 'page' : undefined}><Home size={19} /><span>Home</span></button>
         <button onClick={() => setCurrentView('playlists')} aria-current={currentView === 'playlists' || currentView === 'playlist-detail' ? 'page' : undefined}><Library size={19} /><span>Library</span></button>
         <button onClick={() => setCurrentView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>Studio</span></button>
-        <button onClick={() => setShowYouTubeExploreModal(true)}><Sparkles size={19} /><span>Explore</span></button>
+        <button onClick={handleBrowseCatalog}><Sparkles size={19} /><span>Explore</span></button>
       </nav>
       {accountModalMode && (
         <AccountModal
@@ -693,18 +689,6 @@ export default function App() {
           <button onClick={() => setPlaybackError(null)} aria-label="Dismiss" className="text-zinc-400 hover:text-white">×</button>
         </div>
       )}
-
-      {/* YouTube Explore & Live Fetch Modal */}
-      <YouTubeExploreModal
-        isOpen={showYouTubeExploreModal}
-        onClose={() => setShowYouTubeExploreModal(false)}
-        onPlaySong={(song) => {
-          handleSongCreated(song);
-          handlePlaySong(song);
-        }}
-        onAddSongToLibrary={handleSongCreated}
-        existingSongIds={songs.map((s) => s.id)}
-      />
 
       {/* Fullscreen Vinyl Immersive Modal */}
       {showImmersiveModal && activeSong && (

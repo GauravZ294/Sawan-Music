@@ -29,9 +29,11 @@ let youtubeApiPromise: Promise<YouTubeApi> | null = null;
 function loadYouTubeApi(): Promise<YouTubeApi> {
   if (window.YT?.Player) return Promise.resolve(window.YT);
   if (!youtubeApiPromise) {
-    youtubeApiPromise = new Promise((resolve, reject) => {
+    youtubeApiPromise = new Promise<YouTubeApi>((resolve, reject) => {
+      const timeout = window.setTimeout(() => reject(new Error('YouTube player timed out.')), 15000);
       const previousCallback = window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady = () => {
+        window.clearTimeout(timeout);
         previousCallback?.();
         if (window.YT?.Player) resolve(window.YT);
         else reject(new Error('YouTube player API did not initialize.'));
@@ -40,9 +42,16 @@ function loadYouTubeApi(): Promise<YouTubeApi> {
       if (!script) {
         script = document.createElement('script');
         script.src = 'https://www.youtube.com/iframe_api';
-        script.onerror = () => reject(new Error('Could not load YouTube player API.'));
+        script.onerror = () => {
+          window.clearTimeout(timeout);
+          reject(new Error('Could not load YouTube player API.'));
+        };
         document.head.appendChild(script);
       }
+    }).catch((error) => {
+      youtubeApiPromise = null;
+      document.querySelector('script[src="https://www.youtube.com/iframe_api"]')?.remove();
+      throw error;
     });
   }
   return youtubeApiPromise;
@@ -80,11 +89,13 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
   const readyRef = useRef(false);
   const tickerRef = useRef<number | null>(null);
   const [playerError, setPlayerError] = useState<string | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
+  const canPlay = isActive && Boolean(song?.youtubeId) && !song?.audioSrc;
   const propsRef = useRef({ isPlaying, currentTime, seekVersion, volume, onTimeUpdate, onPlaybackChange, onEnded });
   propsRef.current = { isPlaying, currentTime, seekVersion, volume, onTimeUpdate, onPlaybackChange, onEnded };
 
   useEffect(() => {
-    if (!song?.youtubeId || !hostRef.current) return;
+    if (!canPlay || !song?.youtubeId || !hostRef.current) return;
     let cancelled = false;
     readyRef.current = false;
     setPlayerError(null);
@@ -92,12 +103,16 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
     loadYouTubeApi().then((YT) => {
       if (cancelled || !hostRef.current) return;
       hostRef.current.replaceChildren();
-      playerRef.current = new YT.Player(hostRef.current, {
+      // YouTube replaces its mount node. Keep React's host intact for track changes.
+      const mount = document.createElement('div');
+      hostRef.current.appendChild(mount);
+      playerRef.current = new YT.Player(mount, {
         width: '100%',
         height: '100%',
         videoId: song.youtubeId,
         playerVars: {
-          autoplay: propsRef.current.isPlaying ? 1 : 0,
+          autoplay: propsRef.current.isPlaying && !document.hidden ? 1 : 0,
+          controls: 1,
           enablejsapi: 1,
           origin: window.location.origin,
           playsinline: 1,
@@ -105,13 +120,21 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
         },
         events: {
           onReady: (event: { target: YouTubePlayer }) => {
+            if (cancelled) return;
             readyRef.current = true;
             event.target.setVolume(Math.round(propsRef.current.volume * 100));
             if (propsRef.current.currentTime > 0) event.target.seekTo(propsRef.current.currentTime, true);
-            if (propsRef.current.isPlaying) event.target.playVideo();
+            if (propsRef.current.isPlaying && !document.hidden) event.target.playVideo();
           },
           onStateChange: (event: { data: number }) => {
+            if (cancelled) return;
             if (event.data === YT.PlayerState.PLAYING) {
+              if (document.hidden) {
+                playerRef.current?.pauseVideo();
+                propsRef.current.onPlaybackChange(false);
+                return;
+              }
+              setPlayerError(null);
               propsRef.current.onPlaybackChange(true);
               if (tickerRef.current !== null) window.clearInterval(tickerRef.current);
               tickerRef.current = window.setInterval(() => {
@@ -139,8 +162,10 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
         },
       });
     }).catch((error) => {
+      if (cancelled) return;
       console.error('YouTube player failed to initialize:', error);
       setPlayerError('Could not load the YouTube player. Check your connection and try again.');
+      propsRef.current.onPlaybackChange(false);
     });
 
     return () => {
@@ -151,12 +176,23 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
       playerRef.current?.destroy();
       playerRef.current = null;
     };
-  }, [song?.youtubeId]);
+  }, [song?.youtubeId, canPlay, retryVersion]);
+
+  useEffect(() => {
+    const pauseWhenHidden = () => {
+      if (document.hidden && canPlay) {
+        if (readyRef.current) playerRef.current?.pauseVideo();
+        propsRef.current.onPlaybackChange(false);
+      }
+    };
+    document.addEventListener('visibilitychange', pauseWhenHidden);
+    return () => document.removeEventListener('visibilitychange', pauseWhenHidden);
+  }, [canPlay]);
 
   useEffect(() => {
     const player = playerRef.current;
     if (!readyRef.current || !player) return;
-    if (isPlaying) player.playVideo();
+    if (isPlaying && !document.hidden) player.playVideo();
     else player.pauseVideo();
   }, [isPlaying, song?.youtubeId]);
 
@@ -171,7 +207,7 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
   if (!isActive || !song?.youtubeId || song.audioSrc) return null;
 
   return (
-    <div className={`fixed bottom-24 right-6 z-40 bg-zinc-900/95 border border-zinc-700/80 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl transition-all duration-300 ${isOpen ? 'w-96 max-w-[calc(100vw-2rem)]' : 'w-[200px]'}`}>
+    <div className={`fixed bottom-24 right-4 z-[80] max-w-[calc(100vw-2rem)] bg-zinc-900/95 border border-zinc-700/80 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl transition-all duration-300 ${isOpen ? 'w-96' : 'w-80'}`}>
       {isOpen && (
         <div className="px-3.5 py-2.5 bg-zinc-950/80 border-b border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
@@ -187,13 +223,14 @@ export const YouTubeVideoCanvas: React.FC<YouTubeVideoCanvasProps> = ({
       )}
       <div className={`w-full bg-black relative ${isOpen ? 'h-[216px]' : 'h-[200px]'}`}>
         <div ref={hostRef} className="w-full h-full" />
-        {playerError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/90 p-4 text-center text-xs text-amber-200">
+      </div>
+      {playerError && (
+          <div role="status" className="flex flex-col items-center justify-center gap-2 bg-black/90 p-4 text-center text-xs text-amber-200">
             <span>{playerError}</span>
             <a href={song.youtubeUrl || `https://www.youtube.com/watch?v=${song.youtubeId}`} target="_blank" rel="noopener noreferrer" className="text-white underline">Open on YouTube</a>
+            <button onClick={() => setRetryVersion((value) => value + 1)} className="text-white underline">Retry player</button>
           </div>
-        )}
-      </div>
+      )}
       {isOpen && (
         <div className="p-3 bg-zinc-950/90 flex items-center justify-between text-xs text-zinc-400 border-t border-zinc-900">
           <div className="truncate mr-2"><span className="text-white font-medium">{song.artist}</span>{song.channelTitle && <span className="text-zinc-500 ml-1.5">via {song.channelTitle}</span>}</div>

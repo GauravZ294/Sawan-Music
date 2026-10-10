@@ -37,7 +37,10 @@ export interface Song {
   youtubeId?: string;
   youtubeUrl?: string;
   isYoutubeSource?: boolean;
+  isCatalogSong?: boolean;
   channelTitle?: string;
+  channelId?: string;
+  youtubeLicense?: 'youtube' | 'creativeCommon';
   moodLabels?: string[]; // e.g. ['Workout', 'Party', 'Relaxing']
   energyLevel?: 'Low' | 'Medium' | 'High' | 'Extreme';
   aiMoodAnalysis?: {

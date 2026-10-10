@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, Sparkles, Disc, Radio, Flame, Zap } from 'lucide-react';
+import { Sparkles, Zap } from 'lucide-react';
 
 interface AppLoaderProps {
   onFinish?: () => void;
@@ -11,16 +11,7 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
   minDurationMs = 1600,
 }) => {
   const [progress, setProgress] = useState(0);
-  const [loadingTextIndex, setLoadingTextIndex] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
-
-  const statusTexts = [
-    'Initializing Dolby Atmos & 3D Spatial Audio Engine...',
-    'Tuning High-Fidelity Equalizer & Sub-Bass Resonator...',
-    'Loading Multi-Genre & Multi-Language Music Catalog...',
-    'Calibrating Background Listening & Audio Effects...',
-    'Ready to Stream • Welcome to Sawan - music',
-  ];
 
   useEffect(() => {
     const startTime = Date.now();
@@ -28,12 +19,6 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
       const elapsed = Date.now() - startTime;
       const rawProgress = Math.min(100, Math.floor((elapsed / minDurationMs) * 100));
       setProgress(rawProgress);
-
-      const textIdx = Math.min(
-        statusTexts.length - 1,
-        Math.floor((rawProgress / 100) * statusTexts.length)
-      );
-      setLoadingTextIndex(textIdx);
 
       if (rawProgress >= 100) {
         clearInterval(interval);
@@ -96,59 +81,28 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
         </div>
 
         {/* Brand Name */}
-        <div className="space-y-1 mb-2">
-          <div className="flex items-center justify-center gap-2">
-            <h1 className="text-3xl font-black tracking-wider text-white font-['Plus_Jakarta_Sans',sans-serif]">
-              Sawan <span className="text-[#1db954]">- music</span>
-            </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-black tracking-widest bg-[#1db954]/20 border border-[#1db954]/40 text-[#1db954] uppercase">
-              Pro
-            </span>
-          </div>
-          <p className="text-xs text-zinc-400 font-medium tracking-wide">
-            Bollywood, All Genres & Languages • Dolby Sound
-          </p>
-        </div>
-
-        {/* Dolby Sound & Spatial Badge */}
-        <div className="flex items-center gap-2 mb-6 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-[11px] font-bold text-zinc-300 shadow-inner">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="tracking-widest uppercase text-white font-mono">DOLBY AUDIO™</span>
-          <span className="text-zinc-500">•</span>
-          <span className="text-emerald-400">3D Spatial Active</span>
-        </div>
+        <h1 className="mb-8 text-3xl font-black tracking-wider text-white font-['Plus_Jakarta_Sans',sans-serif]">
+          Sawan <span className="text-[#1db954]">- music</span>
+        </h1>
 
         {/* Progress Bar */}
-        <div className="w-64 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden mb-3 border border-zinc-700/50">
+        <div
+          role="progressbar"
+          aria-label="Loading Sawan music"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+          className="w-64 h-1.5 bg-zinc-800/80 rounded-full overflow-hidden border border-zinc-700/50"
+        >
           <div
             className="h-full bg-gradient-to-r from-emerald-500 via-[#1db954] to-teal-400 rounded-full transition-all duration-100 ease-out shadow-sm shadow-[#1db954]"
             style={{ width: `${progress}%` }}
           />
         </div>
+        <span className="mt-3 text-xs font-mono font-bold text-emerald-400">
+          {progress}%
+        </span>
 
-        {/* Progress percentage & dynamic status text */}
-        <div className="flex items-center justify-between w-64 text-[11px] text-zinc-400 font-mono mb-2">
-          <span className="text-emerald-400 font-bold">{progress}%</span>
-          <span>HI-RES 32-BIT</span>
-        </div>
-
-        <p className="text-xs text-zinc-300 min-h-[20px] transition-all duration-200">
-          {statusTexts[loadingTextIndex]}
-        </p>
-
-        {/* Multi-language ticker pills */}
-        <div className="mt-8 flex flex-wrap justify-center gap-1.5 opacity-60">
-          {['Hindi', 'Punjabi', 'Tamil', 'Telugu', 'Malayalam', 'Bengali', 'English', 'Korean'].map(
-            (lang) => (
-              <span
-                key={lang}
-                className="px-2 py-0.5 rounded-full text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-400"
-              >
-                {lang}
-              </span>
-            )
-          )}
-        </div>
       </div>
     </div>
   );

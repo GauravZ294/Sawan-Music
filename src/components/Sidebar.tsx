@@ -35,7 +35,7 @@ interface SidebarProps {
   onImportAudio: () => void;
   onAutoOrganize: () => void;
   onOpenSystemScanner: () => void;
-  onOpenYouTubeExplore: () => void;
+  onBrowseCatalog: () => void;
   onOpenAiStudio: () => void;
   onOpenMoodTagger?: () => void;
   onOpenDolbyModal?: () => void;
@@ -56,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onImportAudio,
   onAutoOrganize,
   onOpenSystemScanner,
-  onOpenYouTubeExplore,
+  onBrowseCatalog,
   onOpenAiStudio,
   onOpenMoodTagger,
   onOpenDolbyModal,
@@ -110,13 +110,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           <button
-            onClick={onOpenYouTubeExplore}
+            onClick={onBrowseCatalog}
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
               currentView === 'youtube-explore'
                 ? 'bg-red-950/60 text-red-400'
                 : 'hover:bg-zinc-800/60 text-red-500 hover:text-red-400'
             }`}
-            title="YouTube Explore & Fetch"
+            title="Browse song catalog"
           >
             <Youtube size={20} />
           </button>
@@ -261,18 +261,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           <button
-            onClick={onOpenYouTubeExplore}
+            onClick={onBrowseCatalog}
             className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${
               currentView === 'youtube-explore' ? 'text-white' : 'text-[#b3b3b3] hover:text-white'
             }`}
           >
             <div className="flex items-center gap-4">
               <Youtube size={22} className="text-red-500" />
-              <span>YouTube Explore</span>
+              <span>Song Catalog</span>
             </div>
-            <span className="text-[10px] bg-red-950 text-red-400 font-bold px-1.5 py-0.5 rounded-full border border-red-800/40">
-              Fetch
-            </span>
+            <span className="text-[10px] bg-red-950 text-red-400 font-bold px-1.5 py-0.5 rounded-full border border-red-800/40">Browse</span>
           </button>
 
           {/* AI Mood Tagger Quick Access */}
@@ -388,13 +386,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
                 <button
                   onClick={() => {
-                    onOpenYouTubeExplore();
+                    onBrowseCatalog();
                     setShowPlusMenu(false);
                   }}
                   className="w-full text-left px-3.5 py-2 hover:bg-[#383838] flex items-center gap-2.5"
                 >
                   <Youtube size={15} className="text-red-500" />
-                  <span>Fetch songs from YouTube</span>
+                  <span>Browse available songs</span>
                 </button>
                 <button
                   onClick={() => {

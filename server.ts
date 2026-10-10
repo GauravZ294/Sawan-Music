@@ -4,9 +4,9 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
-import { BOLLYWOOD_FALLBACK_CATALOG } from './src/data/youtubeFallbackCatalog';
+import retiredYouTubeSearch from './api/youtube/search.js';
 
-dotenv.config();
+dotenv.config({ path: ['.env.local', '.env'] });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -517,132 +517,8 @@ Return a clean JSON array of analysis objects:
   }
 });
 
-// Fallback curated Bollywood catalog for instant YouTube search responses
-
-
-// Endpoint 4: Search & Fetch Bollywood Music from YouTube & Online Sources
-app.get('/api/youtube/search', async (req, res) => {
-  const query = ((req.query.q as string) || 'Bollywood Trending Songs 2024').trim();
-  const categoryFilter = ((req.query.category as string) || 'all').toLowerCase();
-  const market = ((req.query.market as string) || 'all').toLowerCase();
-  const pageToken = (req.query.pageToken as string) || '';
-
-  const getFilteredFallback = () => {
-    let list = [...BOLLYWOOD_FALLBACK_CATALOG];
-    if (categoryFilter !== 'all') {
-      list = list.filter((s) => s.category === categoryFilter);
-    }
-    if (query) {
-      const q = query.toLowerCase();
-      const matched = list.filter(
-        (s) =>
-          s.title.toLowerCase().includes(q) ||
-          s.artist.toLowerCase().includes(q) ||
-          s.album.toLowerCase().includes(q) ||
-          (s.titleDevanagari && s.titleDevanagari.includes(q))
-      );
-      if (matched.length > 0) return matched;
-    }
-    return list;
-  };
-
-  // Search YouTube itself when a server-side Data API key is configured.
-  const youtubeApiKey = process.env.YOUTUBE_API_KEY;
-  if (youtubeApiKey) {
-    try {
-      const marketQuery: Record<string, string> = {
-        all: '',
-        bollywood: ' Bollywood official song',
-        hollywood: ' official music video',
-        south: ' Tamil Telugu Malayalam Kannada official movie song',
-      };
-      const categoryQuery: Record<string, string> = {
-        all: '', regular: ' original song', remix: ' official remix', lofi: ' official lofi', mashup: ' official mashup',
-      };
-      const params = new URLSearchParams({
-        key: youtubeApiKey,
-        part: 'snippet',
-        q: `${query}${marketQuery[market] || ''}${categoryQuery[categoryFilter] || ''}`.trim(),
-        type: 'video',
-        videoEmbeddable: 'true',
-        maxResults: '25',
-        order: 'relevance',
-      });
-      if (pageToken) params.set('pageToken', pageToken);
-      if (market === 'bollywood' || market === 'south') params.set('regionCode', 'IN');
-      if (market === 'hollywood') params.set('regionCode', 'US');
-
-      const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
-      const payload: any = await response.json();
-      if (!response.ok) {
-        const reason = payload?.error?.errors?.[0]?.reason;
-        return res.status(response.status === 403 ? 503 : response.status).json({
-          success: false,
-          error: reason === 'quotaExceeded'
-            ? 'YouTube search quota has been reached. Please try again later.'
-            : 'YouTube could not complete this search. Please try another query.',
-        });
-      }
-
-      const dateAdded = new Date().toISOString().slice(0, 10);
-      const songs = (payload.items || []).filter((item: any) => item.id?.videoId).map((item: any) => {
-        const videoId = item.id.videoId;
-        const snippet = item.snippet || {};
-        return {
-          id: `youtube-${videoId}`,
-          title: snippet.title || 'YouTube music video',
-          artist: snippet.channelTitle || 'YouTube channel',
-          album: '',
-          category: ['regular', 'remix', 'lofi', 'mashup'].includes(categoryFilter) ? categoryFilter : 'regular',
-          genre: market === 'all' ? 'Music' : market,
-          mood: 'Music',
-          year: Number((snippet.publishedAt || '').slice(0, 4)) || new Date().getFullYear(),
-          duration: 0,
-          youtubeId: videoId,
-          channelTitle: snippet.channelTitle || '',
-          coverUrl: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-          youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
-          isYoutubeSource: true,
-          isFavorite: false,
-          playlistIds: [],
-          dateAdded,
-          playCount: 0,
-        };
-      });
-      return res.json({ success: true, count: songs.length, query, market, songs, nextPageToken: payload.nextPageToken || null });
-    } catch (err: any) {
-      console.error('YouTube Data API search failed:', err?.message);
-      return res.status(502).json({ success: false, error: 'YouTube search is temporarily unavailable. Please try again.' });
-    }
-  }
-
-  if (market !== 'all' && market !== 'bollywood') {
-    return res.status(503).json({
-      success: false,
-      error: 'Global music search needs a YouTube Data API key. Add YOUTUBE_API_KEY to the deployment environment and redeploy.',
-    });
-  }
-
-  const fallbackSongs = getFilteredFallback().map((song) => ({
-    ...song,
-    bpm: 80,
-    lyrics: song.lyricsExcerpt,
-    coverUrl: `https://img.youtube.com/vi/${song.youtubeId}/hqdefault.jpg`,
-    youtubeUrl: `https://www.youtube.com/watch?v=${song.youtubeId}`,
-    isYoutubeSource: true,
-    isFavorite: false,
-    playlistIds: [],
-    dateAdded: new Date().toISOString().slice(0, 10),
-    playCount: 0,
-  }));
-  return res.json({
-    success: true,
-    count: fallbackSongs.length,
-    query,
-    songs: fallbackSongs,
-    warning: 'Showing the curated Bollywood catalog. Configure YOUTUBE_API_KEY for live global YouTube search.',
-  });
-});
+// Catalog discovery is an owner-run import, never a visitor-triggered API call.
+app.use('/api/youtube/search', retiredYouTubeSearch);
 
 // Configure Vite or Static serving
 async function setupServer() {
