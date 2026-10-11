@@ -5,6 +5,8 @@ export interface TimedLyric {
   english?: string;
 }
 
+export type GarbaStyle = 'garba' | 'dandiya' | 'titoda' | 'dodhiya' | 'mandli';
+
 export interface Song {
   id: string;
   title: string;
@@ -34,6 +36,8 @@ export interface Song {
   fileSize?: number;
   category?: 'regular' | 'remix' | 'lofi' | 'mashup' | 'acoustic';
   language?: string; // e.g. 'Hindi', 'Punjabi', 'Tamil', 'Telugu', 'Malayalam', 'Bengali', 'English', etc.
+  market?: 'bollywood' | 'hollywood' | 'south';
+  garbaStyles?: GarbaStyle[];
   youtubeId?: string;
   youtubeUrl?: string;
   isYoutubeSource?: boolean;
@@ -41,6 +45,8 @@ export interface Song {
   channelTitle?: string;
   channelId?: string;
   youtubeLicense?: 'youtube' | 'creativeCommon';
+  youtubeCategory?: 'Music' | 'Entertainment';
+  publishedAt?: string; // Publication date reported by YouTube.
   moodLabels?: string[]; // e.g. ['Workout', 'Party', 'Relaxing']
   energyLevel?: 'Low' | 'Medium' | 'High' | 'Extreme';
   aiMoodAnalysis?: {
@@ -85,6 +91,8 @@ export interface Playlist {
 
 export type ViewMode =
   | 'all-songs'
+  | 'library'
+  | 'garba'
   | 'regular'
   | 'remix'
   | 'lofi'
@@ -96,5 +104,6 @@ export type ViewMode =
   | 'albums'
   | 'favorites'
   | 'ai-studio'
+  | 'ai-mood'
   | 'youtube-explore'
   | 'lyrics-view';

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import retiredYouTubeSearch from './api/youtube/search.js';
+import freqblogHandler from './api/freqblog/[action].js';
 
 dotenv.config({ path: ['.env.local', '.env'] });
 
@@ -16,6 +17,11 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+app.get('/api/freqblog/:action', (req, res) => {
+  const query = { ...req.query, action: req.params.action };
+  return freqblogHandler({ method: req.method, query }, res);
+});
 
 // Helper to get GoogleGenAI client
 function getGenAI() {

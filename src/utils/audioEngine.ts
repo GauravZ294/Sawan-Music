@@ -408,7 +408,8 @@ class AudioEngine {
     startFromSecond: number = 0
   ) {
     this.stop();
-    this.initContext();
+    // YouTube owns its audio output; Web Audio must not gate iframe playback.
+    if (song.audioSrc) this.initContext();
     this.currentSong = song;
     this.onTimeUpdateCb = onTimeUpdate;
     this.onEndedCb = onEnded;

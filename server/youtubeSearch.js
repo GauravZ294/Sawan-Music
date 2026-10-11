@@ -24,6 +24,7 @@ function toSong(video, category = 'regular') {
     title: snippet.title || 'YouTube video', artist: snippet.channelTitle || 'YouTube channel',
     channelTitle: snippet.channelTitle || '', channelId: snippet.channelId || '',
     album: '', category, genre: 'Music', mood: '', bpm: 0, lyrics: '',
+    publishedAt: snippet.publishedAt || undefined,
     year: Number((snippet.publishedAt || '').slice(0, 4)) || new Date().getFullYear(),
     duration: durationSeconds(video.contentDetails?.duration),
     coverUrl: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`,
@@ -52,7 +53,14 @@ export async function refreshYouTubeSongs(songs, license = 'any', { apiKey = pro
     const byId = new Map((payload.items || []).map((video) => [video.id, video]));
     for (const previous of batch) {
       const video = byId.get(previous.youtubeId);
-      if (available(video, license)) refreshed.push({ ...toSong(video), dateAdded: previous.dateAdded });
+      if (available(video, license)) refreshed.push({
+        ...toSong(video), dateAdded: previous.dateAdded,
+        language: previous.language,
+        market: previous.market,
+        youtubeCategory: previous.youtubeCategory,
+        garbaStyles: previous.garbaStyles,
+        genre: previous.language ? `${previous.language} ${previous.garbaStyles?.length ? 'Garba' : 'Music'}` : 'Music',
+      });
     }
   }
   return refreshed;

@@ -2,7 +2,8 @@
   "license": "any",
   "pagesPerQuery": 1,
   "queries": [
-    "Hindi songs official music video",
+    "new Gujarati songs official music video",
+    "new Hindi songs official music video",
     "Punjabi songs official music video",
     "Tamil songs official music video",
     "Telugu songs official music video",
@@ -10,6 +11,6 @@
     "Kannada songs official music video",
     "Bengali songs official music video",
     "Marathi songs official music video",
-    "English pop official music video"
+    "new English pop official music video"
   ]
 }

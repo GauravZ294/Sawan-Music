@@ -12,25 +12,31 @@ import { audioEngine } from './utils/audioEngine';
 import { convertFilesToSongs } from './utils/systemMediaScanner';
 import { Sidebar } from './components/Sidebar';
 import { LibraryView } from './components/LibraryView';
+import { AppNavbar } from './components/AppNavbar';
+import { YourLibraryPage } from './components/YourLibraryPage';
 import { NowPlayingBar } from './components/NowPlayingBar';
 import { LyricsKaraoke } from './components/LyricsKaraoke';
-import { AiMusicStudio } from './components/AiMusicStudio';
+// Temporarily disabled; keep the original AI implementation for re-enabling.
+// import { AiMusicStudio } from './components/AiMusicStudio';
+import { AiComingSoonPage } from './components/AiComingSoonPage';
 import { ImmersivePlayerModal } from './components/ImmersivePlayerModal';
 import { SongEditorModal } from './components/SongEditorModal';
 import { AutoOrganizeModal } from './components/AutoOrganizeModal';
 import { AudioImportModal } from './components/AudioImportModal';
 import { CreatePlaylistModal } from './components/CreatePlaylistModal';
 import { SystemMediaScannerModal } from './components/SystemMediaScannerModal';
-import { YouTubeVideoCanvas } from './components/YouTubeVideoCanvas';
-import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
+import { YouTubeAudioPlayer } from './components/YouTubeAudioPlayer';
+// import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
 import { DolbyAudioModal } from './components/DolbyAudioModal';
 import { AppLoader } from './components/AppLoader';
 import { AccountModal, type MusicProfile } from './components/AccountModal';
-import { Download, Sparkles, Home, Library, WandSparkles } from 'lucide-react';
+import { Download, Sparkles, Home, Library, WandSparkles, Music2 } from 'lucide-react';
 
 const STORAGE_KEY_SONGS = 'swarsync_spotify_songs_v4';
 const STORAGE_KEY_PLAYLISTS = 'swarsync_spotify_playlists_v4';
 const STORAGE_KEY_PROFILE = 'sawan_music_profile_v1';
+const MusicCatalogExplorer = React.lazy(() => import('./components/MusicCatalogExplorer')
+  .then((module) => ({ default: module.MusicCatalogExplorer })));
 
 // Imported metadata is refreshed by the owner; visitors search this local snapshot.
 const catalogAge = importedCatalog.updatedAt ? Date.now() - Date.parse(importedCatalog.updatedAt) : Infinity;
@@ -78,6 +84,7 @@ export default function App() {
   // Navigation State
   const [currentView, setCurrentView] = useState<ViewMode>('all-songs');
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+  const [librarySearch, setLibrarySearch] = useState('');
 
   // Playback State
   const [activeSong, setActiveSong] = useState<Song | null>(() => {
@@ -102,7 +109,7 @@ export default function App() {
   const [showAudioImportModal, setShowAudioImportModal] = useState<boolean>(false);
   const [showCreatePlaylistModal, setShowCreatePlaylistModal] = useState<boolean>(false);
   const [showSystemScannerModal, setShowSystemScannerModal] = useState<boolean>(false);
-  const [isVideoCanvasOpen, setIsVideoCanvasOpen] = useState<boolean>(false);
+  const [youtubePlayRequest, setYoutubePlayRequest] = useState(0);
   const [youtubePlaybackStarted, setYoutubePlaybackStarted] = useState<boolean>(false);
   const [isDraggingFiles, setIsDraggingFiles] = useState<boolean>(false);
   const dragCounter = useRef(0);
@@ -115,8 +122,8 @@ export default function App() {
   const [showIntroLoader, setShowIntroLoader] = useState<boolean>(true);
 
   // AI Mood Tagger state
-  const [showMoodTaggerModal, setShowMoodTaggerModal] = useState<boolean>(false);
-  const [moodTaggerTargetSong, setMoodTaggerTargetSong] = useState<Song | null>(null);
+  // const [showMoodTaggerModal, setShowMoodTaggerModal] = useState<boolean>(false);
+  // const [moodTaggerTargetSong, setMoodTaggerTargetSong] = useState<Song | null>(null);
 
   // Keyboard shortcut Ctrl+B or Cmd+B to toggle left panel
   useEffect(() => {
@@ -131,8 +138,9 @@ export default function App() {
   }, []);
 
   const handleOpenMoodTagger = (target?: Song) => {
-    setMoodTaggerTargetSong(target || null);
-    setShowMoodTaggerModal(true);
+    // setMoodTaggerTargetSong(target || null);
+    // setShowMoodTaggerModal(true);
+    handleSelectView('ai-mood');
   };
 
   const handleBatchUpdateSongs = (updatedList: Song[]) => {
@@ -219,6 +227,7 @@ export default function App() {
   }, [playlists]);
 
   // Audio Playback Handlers
+  const nextSongRef = useRef<() => void>(() => {});
   const handlePlaySong = useCallback(
     (song: Song) => {
       if (!profile && !song.youtubeId) {
@@ -230,8 +239,8 @@ export default function App() {
       setActiveSong(song);
       setCurrentTime(0);
       setDuration(song.duration || 180);
-      setIsVideoCanvasOpen(Boolean(song.youtubeId && !song.audioSrc));
       setYoutubePlaybackStarted(Boolean(song.youtubeId && !song.audioSrc));
+      setYoutubePlayRequest((request) => request + 1);
 
       if (!song.audioSrc && !song.youtubeId) {
         audioEngine.stop();
@@ -257,7 +266,7 @@ export default function App() {
         },
         () => {
           // Song ended callback
-          handleNextSong();
+          nextSongRef.current();
         }
       );
     },
@@ -275,15 +284,17 @@ export default function App() {
       setAccountModalMode('login');
       return;
     }
+    if (activeSong.youtubeId && !activeSong.audioSrc && currentTime === 0) {
+      setYoutubePlayRequest((request) => request + 1);
+    }
     setIsPlaying(true);
     audioEngine.resume();
-  }, [activeSong, profile]);
+  }, [activeSong, profile, currentTime]);
 
   const handleSignOut = useCallback(() => {
     audioEngine.stop();
     setIsPlaying(false);
     setYoutubePlaybackStarted(false);
-    setIsVideoCanvasOpen(false);
     setProfile(null);
     setPlaybackError(null);
     try { localStorage.removeItem(STORAGE_KEY_PROFILE); } catch {}
@@ -328,6 +339,9 @@ export default function App() {
     handlePlaySong(songs[nextIndex]);
   }, [activeSong, songs, repeatMode, isShuffle, handlePlaySong]);
 
+  // The audio element outlives renders; advance using the latest queue and repeat mode.
+  nextSongRef.current = handleNextSong;
+
   const handlePrevSong = useCallback(() => {
     if (!activeSong || songs.length === 0) return;
 
@@ -346,7 +360,7 @@ export default function App() {
     audioEngine.setMediaSessionCallbacks({
       onPlay: () => {
         if (!audioEngine.getIsPlaying()) {
-          handlePlayPause();
+          handleResumeSong();
         }
       },
       onPause: () => {
@@ -362,7 +376,7 @@ export default function App() {
         handleSeek(seconds);
       },
     });
-  }, [handlePlayPause, handlePauseSong, handleNextSong, handlePrevSong, handleSeek]);
+  }, [handleResumeSong, handlePauseSong, handleNextSong, handlePrevSong, handleSeek]);
 
   const handleVolumeChange = useCallback((vol: number) => {
     setVolume(vol);
@@ -428,12 +442,14 @@ export default function App() {
 
   // Playlist Operations
   const handleCreatePlaylist = useCallback((newPlaylist: Playlist) => {
+    setLibrarySearch('');
     setPlaylists((prev) => [...prev, newPlaylist]);
     setSelectedPlaylistId(newPlaylist.id);
     setCurrentView('playlist-detail');
   }, []);
 
   const handleSelectPlaylist = useCallback((playlistId: string) => {
+    setLibrarySearch('');
     setSelectedPlaylistId(playlistId);
     setCurrentView('playlist-detail');
   }, []);
@@ -508,8 +524,29 @@ export default function App() {
   );
 
   const handleBrowseCatalog = () => {
-    setCurrentView('all-songs');
-    requestAnimationFrame(() => document.querySelector<HTMLInputElement>('[data-catalog-search]')?.focus());
+    setLibrarySearch('');
+    setCurrentView('youtube-explore');
+    setSelectedPlaylistId(null);
+  };
+
+  const handleOpenLibrary = () => {
+    setLibrarySearch('');
+    setSelectedPlaylistId(null);
+    setCurrentView('library');
+  };
+
+  const handleSelectView = (view: ViewMode) => {
+    setCurrentView(view);
+    setLibrarySearch('');
+    if (view !== 'playlist-detail') setSelectedPlaylistId(null);
+  };
+
+  const handleLibrarySearch = (value: string) => {
+    setLibrarySearch(value);
+    if (currentView === 'library' || currentView === 'youtube-explore' || currentView === 'ai-studio' || currentView === 'ai-mood') {
+      setSelectedPlaylistId(null);
+      setCurrentView('all-songs');
+    }
   };
 
   const systemMediaCount = songs.filter(
@@ -538,45 +575,80 @@ export default function App() {
       {/* Spotify Left Sidebar */}
       <Sidebar
         currentView={currentView}
-        onSelectView={(view) => {
-          setCurrentView(view);
-          if (view !== 'playlist-detail') {
-            setSelectedPlaylistId(null);
-          }
-        }}
-        playlists={playlists}
-        selectedPlaylistId={selectedPlaylistId}
-        onSelectPlaylist={handleSelectPlaylist}
-        onCreatePlaylist={() => setShowCreatePlaylistModal(true)}
-        onImportAudio={() => setShowAudioImportModal(true)}
-        onAutoOrganize={() => setShowAutoOrganizeModal(true)}
+        onSelectView={handleSelectView}
         onOpenSystemScanner={() => setShowSystemScannerModal(true)}
         onBrowseCatalog={handleBrowseCatalog}
-        onOpenAiStudio={() => setCurrentView('ai-studio')}
+        onOpenAiStudio={() => handleSelectView('ai-studio')}
         onOpenMoodTagger={() => handleOpenMoodTagger()}
         onOpenDolbyModal={() => setShowDolbyModal(true)}
-        totalSongCount={songs.length}
         systemMediaCount={systemMediaCount}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
       />
 
       {/* Main Spotify Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-[#121212] m-2 ml-0 rounded-xl">
+      <main className="relative m-2 ml-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-[#121212] pb-20">
+        <AppNavbar
+          profile={profile}
+          currentView={currentView}
+          searchQuery={librarySearch}
+          onSearchChange={handleLibrarySearch}
+          onOpenLibrary={handleOpenLibrary}
+          onHome={() => handleSelectView('all-songs')}
+          onOpenAccount={(mode) => setAccountModalMode(mode)}
+          onSignOut={handleSignOut}
+        />
         {/* View Switcher */}
-        {currentView === 'ai-studio' ? (
-          <div className="flex-1 overflow-y-auto px-8 py-6 pb-28">
-            <AiMusicStudio
-              onSongCreated={handleSongCreated}
-              onPlaySong={handlePlaySong}
-            />
+        {currentView === 'library' ? (
+          <YourLibraryPage
+            songs={songs}
+            playlists={playlists}
+            activeSong={activeSong}
+            isPlaying={isPlaying}
+            onPlaySong={handlePlaySong}
+            onPauseSong={handlePauseSong}
+            onToggleFavorite={handleToggleFavorite}
+            onSelectPlaylist={handleSelectPlaylist}
+            onSelectView={handleSelectView}
+            onCreatePlaylist={() => setShowCreatePlaylistModal(true)}
+            onImportAudio={() => setShowAudioImportModal(true)}
+            onAutoOrganize={() => setShowAutoOrganizeModal(true)}
+            onOpenSystemScanner={() => setShowSystemScannerModal(true)}
+            onOpenMoodTagger={() => handleOpenMoodTagger()}
+            onBrowseCatalog={handleBrowseCatalog}
+          />
+        ) : currentView === 'youtube-explore' ? (
+          <div className="flex min-h-0 flex-1">
+            <React.Suspense fallback={<div role="status" className="flex flex-1 items-center justify-center text-sm text-zinc-400">Loading music catalog…</div>}>
+              <MusicCatalogExplorer
+                songs={songs}
+                onPlaySong={handlePlaySong}
+              onBack={() => handleSelectView('all-songs')}
+              />
+            </React.Suspense>
           </div>
+        ) : currentView === 'ai-studio' || currentView === 'ai-mood' ? (
+          <>
+            {/* Original AI studio preserved while the feature is unavailable:
+            <div className="min-h-0 flex-1 overflow-y-auto px-8 py-6">
+              <AiMusicStudio
+                onSongCreated={handleSongCreated}
+                onPlaySong={handlePlaySong}
+              />
+            </div>
+            */}
+            <AiComingSoonPage
+              feature={currentView === 'ai-mood' ? 'mood' : 'lyrics'}
+              onGoHome={() => handleSelectView('all-songs')}
+              onOpenLibrary={handleOpenLibrary}
+            />
+          </>
         ) : (
-          <div className="flex-1 flex overflow-hidden pb-20">
+          <div className="flex min-h-0 flex-1 overflow-hidden">
             {/* Library Table / Grids */}
             <LibraryView
               currentView={currentView}
-              onSelectView={setCurrentView}
+              onSelectView={handleSelectView}
               songs={songs}
               playlists={playlists}
               selectedPlaylistId={selectedPlaylistId}
@@ -589,18 +661,15 @@ export default function App() {
               onDeleteSong={handleDeleteSong}
               onSelectPlaylist={handleSelectPlaylist}
               onCreatePlaylist={() => setShowCreatePlaylistModal(true)}
-              onOpenAiStudio={() => setCurrentView('ai-studio')}
+              onOpenAiStudio={() => handleSelectView('ai-studio')}
               onOpenImmersiveMode={() => setShowImmersiveModal(true)}
               onOpenSystemScanner={() => setShowSystemScannerModal(true)}
               onBrowseCatalog={handleBrowseCatalog}
-              onToggleVideoCanvas={() => setIsVideoCanvasOpen((prev) => !prev)}
-              isVideoCanvasOpen={isVideoCanvasOpen}
               onOpenMoodTagger={() => handleOpenMoodTagger()}
               onTagSongMood={(song) => handleOpenMoodTagger(song)}
               onOpenDolbyModal={() => setShowDolbyModal(true)}
-              profile={profile}
-              onOpenAccount={(mode) => setAccountModalMode(mode)}
-              onSignOut={handleSignOut}
+              searchQuery={librarySearch}
+              onSearchQueryChange={setLibrarySearch}
             />
 
             {/* Split Synced Lyrics Side Drawer (Spotify Karaoke) */}
@@ -617,12 +686,12 @@ export default function App() {
           </div>
         )}
 
-        {/* Floating YouTube Video Canvas (Now Playing View) */}
-        <YouTubeVideoCanvas
+        {/* Audio playback controller has no visible video UI. */}
+        <YouTubeAudioPlayer
           song={activeSong}
           isActive={youtubePlaybackStarted}
           isPlaying={isPlaying}
-          isOpen={isVideoCanvasOpen}
+          playRequest={youtubePlayRequest}
           currentTime={currentTime}
           seekVersion={seekVersion}
           volume={volume}
@@ -636,7 +705,7 @@ export default function App() {
             else audioEngine.pause();
           }}
           onEnded={handleNextSong}
-          onClose={() => setIsVideoCanvasOpen(false)}
+          onError={setPlaybackError}
         />
 
         {/* Bottom Spotify Now Playing Bar */}
@@ -649,7 +718,6 @@ export default function App() {
           isShuffle={isShuffle}
           repeatMode={repeatMode}
           showLyricsDrawer={showLyricsDrawer}
-          isVideoCanvasOpen={isVideoCanvasOpen}
           onPlayPause={handlePlayPause}
           onNext={handleNextSong}
           onPrev={handlePrevSong}
@@ -658,16 +726,16 @@ export default function App() {
           onToggleShuffle={handleToggleShuffle}
           onToggleRepeat={handleToggleRepeat}
           onToggleLyricsDrawer={() => setShowLyricsDrawer((prev) => !prev)}
-          onToggleVideoCanvas={() => setIsVideoCanvasOpen((prev) => !prev)}
           onToggleFavorite={handleToggleFavorite}
           onOpenImmersiveMode={() => setShowImmersiveModal(true)}
           onOpenDolbyModal={() => setShowDolbyModal(true)}
         />
       </main>
       <nav className="mobile-nav" aria-label="Primary navigation">
-        <button onClick={() => setCurrentView('all-songs')} aria-current={currentView === 'all-songs' ? 'page' : undefined}><Home size={19} /><span>Home</span></button>
-        <button onClick={() => setCurrentView('playlists')} aria-current={currentView === 'playlists' || currentView === 'playlist-detail' ? 'page' : undefined}><Library size={19} /><span>Library</span></button>
-        <button onClick={() => setCurrentView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>Studio</span></button>
+        <button onClick={() => handleSelectView('all-songs')} aria-current={currentView === 'all-songs' ? 'page' : undefined}><Home size={19} /><span>Home</span></button>
+        <button onClick={handleOpenLibrary} aria-current={['library', 'playlists', 'playlist-detail', 'favorites', 'system-downloads', 'artists', 'albums'].includes(currentView) ? 'page' : undefined}><Library size={19} /><span>Library</span></button>
+        <button onClick={() => handleSelectView('garba')} aria-current={currentView === 'garba' ? 'page' : undefined}><Music2 size={19} /><span>Garba</span></button>
+        <button onClick={() => handleSelectView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>AI Lyrics</span></button>
         <button onClick={handleBrowseCatalog}><Sparkles size={19} /><span>Explore</span></button>
       </nav>
       {accountModalMode && (
@@ -763,7 +831,7 @@ export default function App() {
         />
       )}
 
-      {/* AI Mood Tagger Modal */}
+      {/* AI Mood Tagger Modal temporarily disabled; original wiring preserved.
       <AiMoodTaggerModal
         isOpen={showMoodTaggerModal}
         onClose={() => setShowMoodTaggerModal(false)}
@@ -772,6 +840,7 @@ export default function App() {
         onUpdateSong={handleSaveSongEdit}
         onBatchUpdateSongs={handleBatchUpdateSongs}
       />
+      */}
 
       {/* Dolby Audio Enhancer & Sound Effects Suite Modal */}
       <DolbyAudioModal

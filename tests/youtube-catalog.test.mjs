@@ -80,13 +80,15 @@ test('quota, invalid inputs, and network errors remain actionable and do not lea
 });
 
 test('refresh removes deleted/private videos and updates retained metadata', async () => {
-  const existing = ['aaaaaaaaaaa', 'bbbbbbbbbbb', 'ccccccccccc'].map((youtubeId) => ({ youtubeId, dateAdded: '2024-01-01' }));
+  const existing = ['aaaaaaaaaaa', 'bbbbbbbbbbb', 'ccccccccccc'].map((youtubeId) => ({ youtubeId, dateAdded: '2024-01-01', language: 'Gujarati' }));
   const refreshed = await refreshYouTubeSongs(existing, 'any', { apiKey: key,
     fetchImpl: async () => response({ items: [video('aaaaaaaaaaa'), video('bbbbbbbbbbb', { privacyStatus: 'private' })] }),
   });
   assert.equal(refreshed.length, 1);
   assert.equal(refreshed[0].dateAdded, '2024-01-01');
   assert.equal(refreshed[0].title, 'A song');
+  assert.equal(refreshed[0].language, 'Gujarati');
+  assert.equal(refreshed[0].publishedAt, '2025-01-01');
 });
 
 test('catalog merges matching videos without duplicating tracks or losing playlist identity', () => {

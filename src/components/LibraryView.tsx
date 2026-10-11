@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Song, Playlist, ViewMode } from '../types/music';
+import { Song, Playlist, ViewMode, GarbaStyle } from '../types/music';
+import { filterGarbaSongs, GARBA_STYLES, matchesGarbaStyleSearch } from '../utils/garbaLibrary';
 import {
   Search,
   Play,
@@ -21,7 +22,6 @@ import {
   Download,
   HardDrive,
   Youtube,
-  Tv,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -39,7 +39,6 @@ import {
   Sunrise,
 } from 'lucide-react';
 import { MOOD_DEFINITIONS } from '../utils/aiMoodTagger';
-import type { MusicProfile } from './AccountModal';
 
 interface LibraryViewProps {
   currentView: ViewMode;
@@ -60,16 +59,13 @@ interface LibraryViewProps {
   onOpenImmersiveMode: () => void;
   onOpenSystemScanner: () => void;
   onBrowseCatalog: () => void;
-  onToggleVideoCanvas: () => void;
-  isVideoCanvasOpen: boolean;
   // AI Mood Tagger props
   onOpenMoodTagger?: () => void;
   onTagSongMood?: (song: Song) => void;
   // Dolby Audio Enhancer & Loader props
   onOpenDolbyModal?: () => void;
-  profile?: MusicProfile | null;
-  onOpenAccount?: (mode: 'signup' | 'login') => void;
-  onSignOut?: () => void;
+  searchQuery: string;
+  onSearchQueryChange: (value: string) => void;
 }
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
@@ -89,21 +85,29 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onCreatePlaylist,
   onOpenImmersiveMode,
   onBrowseCatalog,
-  onToggleVideoCanvas,
-  isVideoCanvasOpen,
   onOpenMoodTagger,
   onTagSongMood,
   onOpenDolbyModal,
-  profile = null,
-  onOpenAccount,
-  onSignOut,
+  searchQuery,
+  onSearchQueryChange: setSearchQuery,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'regular' | 'remix' | 'lofi' | 'mashup'>('all');
   const [moodFilter, setMoodFilter] = useState<string>('all');
   const [genreFilter, setGenreFilter] = useState<string>('all');
+  const [garbaStyle, setGarbaStyle] = useState<GarbaStyle | 'all'>('all');
+  const [garbaLanguage, setGarbaLanguage] = useState('all');
   const [activeMenuSongId, setActiveMenuSongId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentView === 'garba') {
+      setSearchQuery('');
+      setCategoryFilter('all');
+      setMoodFilter('all');
+      setGenreFilter('all');
+      setGarbaStyle('all');
+      setGarbaLanguage('all');
+    }
+  }, [currentView]);
 
   // Dynamic system time ticker updating every 15 seconds
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
@@ -158,7 +162,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     let result = [...songs];
 
     // Filter by view
-    if (currentView === 'favorites') {
+    if (currentView === 'garba') {
+      result = filterGarbaSongs(result, garbaStyle, garbaLanguage);
+    } else if (currentView === 'favorites') {
       result = result.filter((s) => s.isFavorite);
     } else if (currentView === 'system-downloads') {
       result = result.filter((s) => s.isSystemMedia || s.playlistIds?.includes('system-downloads'));
@@ -209,6 +215,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           s.album.toLowerCase().includes(q) ||
           (s.genre && s.genre.toLowerCase().includes(q)) ||
           (s.language && s.language.toLowerCase().includes(q)) ||
+          (s.market && s.market.toLowerCase().includes(q)) ||
+          matchesGarbaStyleSearch(s, q) ||
           (s.mood && s.mood.toLowerCase().includes(q)) ||
           (s.moodLabels && s.moodLabels.some((l) => l.toLowerCase().includes(q))) ||
           (s.lyrics && s.lyrics.toLowerCase().includes(q))
@@ -216,7 +224,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     }
 
     return result;
-  }, [songs, playlists, currentView, selectedPlaylistId, categoryFilter, moodFilter, genreFilter, searchQuery]);
+  }, [songs, playlists, currentView, selectedPlaylistId, categoryFilter, moodFilter, genreFilter, searchQuery, garbaStyle, garbaLanguage]);
 
   // Specific categories for home shelf rows
   const regularHits = useMemo(() => songs.filter((s) => s.category === 'regular'), [songs]);
@@ -248,77 +256,24 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
   return (
     <div className="flex-1 h-full bg-[#121212] flex flex-col min-w-0 overflow-hidden text-zinc-100 select-none">
-      {/* Spotify Top Bar */}
-      <header className="sticky top-0 z-30 h-16 px-6 bg-[#121212]/95 backdrop-blur-md flex items-center justify-between border-b border-zinc-800/40 shrink-0">
-        <div className="flex items-center gap-3 flex-1 max-w-2xl">
-          {/* Back & Forward Circles */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button className="w-8 h-8 rounded-full bg-black/60 hover:bg-black text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
-              <ChevronLeft size={18} />
-            </button>
-            <button className="w-8 h-8 rounded-full bg-black/60 hover:bg-black text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
-              <ChevronRight size={18} />
-            </button>
-          </div>
-
-          {/* Spotify Pill Search Bar */}
-          <div className="relative flex-1">
-            <Search
-              size={18}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
-            />
-            <input
-              id="library-search"
-              name="librarySearch"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              data-catalog-search aria-label="Search available songs" placeholder="Search available songs, artists, albums, or mood..."
-              className="w-full pl-10 pr-4 py-2 bg-[#242424] hover:bg-[#2a2a2a] focus:bg-[#242424] border border-transparent focus:border-zinc-600 rounded-full text-xs text-white placeholder-zinc-400 focus:outline-none transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Right Action Buttons */}
-        <div className="relative flex items-center gap-2.5 shrink-0 ml-4">
-          {profile ? (
-            <div className="relative">
-              <button onClick={() => setIsAccountMenuOpen((open) => !open)} aria-label="Open account menu" aria-expanded={isAccountMenuOpen} className="flex items-center gap-2 rounded-full bg-zinc-800 p-1 pr-2 text-white hover:bg-zinc-700">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#1db954] to-emerald-300 text-xs font-extrabold text-black">{profile.name.trim().slice(0, 1).toUpperCase() || 'S'}</span>
-                <span className="hidden max-w-24 truncate text-xs font-semibold sm:inline">{profile.name}</span>
-              </button>
-              {isAccountMenuOpen && (
-                <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-xl border border-zinc-700 bg-[#282828] p-2 text-sm text-zinc-100 shadow-2xl">
-                  <div className="border-b border-zinc-700 px-3 py-2">
-                    <p className="font-bold text-white">{profile.name}</p>
-                    <p className="truncate text-xs text-zinc-400">{profile.email}</p>
-                  </div>
-                  <button onClick={() => { setIsAccountMenuOpen(false); onSelectView('all-songs'); }} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-zinc-700">Recently played</button>
-                  <button onClick={() => { setIsAccountMenuOpen(false); onSignOut?.(); }} className="mt-1 block w-full border-t border-zinc-700 px-3 pt-3 pb-2 text-left hover:text-[#1ed760]">Log out</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button onClick={() => onOpenAccount?.('signup')} className="rounded-full px-3 py-2 text-xs font-bold text-zinc-300 hover:text-white">Sign up</button>
-              <button onClick={() => onOpenAccount?.('login')} className="rounded-full bg-white px-4 py-2 text-xs font-extrabold text-black transition hover:scale-[1.03]">Log in</button>
-            </div>
-          )}
-        </div>
-      </header>
-
       {/* Main Scrollable View */}
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-7 scroll-smooth">
         {/* Dynamic Header Banner */}
-        {currentPlaylist ? (
+        {currentView === 'garba' ? (
+          <div className="space-y-5 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-950/60 via-orange-950/20 to-zinc-900 p-5 sm:p-7">
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-300">Navratri collection</p>
+              <h1 className="text-3xl font-black text-white">Garba & Dandiya</h1>
+              <p className="mt-2 text-sm text-zinc-300">Gujarati and Hindi songs, traditional raas, and nonstop sets.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2" aria-label="Garba language">
+              {['all', 'Gujarati', 'Hindi'].map(language => <button key={language} onClick={() => setGarbaLanguage(language)} aria-pressed={garbaLanguage === language} className={`rounded-full px-4 py-2 text-xs font-bold transition ${garbaLanguage === language ? 'bg-amber-400 text-black' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'}`}>{language === 'all' ? 'All languages' : language}</button>)}
+            </div>
+            <div className="flex flex-wrap gap-2" aria-label="Garba style">
+              {[{ id: 'all' as const, label: 'All styles' }, ...GARBA_STYLES].map(style => <button key={style.id} onClick={() => setGarbaStyle(style.id)} aria-pressed={garbaStyle === style.id} className={`rounded-full border px-4 py-2 text-xs font-bold transition ${garbaStyle === style.id ? 'border-emerald-400 bg-emerald-400/15 text-emerald-300' : 'border-zinc-700 bg-zinc-900/70 text-zinc-300 hover:border-zinc-500'}`}>{style.label} <span className="ml-1 opacity-60">{filterGarbaSongs(songs, style.id, garbaLanguage).length}</span></button>)}
+            </div>
+          </div>
+        ) : currentPlaylist ? (
           // Playlist Header Banner
           <div className="flex flex-col md:flex-row items-start md:items-end gap-6 p-6 rounded-2xl bg-gradient-to-b from-zinc-800 to-[#181818] border border-zinc-700/40 shadow-xl">
             <div className="w-48 h-48 rounded-xl overflow-hidden shadow-2xl shrink-0 bg-black">
@@ -748,22 +703,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               )}
             </h3>
 
-            {/* Quick Actions */}
-            <div className="flex items-center gap-2">
-              {activeSong?.youtubeId && (
-                <button
-                  onClick={onToggleVideoCanvas}
-                  className={`px-3 py-1 text-xs font-semibold rounded-full flex items-center gap-1.5 transition-colors ${
-                    isVideoCanvasOpen
-                      ? 'bg-red-600 text-white'
-                      : 'bg-[#242424] hover:bg-[#303030] text-zinc-300'
-                  }`}
-                >
-                  <Tv size={13} />
-                  <span>{isVideoCanvasOpen ? 'Minimize Video' : 'YouTube Video'}</span>
-                </button>
-              )}
-            </div>
           </div>
 
           {/* Table Header */}
@@ -789,6 +728,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     setSearchQuery('');
                     setCategoryFilter('all');
                     setMoodFilter('all');
+                    setGenreFilter('all');
+                    setGarbaStyle('all');
+                    setGarbaLanguage('all');
                   }}
                   className="mt-3 px-4 py-1.5 bg-[#1db954] text-black font-bold text-xs rounded-full"
                 >
@@ -897,6 +839,9 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                       )}
 
                       {/* Primary Mood Badge */}
+                      {song.garbaStyles?.length ? song.garbaStyles
+                        .filter(style => style !== 'garba' || song.garbaStyles!.length === 1)
+                        .map(style => <span key={style} className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">{GARBA_STYLES.find(item => item.id === style)?.label || style}</span>) : (
                       <span
                         className={`text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full border ${
                           primaryMood === 'Workout'
@@ -913,6 +858,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                       >
                         {primaryMood}
                       </span>
+                      )}
 
                       {/* Category Pill */}
                       {song.category && song.category !== 'regular' && (

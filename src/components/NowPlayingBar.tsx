@@ -14,8 +14,6 @@ import {
   Heart,
   Mic2,
   ListMusic,
-  Tv,
-  Youtube,
   Radio,
   Zap,
 } from 'lucide-react';
@@ -29,7 +27,6 @@ interface NowPlayingBarProps {
   isShuffle: boolean;
   repeatMode: 'off' | 'all' | 'one';
   showLyricsDrawer: boolean;
-  isVideoCanvasOpen: boolean;
   onPlayPause: () => void;
   onNext: () => void;
   onPrev: () => void;
@@ -38,7 +35,6 @@ interface NowPlayingBarProps {
   onToggleShuffle: () => void;
   onToggleRepeat: () => void;
   onToggleLyricsDrawer: () => void;
-  onToggleVideoCanvas: () => void;
   onToggleFavorite: (songId: string) => void;
   onOpenImmersiveMode: () => void;
   onOpenDolbyModal?: () => void;
@@ -53,7 +49,6 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
   isShuffle,
   repeatMode,
   showLyricsDrawer,
-  isVideoCanvasOpen,
   onPlayPause,
   onNext,
   onPrev,
@@ -62,7 +57,6 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
   onToggleShuffle,
   onToggleRepeat,
   onToggleLyricsDrawer,
-  onToggleVideoCanvas,
   onToggleFavorite,
   onOpenImmersiveMode,
   onOpenDolbyModal,
@@ -143,20 +137,6 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
           <Heart size={16} fill={song.isFavorite ? 'currentColor' : 'none'} />
         </button>
 
-        {/* Video Canvas shortcut if YouTube track */}
-        {song.youtubeId && (
-          <button
-            onClick={onToggleVideoCanvas}
-            className={`p-1.5 rounded transition-colors ${
-              isVideoCanvasOpen
-                ? 'text-[#1db954]'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-            title="Now playing video canvas"
-          >
-            <Tv size={16} />
-          </button>
-        )}
       </div>
 
       {/* CENTER: Player Controls & Spotify Scrubber */}
@@ -287,7 +267,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
         </div>
       </div>
 
-      {/* RIGHT: Spotify Utilities (Lyrics, Video, Volume, Fullscreen) */}
+      {/* RIGHT: Spotify Utilities (Lyrics, Volume, Fullscreen) */}
       <div className="flex items-center justify-end gap-3 w-1/4 min-w-[180px]">
         {/* Synced Lyrics Karaoke Button */}
         <button
@@ -311,21 +291,6 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
           >
             <Zap size={13} className="fill-emerald-400" />
             <span className="hidden lg:inline tracking-wider">DOLBY</span>
-          </button>
-        )}
-
-        {/* YouTube Video Canvas Drawer Button */}
-        {song.youtubeId && (
-          <button
-            onClick={onToggleVideoCanvas}
-            className={`p-1.5 rounded transition-colors ${
-              isVideoCanvasOpen
-                ? 'text-[#1db954]'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-            title="Toggle YouTube Video player"
-          >
-            <Youtube size={18} className={isVideoCanvasOpen ? 'text-[#1db954]' : 'text-red-400'} />
           </button>
         )}
 
