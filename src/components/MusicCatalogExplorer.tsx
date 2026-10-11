@@ -65,6 +65,38 @@ function formatDuration(seconds: number): string {
   return `${Math.floor(rounded / 60)}:${String(rounded % 60).padStart(2, '0')}`;
 }
 
+function hasServerCatalog(): boolean {
+  return typeof window === 'undefined' || !window.location.hostname.endsWith('.github.io');
+}
+
+function localYouTubeResults(songs: Song[], request: CatalogRequest): CatalogResults {
+  const query = normalize(request.value);
+  const matching = songs.filter((song) => {
+    if (!song.youtubeId || song.audioSrc) return false;
+    if (request.mode === 'search') {
+      return normalize(`${song.title} ${song.artist} ${song.album || ''} ${song.language || ''}`).includes(query);
+    }
+    if (request.mode === 'artist') return normalize(song.artist).includes(query);
+    if (request.mode === 'genres') return normalize(`${song.genre || ''} ${song.language || ''}`).includes(query);
+    return true;
+  }).sort((left, right) => (right.year || 0) - (left.year || 0) || left.title.localeCompare(right.title));
+  const tracks: CatalogTrack[] = matching.map((song) => ({
+    id: song.youtubeId!, title: song.title, artist: song.artist,
+    album: song.album || '', genre: song.genre || song.language || '',
+    releaseDate: song.publishedAt || (song.year ? `${song.year}-01-01` : null),
+    duration: song.duration || 0, explicit: null, isrc: null,
+    ...(safeArtwork(song.coverUrl) ? { artworkUrl: safeArtwork(song.coverUrl) } : {}),
+  }));
+  const offset = request.mode === 'charts' ? 0 : request.offset;
+  const pageSize = hasServerCatalog() ? PAGE_SIZE : 50;
+  const page = tracks.slice(offset, offset + pageSize);
+  return {
+    tracks: page, total: tracks.length, count: page.length,
+    hasMore: offset + page.length < tracks.length,
+    nextOffset: offset + page.length,
+  };
+}
+
 async function readJson<T>(path: string, signal: AbortSignal): Promise<T> {
   const response = await fetch(path, { signal, cache: 'no-store' });
   let body: any;
@@ -118,8 +150,15 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
   const resultsController = useRef<AbortController | null>(null);
   const genresController = useRef<AbortController | null>(null);
   const statusController = useRef<AbortController | null>(null);
+  const songsRef = useRef(songs);
+  songsRef.current = songs;
 
   const loadStatus = useCallback(async () => {
+    if (!hasServerCatalog()) {
+      setStatus({ configured: false, connected: false });
+      setStatusError('This static site shows Sawan’s bundled YouTube catalog. Online discovery requires the server-hosted app.');
+      return;
+    }
     statusController.current?.abort();
     const controller = new AbortController();
     statusController.current = controller;
@@ -137,6 +176,13 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
 
   const loadResults = useCallback(async (nextRequest: CatalogRequest) => {
     resultsController.current?.abort();
+    if (!hasServerCatalog()) {
+      setLoading(false);
+      setRequest(nextRequest);
+      setError('Online charts are unavailable on this static site. Showing songs from Sawan’s YouTube catalog.');
+      setResults(localYouTubeResults(songsRef.current, nextRequest));
+      return;
+    }
     const controller = new AbortController();
     resultsController.current = controller;
     setLoading(true);
@@ -148,7 +194,10 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
       if (!Array.isArray(next.tracks)) throw new Error('The music catalog returned an unexpected response. Try again.');
       if (!controller.signal.aborted) setResults(next);
     } catch (failure) {
-      if (!controller.signal.aborted) setError(failure instanceof Error ? failure.message : 'Could not load songs. Try again.');
+      if (!controller.signal.aborted) {
+        setError(`Online discovery is unavailable. Showing songs from Sawan’s YouTube catalog.`);
+        setResults(localYouTubeResults(songsRef.current, nextRequest));
+      }
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
@@ -156,6 +205,17 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
 
   const loadGenres = useCallback(async () => {
     genresController.current?.abort();
+    if (!hasServerCatalog()) {
+      const currentSongs = songsRef.current;
+      const localGenres = [...new Set(currentSongs
+        .filter((song) => song.youtubeId && !song.audioSrc)
+        .flatMap((song) => [song.genre, song.language])
+        .filter((value): value is string => Boolean(value)))].sort((a, b) => a.localeCompare(b));
+      setGenres(localGenres.map((name) => ({ name, count: currentSongs.filter((song) => song.youtubeId && !song.audioSrc && (song.genre === name || song.language === name)).length })));
+      setGenresError(null);
+      setGenresLoading(false);
+      return;
+    }
     const controller = new AbortController();
     genresController.current = controller;
     setGenresLoading(true);
@@ -211,13 +271,15 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
     if (value) void loadResults({ mode, value, offset: 0, ...(mode === 'charts' ? { chartType } : {}) });
   };
 
-  const resultLabel = request?.mode === 'charts'
+  const resultLabel = !hasServerCatalog() && request
+    ? request.mode === 'search' ? `Sawan songs matching “${request.value}”` : request.mode === 'artist' ? `YouTube songs by ${request.value}` : request.mode === 'genres' ? `YouTube songs · ${request.value}` : 'YouTube songs in Sawan'
+    : request?.mode === 'charts'
     ? `${COUNTRIES.find(([code]) => code === request.value)?.[1] || request.value} ${request.chartType === 'new-music' ? 'new music' : 'charts'}`
     : request?.mode === 'artist' ? `Songs by ${request.value}`
       : request?.mode === 'genres' ? request.value
         : request ? `Results for “${request.value}”` : 'Discover your next favorite';
   const canSubmit = mode === 'search' ? !!query.trim() : mode === 'artist' ? !!artist.trim() : mode === 'genres' ? !!genre : true;
-  const isPageable = request?.mode === 'genres' || request?.mode === 'artist';
+  const isPageable = request?.mode === 'genres' || request?.mode === 'artist' || Boolean(error && results && request);
   const inputClass = 'min-w-0 flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20';
 
   return (
@@ -229,16 +291,16 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
         <div className="flex items-start gap-4">
           <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 sm:flex"><Disc3 size={33} /></div>
           <div className="min-w-0">
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-400">FreqBlog music discovery</p>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-400">{hasServerCatalog() ? 'FreqBlog music discovery' : 'Sawan YouTube music library'}</p>
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl">A world of music.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300">Explore song titles and artists. Play linked songs here or find an official recording on YouTube.</p>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300">{hasServerCatalog() ? 'Explore song titles and artists. Play linked songs here or find an official recording on YouTube.' : 'Browse and play the YouTube songs already included in Sawan. Search by title, artist, language, or album.'}</p>
           </div>
         </div>
         <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-400" aria-live="polite">
-          <span className={`inline-flex items-center gap-1.5 ${status?.connected ? 'text-emerald-400' : 'text-zinc-400'}`}><span className={`h-1.5 w-1.5 rounded-full ${status?.connected ? 'bg-emerald-400' : 'bg-zinc-500'}`} />{statusLoading ? 'Checking connection…' : status?.connected ? 'Catalog connected' : status?.configured ? 'Catalog temporarily unavailable' : status ? 'Catalog is not configured' : 'Connection unavailable'}</span>
+          <span className={`inline-flex items-center gap-1.5 ${status?.connected ? 'text-emerald-400' : 'text-zinc-400'}`}><span className={`h-1.5 w-1.5 rounded-full ${status?.connected ? 'bg-emerald-400' : 'bg-zinc-500'}`} />{!hasServerCatalog() ? 'Sawan YouTube catalog' : statusLoading ? 'Checking connection…' : status?.connected ? 'Catalog connected' : status?.configured ? 'Catalog temporarily unavailable' : status ? 'Catalog is not configured' : 'Connection unavailable'}</span>
           {status?.tier && <span className="capitalize">{status.tier} plan</span>}
           {status?.quota && <span>{status.quota.remaining.toLocaleString()} of {status.quota.limit.toLocaleString()} requests remaining</span>}
-          <button onClick={() => void loadStatus()} disabled={statusLoading} className="inline-flex items-center gap-1 text-zinc-400 hover:text-white disabled:opacity-50" aria-label="Refresh catalog connection and quota"><RefreshCw size={12} className={statusLoading ? 'animate-spin' : ''} /> Refresh status</button>
+          {hasServerCatalog() && <button onClick={() => void loadStatus()} disabled={statusLoading} className="inline-flex items-center gap-1 text-zinc-400 hover:text-white disabled:opacity-50" aria-label="Refresh catalog connection and quota"><RefreshCw size={12} className={statusLoading ? 'animate-spin' : ''} /> Refresh status</button>}
           {statusError && <span className="text-amber-300">{statusError}</span>}
         </div>
       </div>
@@ -258,9 +320,10 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
           <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
             {mode === 'search' && <><label className="sr-only" htmlFor="catalog-query">Song title, artist, or album</label><input id="catalog-query" name="catalogQuery" type="search" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={200} placeholder="Try Gujarati garba, Arijit Singh, or your favorite song…" className={inputClass} /></>}
             {mode === 'artist' && <><label className="sr-only" htmlFor="catalog-artist">Artist name</label><input id="catalog-artist" name="catalogArtist" value={artist} onChange={(event) => setArtist(event.target.value)} maxLength={200} placeholder="Enter an artist, such as Geeta Rabari or Taylor Swift" className={inputClass} /></>}
-            {mode === 'charts' && <><label className="sr-only" htmlFor="catalog-country">Chart country</label><div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 pl-4"><Globe2 size={18} className="shrink-0 text-emerald-400" /><select id="catalog-country" name="catalogCountry" value={country} onChange={(event) => setCountry(event.target.value)} className="w-full rounded-xl bg-zinc-900 px-2 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-400/40">{COUNTRIES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}</select></div><label className="sr-only" htmlFor="catalog-chart-type">Chart type</label><select id="catalog-chart-type" name="catalogChartType" value={chartType} onChange={(event) => setChartType(event.target.value as 'most-played' | 'new-music')} className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400"><option value="most-played">Most played</option><option value="new-music">New music</option></select></>}
+            {mode === 'charts' && hasServerCatalog() && <><label className="sr-only" htmlFor="catalog-country">Chart country</label><div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 pl-4"><Globe2 size={18} className="shrink-0 text-emerald-400" /><select id="catalog-country" name="catalogCountry" value={country} onChange={(event) => setCountry(event.target.value)} className="w-full rounded-xl bg-zinc-900 px-2 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-400/40">{COUNTRIES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}</select></div><label className="sr-only" htmlFor="catalog-chart-type">Chart type</label><select id="catalog-chart-type" name="catalogChartType" value={chartType} onChange={(event) => setChartType(event.target.value as 'most-played' | 'new-music')} className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400"><option value="most-played">Most played</option><option value="new-music">New music</option></select></>}
             {mode === 'genres' && <><label className="sr-only" htmlFor="catalog-genre">Music genre</label><select id="catalog-genre" name="catalogGenre" value={genre} onChange={(event) => setGenre(event.target.value)} disabled={genresLoading || genres.length === 0} className={inputClass}><option value="">{genresLoading ? 'Loading genres…' : 'Choose a music genre'}</option>{genres.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.count.toLocaleString()} tracks)</option>)}</select></>}
-            <button type="submit" disabled={!canSubmit || loading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1db954] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#1ed760] disabled:cursor-not-allowed disabled:opacity-45">{loading ? <Loader2 size={17} className="animate-spin" /> : <Search size={17} />}{mode === 'search' ? 'Search songs' : mode === 'artist' ? 'Find artist' : mode === 'genres' ? 'Browse genre' : 'Show charts'}</button>
+            {mode === 'charts' && !hasServerCatalog() && <p className="flex flex-1 items-center text-sm text-zinc-400">Browse the official YouTube songs included in Sawan Music.</p>}
+            <button type="submit" disabled={!canSubmit || loading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1db954] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#1ed760] disabled:cursor-not-allowed disabled:opacity-45">{loading ? <Loader2 size={17} className="animate-spin" /> : <Search size={17} />}{mode === 'search' ? 'Search songs' : mode === 'artist' ? 'Find artist' : mode === 'genres' ? 'Browse genre' : hasServerCatalog() ? 'Show charts' : 'Show YouTube songs'}</button>
           </form>
           {mode === 'genres' && genresError && <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-amber-300" role="alert"><span>{genresError}</span><button onClick={() => void loadGenres()} className="font-bold underline">Retry genres</button></div>}
           {mode === 'genres' && !genresLoading && !genresError && genres.length === 0 && <p className="mt-3 text-sm text-zinc-400">No genres are available right now.</p>}
@@ -273,9 +336,11 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
             {results && <span className="text-xs text-zinc-400">{results.total !== null && Number.isFinite(results.total) ? `${results.total.toLocaleString()} tracks · ` : ''}{results.tracks.length} shown</span>}
           </div>
 
+          {error && results && <p className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-xs text-amber-200" role="status">{error}</p>}
+
           {loading ? (
             <div className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-sm text-zinc-400" role="status"><Loader2 size={26} className="animate-spin text-emerald-400" />Finding music…</div>
-          ) : error ? (
+          ) : error && !results ? (
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6" role="alert"><p className="text-sm text-amber-200">{error}</p>{request && <button onClick={() => void loadResults(request)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-700"><RefreshCw size={14} />Try again</button>}</div>
           ) : results?.tracks.length === 0 ? (
             <div className="rounded-2xl border border-zinc-800 p-10 text-center"><Music2 size={30} className="mx-auto mb-3 text-zinc-600" /><p className="text-sm font-semibold text-zinc-300">No songs found.</p><p className="mt-2 text-xs text-zinc-500">Try another song title, artist, genre, or country.</p></div>
@@ -308,9 +373,9 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
           )}
 
           {results && isPageable && request && (request.offset > 0 || results.hasMore) && <nav className="mt-5 flex items-center justify-between gap-3" aria-label="Catalog result pages"><button disabled={loading || !request.previousOffsets?.length} onClick={() => void loadResults({ ...request, offset: request.previousOffsets?.at(-1) || 0, previousOffsets: request.previousOffsets?.slice(0, -1) })} className="inline-flex items-center gap-1 rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-35"><ChevronLeft size={15} />Previous</button><span className="text-xs text-zinc-500">Page {(request.previousOffsets?.length || 0) + 1}</span><button disabled={loading || !results.hasMore || !Number.isFinite(results.nextOffset) || results.nextOffset <= request.offset} onClick={() => void loadResults({ ...request, offset: results.nextOffset, previousOffsets: [...(request.previousOffsets || []), request.offset] })} className="inline-flex items-center gap-1 rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-35">Next<ChevronRight size={15} /></button></nav>}
-          {results && request?.mode === 'search' && results.tracks.length >= 50 && <p className="mt-4 text-xs text-zinc-500">Showing up to 50 matches. Add an artist or a more specific title to narrow your search.</p>}
+          {results && request?.mode === 'search' && results.tracks.length >= 50 && hasServerCatalog() && !error && <p className="mt-4 text-xs text-zinc-500">Showing up to 50 matches. Add an artist or a more specific title to narrow your search.</p>}
         </div>
-        <p className="pb-5 text-[11px] leading-relaxed text-zinc-500">Song information provided by FreqBlog. YouTube search opens a new tab; recording availability depends on the uploader and your region.</p>
+        <p className="pb-5 text-[11px] leading-relaxed text-zinc-500">{hasServerCatalog() ? 'Song information provided by FreqBlog. YouTube search opens a new tab; recording availability depends on the uploader and your region.' : 'These songs link to original YouTube recordings. Playback and availability depend on the uploader and your region.'}</p>
       </div>
     </section>
   );
