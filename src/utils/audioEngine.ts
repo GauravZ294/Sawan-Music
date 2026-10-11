@@ -128,7 +128,21 @@ class AudioEngine {
 
   private setSystemPlaybackState(state: MediaSessionPlaybackState) {
     if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
+    // An embedded YouTube player cannot be promoted to a background media source.
+    // Keep the OS from showing it as actively playing after the embed is hidden.
+    if (this.currentSong?.youtubeId && !this.currentSong.audioSrc && state !== 'none') state = 'none';
     try { navigator.mediaSession.playbackState = state; } catch {}
+  }
+
+  private clearMediaSession() {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
+    const session = navigator.mediaSession;
+    try { session.metadata = null; } catch {}
+    for (const action of ['play', 'pause', 'previoustrack', 'nexttrack', 'seekto'] as MediaSessionAction[]) {
+      try { session.setActionHandler(action, null); } catch {}
+    }
+    try { session.setPositionState?.(); } catch {}
+    try { session.playbackState = 'none'; } catch {}
   }
 
   private reportPlayback(playing: boolean) {
@@ -452,37 +466,41 @@ class AudioEngine {
   }
 
   private updateMediaSession(song: Song) {
-    if (typeof navigator !== 'undefined' && 'mediaSession' in navigator) {
-      try {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: song.title,
-          artist: song.artist,
-          album: song.album || 'Sawan Music',
-          artwork: [
-            { src: song.coverUrl, sizes: '96x96', type: 'image/jpeg' },
-            { src: song.coverUrl, sizes: '256x256', type: 'image/jpeg' },
-            { src: song.coverUrl, sizes: '512x512', type: 'image/jpeg' },
-          ],
-        });
-
-      } catch (e) {
-        console.warn('MediaSession setup warning:', e);
-      }
-      // Unsupported actions must not prevent the remaining controls registering.
-      const handlers: [MediaSessionAction, MediaSessionActionHandler][] = [
-        ['play', () => this.mediaSessionCallbacks.onPlay?.()],
-        ['pause', () => this.mediaSessionCallbacks.onPause?.()],
-        ['previoustrack', () => this.mediaSessionCallbacks.onPrev?.()],
-        ['nexttrack', () => this.mediaSessionCallbacks.onNext?.()],
-        ['seekto', (details) => {
-          if (details.seekTime !== undefined) this.mediaSessionCallbacks.onSeek?.(details.seekTime);
-        }],
-      ];
-      for (const [action, handler] of handlers) {
-        try { navigator.mediaSession.setActionHandler(action, handler); } catch {}
-      }
-      try { navigator.mediaSession.setPositionState?.(); } catch {}
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
+    // YouTube-backed catalog entries are embedded videos, not background audio.
+    // Notification playback/track actions are reserved for direct audio sources.
+    if (!song.audioSrc) {
+      this.clearMediaSession();
+      return;
     }
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: song.title,
+        artist: song.artist,
+        album: song.album || 'Sawan Music',
+        artwork: [
+          { src: song.coverUrl, sizes: '96x96', type: 'image/jpeg' },
+          { src: song.coverUrl, sizes: '256x256', type: 'image/jpeg' },
+          { src: song.coverUrl, sizes: '512x512', type: 'image/jpeg' },
+        ],
+      });
+    } catch (e) {
+      console.warn('MediaSession setup warning:', e);
+    }
+    // Unsupported actions must not prevent the remaining controls registering.
+    const handlers: [MediaSessionAction, MediaSessionActionHandler][] = [
+      ['play', () => this.mediaSessionCallbacks.onPlay?.()],
+      ['pause', () => this.mediaSessionCallbacks.onPause?.()],
+      ['previoustrack', () => this.mediaSessionCallbacks.onPrev?.()],
+      ['nexttrack', () => this.mediaSessionCallbacks.onNext?.()],
+      ['seekto', (details) => {
+        if (details.seekTime !== undefined) this.mediaSessionCallbacks.onSeek?.(details.seekTime);
+      }],
+    ];
+    for (const [action, handler] of handlers) {
+      try { navigator.mediaSession.setActionHandler(action, handler); } catch {}
+    }
+    try { navigator.mediaSession.setPositionState?.(); } catch {}
   }
 
   private updatePositionState() {

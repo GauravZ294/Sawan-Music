@@ -342,8 +342,16 @@ export default function App() {
     handlePlaySong(songs[nextIndex]);
   }, [activeSong, songs, repeatMode, isShuffle, handlePlaySong]);
 
-  // The audio element outlives renders; advance using the latest queue and repeat mode.
-  nextSongRef.current = handleNextSong;
+  // In the foreground, keep the normal mixed queue. While backgrounded, only
+  // direct audio files can advance; never start an embedded YouTube video hidden.
+  nextSongRef.current = () => {
+    if (typeof document !== 'undefined' && document.hidden) {
+      if (activeSong?.audioSrc) handleMediaSessionNext();
+      else setPlaybackError('Return to Sawan Music to continue YouTube playback. Background listening is available for imported audio files.');
+      return;
+    }
+    handleNextSong();
+  };
 
   const handlePrevSong = useCallback(() => {
     if (!activeSong || songs.length === 0) return;
@@ -356,6 +364,43 @@ export default function App() {
     const currentIndex = songs.findIndex((s) => s.id === activeSong.id);
     const prevIndex = (currentIndex - 1 + songs.length) % songs.length;
     handlePlaySong(songs[prevIndex]);
+  }, [activeSong, songs, currentTime, handleSeek, handlePlaySong]);
+
+  const handleMediaSessionNext = useCallback(() => {
+    if (!activeSong || songs.length === 0) return;
+    if (repeatMode === 'one' && activeSong.audioSrc) {
+      handlePlaySong(activeSong);
+      return;
+    }
+    if (isShuffle) {
+      const playable = songs.filter((song) => song.audioSrc && song.id !== activeSong.id);
+      if (playable.length) handlePlaySong(playable[Math.floor(Math.random() * playable.length)]);
+      return;
+    }
+    const currentIndex = songs.findIndex((song) => song.id === activeSong.id);
+    for (let step = 1; step <= songs.length; step++) {
+      const candidate = songs[(currentIndex + step + songs.length) % songs.length];
+      if (candidate.audioSrc) {
+        handlePlaySong(candidate);
+        return;
+      }
+    }
+  }, [activeSong, songs, repeatMode, isShuffle, handlePlaySong]);
+
+  const handleMediaSessionPrev = useCallback(() => {
+    if (!activeSong || songs.length === 0) return;
+    if (currentTime > 3 && activeSong.audioSrc) {
+      handleSeek(0);
+      return;
+    }
+    const currentIndex = songs.findIndex((song) => song.id === activeSong.id);
+    for (let step = 1; step <= songs.length; step++) {
+      const candidate = songs[(currentIndex - step + songs.length * 2) % songs.length];
+      if (candidate.audioSrc) {
+        handlePlaySong(candidate);
+        return;
+      }
+    }
   }, [activeSong, songs, currentTime, handleSeek, handlePlaySong]);
 
   // Synchronize system media session for background listening and hardware media keys
@@ -378,16 +423,16 @@ export default function App() {
         handlePauseSong();
       },
       onNext: () => {
-        handleNextSong();
+        handleMediaSessionNext();
       },
       onPrev: () => {
-        handlePrevSong();
+        handleMediaSessionPrev();
       },
       onSeek: (seconds: number) => {
         handleSeek(seconds);
       },
     });
-  }, [handleResumeSong, handlePauseSong, handleNextSong, handlePrevSong, handleSeek]);
+  }, [handleResumeSong, handlePauseSong, handleMediaSessionNext, handleMediaSessionPrev, handleSeek]);
 
   const handleVolumeChange = useCallback((vol: number) => {
     setVolume(vol);
