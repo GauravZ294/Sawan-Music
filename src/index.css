@@ -28,24 +28,22 @@
 .navratri-splash__eyebrow { display: flex; align-items: center; gap: 11px; color: #ffc46d; font-size: 10px; font-weight: 800; letter-spacing: .24em; }
 .navratri-splash__eyebrow span { width: 22px; height: 1px; background: linear-gradient(90deg, transparent, #ff9a57); }
 .navratri-splash__eyebrow span:last-child { transform: rotate(180deg); }
-.navratri-splash__rangoli { position: relative; width: clamp(188px, 34vh, 270px); height: clamp(188px, 34vh, 270px); margin: 24px 0 15px; display: grid; place-items: center; }
-.navratri-splash__ring { position: absolute; border-radius: 50%; }
-.navratri-splash__ring--outer { inset: 2%; border: 1px solid rgba(255,184,96,.35); box-shadow: 0 0 30px rgba(244,98,83,.12), inset 0 0 30px rgba(244,98,83,.1); animation: navratri-turn 42s linear infinite; }
-.navratri-splash__ring--outer::before, .navratri-splash__ring--outer::after { content: ''; position: absolute; inset: 8px; border: 1px dashed rgba(255,202,118,.45); border-radius: inherit; }
-.navratri-splash__ring--outer::after { inset: 17px; border: 1px solid rgba(255,107,119,.3); }
-.navratri-splash__ring--middle { inset: 19%; border: 1px solid rgba(255,199,104,.48); box-shadow: 0 0 24px rgba(255,128,79,.15); animation: navratri-turn-back 26s linear infinite; }
-.navratri-splash__ring--middle::before { content: ''; position: absolute; inset: 7px; border: 1px dotted rgba(255,228,170,.55); border-radius: inherit; }
-.navratri-splash__ring--inner { inset: 31%; border: 1px solid rgba(255,137,103,.55); box-shadow: inset 0 0 22px rgba(255,151,87,.16), 0 0 26px rgba(255,122,97,.15); }
-.navratri-splash__petals { position: absolute; inset: 50% auto auto 50%; width: 0; height: 0; animation: navratri-turn 36s linear infinite; }
-.navratri-splash__petals i { position: absolute; display: block; left: -11px; top: -22px; width: 22px; height: 44px; border: 1px solid rgba(255,198,108,.68); border-radius: 100% 100% 12% 12%; transform-origin: 50% 72px; background: linear-gradient(180deg, rgba(255,191,83,.14), rgba(229,59,104,.1)); }
+.navratri-splash__rangoli { position: relative; flex: 0 0 auto; width: min(270px, 42vmin, 34vh); min-width: 152px; aspect-ratio: 1; margin: clamp(12px, 2.8vh, 24px) 0 clamp(10px, 2vh, 18px); display: grid; place-items: center; }
+.navratri-splash__mandala { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 12px rgba(255,153,82,.12)); }
+.navratri-splash__mandala-halo { fill: url(#rangoli-halo); }
+.navratri-splash__mandala-petals { transform-origin: center; animation: navratri-turn 48s linear infinite; }
+.navratri-splash__mandala-petals path { fill: url(#rangoli-petal); stroke: rgba(255,198,108,.62); stroke-width: .8; }
+.navratri-splash__mandala-line { fill: none; stroke: rgba(255,190,104,.42); stroke-width: .8; }
+.navratri-splash__mandala-line--mid { stroke: rgba(255,139,119,.48); }
+.navratri-splash__mandala-line--inner { stroke: rgba(255,217,150,.56); }
+.navratri-splash__mandala-dash { fill: none; stroke: rgba(255,211,140,.45); stroke-width: .8; stroke-dasharray: 1.5 3.5; }
+.navratri-splash__mandala-dots { fill: #ffdc8b; filter: drop-shadow(0 0 4px rgba(255,194,94,.9)); animation: navratri-turn-back 32s linear infinite; transform-origin: center; }
 .navratri-splash__center-glow { position: absolute; width: 36%; height: 36%; border-radius: 50%; background: #ff994d; filter: blur(38px); opacity: .34; animation: navratri-pulse 2.8s ease-in-out infinite; }
 .navratri-splash__diya { position: relative; z-index: 1; width: 64px; height: 75px; }
 .navratri-splash__flame { position: absolute; z-index: 2; left: 50%; top: 2px; width: 19px; height: 32px; border-radius: 80% 10% 75% 55%; transform: translateX(-50%) rotate(45deg); background: linear-gradient(135deg, #fff0a6 8%, #ffbf50 49%, #ff654c 82%); box-shadow: 0 0 14px #ffbd58, 0 0 38px rgba(255,132,54,.8); transform-origin: 50% 88%; animation: navratri-flicker 1.25s ease-in-out infinite; }
 .navratri-splash__bowl { position: absolute; left: 50%; bottom: 12px; width: 58px; height: 27px; transform: translateX(-50%); border-radius: 5px 5px 34px 34px; border: 1px solid rgba(255,223,152,.9); background: linear-gradient(180deg, #ffd06f, #b75538 72%, #712a36); box-shadow: 0 6px 19px rgba(255,109,65,.34); }
 .navratri-splash__bowl::after { content: ''; position: absolute; inset: 4px 8px auto; height: 1px; background: rgba(255,248,204,.76); }
 .navratri-splash__diya-light { position: absolute; left: 50%; bottom: 0; width: 104px; height: 30px; transform: translateX(-50%); border-radius: 50%; background: rgba(255,143,72,.19); filter: blur(13px); }
-.navratri-splash__dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffdc8b; box-shadow: 0 0 12px #ffc25e; }
-.navratri-splash__dot--one { top: 16%; left: 48%; }.navratri-splash__dot--two { right: 14%; top: 48%; }.navratri-splash__dot--three { bottom: 15%; left: 47%; }.navratri-splash__dot--four { left: 13%; top: 48%; }
 .navratri-splash__brand-icon { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(255,198,108,.35); border-radius: 50%; color: #ffd17a; background: rgba(255,168,78,.1); box-shadow: 0 0 20px rgba(255,158,69,.12); }
 .navratri-splash__title { margin: 8px 0 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(36px, 7vw, 52px); font-weight: 900; letter-spacing: -.055em; line-height: 1.08; text-shadow: 0 5px 30px rgba(255,123,70,.18); }
 .navratri-splash__title span { color: #ffc66c; }
@@ -60,9 +58,7 @@
 .navratri-splash__footer span { color: #ff8965; font-size: 12px; }
 
 @media (max-height: 680px) {
-  .navratri-splash__rangoli { width: clamp(142px, 29vh, 190px); height: clamp(142px, 29vh, 190px); margin: 12px 0 8px; }
-  .navratri-splash__petals i { transform-origin: 50% 56px; }
-  .navratri-splash__petals i { top: -18px; height: 36px; }
+  .navratri-splash__rangoli { width: min(200px, 42vmin, 30vh); min-width: 138px; margin: 10px 0 8px; }
   .navratri-splash__content { transform: translateY(-8px); }
   .navratri-splash__loading { margin-top: 17px; }
 }
