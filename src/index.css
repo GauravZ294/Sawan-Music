@@ -1,5 +1,85 @@
 @import "tailwindcss";
 
+@keyframes navratri-drift {
+  0% { transform: translate3d(0, -8vh, 0) rotate(0deg); opacity: 0; }
+  12% { opacity: .82; }
+  85% { opacity: .7; }
+  100% { transform: translate3d(28px, 108vh, 0) rotate(340deg); opacity: 0; }
+}
+
+@keyframes navratri-turn { to { transform: rotate(360deg); } }
+@keyframes navratri-turn-back { to { transform: rotate(-360deg); } }
+@keyframes navratri-flicker { 0%, 100% { transform: translateX(-50%) scale(.94, 1); filter: brightness(1); } 50% { transform: translateX(-50%) scale(1.08, 1.12); filter: brightness(1.28); } }
+@keyframes navratri-pulse { 0%, 100% { opacity: .42; transform: scale(.9); } 50% { opacity: .8; transform: scale(1.12); } }
+
+.navratri-splash {
+  position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; overflow: hidden;
+  min-height: 100vh; min-height: 100dvh; padding: max(28px, env(safe-area-inset-top)) 20px max(30px, env(safe-area-inset-bottom));
+  color: #fff8ee; background: radial-gradient(ellipse at 50% 42%, #35101e 0%, #1b0b16 44%, #100a12 78%, #0a090d 100%);
+  opacity: 1; transform: scale(1); transition: opacity .55s ease, transform .7s cubic-bezier(.2,.8,.2,1); isolation: isolate;
+}
+.navratri-splash::before, .navratri-splash::after { content: ''; position: absolute; inset: 13px; border: 1px solid rgba(255,190,99,.15); border-radius: 22px; pointer-events: none; }
+.navratri-splash::after { inset: 20px; border-color: rgba(255,101,128,.1); border-radius: 17px; }
+.navratri-splash--leaving { opacity: 0; transform: scale(1.035); pointer-events: none; }
+.navratri-splash__wash { position: absolute; z-index: -2; inset: -20%; background: radial-gradient(ellipse at 20% 50%, rgba(255,87,71,.13), transparent 36%), radial-gradient(ellipse at 82% 42%, rgba(255,173,66,.12), transparent 34%), radial-gradient(ellipse at 50% 100%, rgba(155,27,76,.15), transparent 48%); animation: navratri-pulse 7s ease-in-out infinite; }
+.navratri-splash__particles { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+.navratri-splash__particles span { position: absolute; top: -20px; display: block; border-radius: 2px 8px 2px 8px; opacity: 0; box-shadow: 0 0 14px currentColor; animation: navratri-drift linear infinite; }
+.navratri-splash__content { display: flex; width: min(100%, 520px); flex-direction: column; align-items: center; text-align: center; }
+.navratri-splash__eyebrow { display: flex; align-items: center; gap: 11px; color: #ffc46d; font-size: 10px; font-weight: 800; letter-spacing: .24em; }
+.navratri-splash__eyebrow span { width: 22px; height: 1px; background: linear-gradient(90deg, transparent, #ff9a57); }
+.navratri-splash__eyebrow span:last-child { transform: rotate(180deg); }
+.navratri-splash__rangoli { position: relative; width: clamp(188px, 34vh, 270px); height: clamp(188px, 34vh, 270px); margin: 24px 0 15px; display: grid; place-items: center; }
+.navratri-splash__ring { position: absolute; border-radius: 50%; }
+.navratri-splash__ring--outer { inset: 2%; border: 1px solid rgba(255,184,96,.35); box-shadow: 0 0 30px rgba(244,98,83,.12), inset 0 0 30px rgba(244,98,83,.1); animation: navratri-turn 42s linear infinite; }
+.navratri-splash__ring--outer::before, .navratri-splash__ring--outer::after { content: ''; position: absolute; inset: 8px; border: 1px dashed rgba(255,202,118,.45); border-radius: inherit; }
+.navratri-splash__ring--outer::after { inset: 17px; border: 1px solid rgba(255,107,119,.3); }
+.navratri-splash__ring--middle { inset: 19%; border: 1px solid rgba(255,199,104,.48); box-shadow: 0 0 24px rgba(255,128,79,.15); animation: navratri-turn-back 26s linear infinite; }
+.navratri-splash__ring--middle::before { content: ''; position: absolute; inset: 7px; border: 1px dotted rgba(255,228,170,.55); border-radius: inherit; }
+.navratri-splash__ring--inner { inset: 31%; border: 1px solid rgba(255,137,103,.55); box-shadow: inset 0 0 22px rgba(255,151,87,.16), 0 0 26px rgba(255,122,97,.15); }
+.navratri-splash__petals { position: absolute; inset: 50% auto auto 50%; width: 0; height: 0; animation: navratri-turn 36s linear infinite; }
+.navratri-splash__petals i { position: absolute; display: block; left: -11px; top: -22px; width: 22px; height: 44px; border: 1px solid rgba(255,198,108,.68); border-radius: 100% 100% 12% 12%; transform-origin: 50% 72px; background: linear-gradient(180deg, rgba(255,191,83,.14), rgba(229,59,104,.1)); }
+.navratri-splash__center-glow { position: absolute; width: 36%; height: 36%; border-radius: 50%; background: #ff994d; filter: blur(38px); opacity: .34; animation: navratri-pulse 2.8s ease-in-out infinite; }
+.navratri-splash__diya { position: relative; z-index: 1; width: 64px; height: 75px; }
+.navratri-splash__flame { position: absolute; z-index: 2; left: 50%; top: 2px; width: 19px; height: 32px; border-radius: 80% 10% 75% 55%; transform: translateX(-50%) rotate(45deg); background: linear-gradient(135deg, #fff0a6 8%, #ffbf50 49%, #ff654c 82%); box-shadow: 0 0 14px #ffbd58, 0 0 38px rgba(255,132,54,.8); transform-origin: 50% 88%; animation: navratri-flicker 1.25s ease-in-out infinite; }
+.navratri-splash__bowl { position: absolute; left: 50%; bottom: 12px; width: 58px; height: 27px; transform: translateX(-50%); border-radius: 5px 5px 34px 34px; border: 1px solid rgba(255,223,152,.9); background: linear-gradient(180deg, #ffd06f, #b75538 72%, #712a36); box-shadow: 0 6px 19px rgba(255,109,65,.34); }
+.navratri-splash__bowl::after { content: ''; position: absolute; inset: 4px 8px auto; height: 1px; background: rgba(255,248,204,.76); }
+.navratri-splash__diya-light { position: absolute; left: 50%; bottom: 0; width: 104px; height: 30px; transform: translateX(-50%); border-radius: 50%; background: rgba(255,143,72,.19); filter: blur(13px); }
+.navratri-splash__dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #ffdc8b; box-shadow: 0 0 12px #ffc25e; }
+.navratri-splash__dot--one { top: 16%; left: 48%; }.navratri-splash__dot--two { right: 14%; top: 48%; }.navratri-splash__dot--three { bottom: 15%; left: 47%; }.navratri-splash__dot--four { left: 13%; top: 48%; }
+.navratri-splash__brand-icon { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(255,198,108,.35); border-radius: 50%; color: #ffd17a; background: rgba(255,168,78,.1); box-shadow: 0 0 20px rgba(255,158,69,.12); }
+.navratri-splash__title { margin: 8px 0 0; font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(36px, 7vw, 52px); font-weight: 900; letter-spacing: -.055em; line-height: 1.08; text-shadow: 0 5px 30px rgba(255,123,70,.18); }
+.navratri-splash__title span { color: #ffc66c; }
+.navratri-splash__mantra { margin: 12px 0 0; color: #ffe0ad; font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif; font-size: clamp(15px, 3.5vw, 19px); font-weight: 700; letter-spacing: .05em; }
+.navratri-splash__caption { margin: 5px 0 0; color: rgba(255,240,222,.62); font-size: 12px; letter-spacing: .09em; }
+.navratri-splash__loading { width: min(250px, 72vw); margin-top: 26px; }
+.navratri-splash__track { width: 100%; height: 3px; overflow: hidden; border-radius: 999px; background: rgba(255,235,210,.14); box-shadow: 0 0 16px rgba(255,143,72,.12); }
+.navratri-splash__track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ff705e, #ffca68, #fff0a2); box-shadow: 0 0 12px rgba(255,187,89,.8); transition: width .12s linear; }
+.navratri-splash__loading-copy { display: flex; justify-content: space-between; margin-top: 9px; color: rgba(255,230,197,.56); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 800; letter-spacing: .17em; }
+.navratri-splash__loading-copy span:last-child { color: #ffc66c; }
+.navratri-splash__footer { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 10px; color: rgba(255,208,133,.65); font-size: 9px; font-weight: 800; letter-spacing: .28em; }
+.navratri-splash__footer span { color: #ff8965; font-size: 12px; }
+
+@media (max-height: 680px) {
+  .navratri-splash__rangoli { width: clamp(142px, 29vh, 190px); height: clamp(142px, 29vh, 190px); margin: 12px 0 8px; }
+  .navratri-splash__petals i { transform-origin: 50% 56px; }
+  .navratri-splash__petals i { top: -18px; height: 36px; }
+  .navratri-splash__content { transform: translateY(-8px); }
+  .navratri-splash__loading { margin-top: 17px; }
+}
+@media (max-width: 480px) {
+  .navratri-splash { padding-left: 18px; padding-right: 18px; }
+  .navratri-splash::before { inset: 9px; border-radius: 17px; }
+  .navratri-splash::after { inset: 15px; border-radius: 13px; }
+  .navratri-splash__eyebrow { gap: 7px; font-size: 8px; letter-spacing: .18em; }
+  .navratri-splash__eyebrow span { width: 14px; }
+  .navratri-splash__rangoli { margin-top: 20px; }
+  .navratri-splash__caption { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navratri-splash *, .navratri-splash *::before, .navratri-splash *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  .navratri-splash { transition-duration: .15s; }
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
