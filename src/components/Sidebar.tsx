@@ -87,7 +87,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div
             onClick={() => onSelectView('all-songs')}
             className="w-10 h-10 rounded-full bg-[#1db954] flex items-center justify-center text-black font-extrabold cursor-pointer hover:scale-105 transition-transform shadow-lg shadow-[#1db954]/20"
-            title="SwarSync Home"
+            title="Sawan Music Home"
           >
             <Music2 size={18} strokeWidth={2.5} />
           </div>
@@ -116,7 +116,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div>
               <span className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
-                SwarSync
+                Sawan Music
                 <span className="text-[10px] bg-[#1db954]/20 text-[#1db954] font-bold px-1.5 py-0.2 rounded-full border border-[#1db954]/30">
                   Spotify
                 </span>

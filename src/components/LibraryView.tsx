@@ -292,7 +292,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               </h1>
               <p className="text-sm text-zinc-300 max-w-2xl">{currentPlaylist.description}</p>
               <div className="flex items-center gap-2 text-xs text-zinc-400 pt-2 font-medium">
-                <span className="text-white font-bold">SwarSync Curators</span>
+                <span className="text-white font-bold">Sawan Music Curators</span>
                 <span>•</span>
                 <span>{filteredSongs.length} tracks</span>
                 <span>•</span>
@@ -881,7 +881,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                           <span>System</span>
                         </span>
                       ) : (
-                        <span className="text-[11px] text-purple-400 font-medium">SwarSync</span>
+                        <span className="text-[11px] text-purple-400 font-medium">Sawan Music</span>
                       )}
                     </div>
 

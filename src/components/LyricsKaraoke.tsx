@@ -37,9 +37,12 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
   // Smooth auto-scroll active lyric into view
   useEffect(() => {
     if (activeLineRef.current && containerRef.current) {
-      activeLineRef.current.scrollIntoView({
+      const container = containerRef.current;
+      const line = activeLineRef.current;
+      const lineTop = line.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+      container.scrollTo({
+        top: lineTop - (container.clientHeight - line.clientHeight) / 2,
         behavior: 'smooth',
-        block: 'center',
       });
     }
   }, [activeIndex]);
@@ -51,60 +54,63 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
   };
 
   const fontSizeClasses = {
-    sm: { dev: 'text-lg', rom: 'text-xs', eng: 'text-xs' },
-    md: { dev: 'text-2xl', rom: 'text-sm', eng: 'text-xs' },
-    lg: { dev: 'text-3xl', rom: 'text-base', eng: 'text-sm' },
+    sm: { dev: 'text-base sm:text-lg', rom: 'text-xs', eng: 'text-xs' },
+    md: { dev: 'text-xl sm:text-2xl', rom: 'text-sm', eng: 'text-xs' },
+    lg: { dev: 'text-2xl sm:text-3xl', rom: 'text-base', eng: 'text-sm' },
   }[fontSize];
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950/70 backdrop-blur-xl border border-zinc-800/80 rounded-2xl overflow-hidden relative shadow-2xl">
+    <div data-lyrics-panel className="flex flex-col h-full min-h-0 min-w-0 bg-zinc-950/70 backdrop-blur-xl border border-zinc-800/80 rounded-2xl overflow-hidden relative shadow-2xl">
       {/* Top Header bar */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800/80 bg-zinc-900/60 z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 rounded-lg bg-rose-500/20 text-rose-400">
+      <div data-lyrics-header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5 sm:py-3.5 border-b border-zinc-800/80 bg-zinc-900/60 z-10">
+        <div className="flex min-w-0 flex-1 basis-52 items-center gap-2.5">
+          <div className="shrink-0 p-1.5 rounded-lg bg-rose-500/20 text-rose-400">
             <Mic2 size={16} />
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-zinc-100 flex flex-wrap items-center gap-x-2 gap-y-1">
               Synced Karaoke Lyrics
               <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
                 LIVE
               </span>
             </h3>
-            <p className="text-xs text-zinc-400 truncate max-w-[200px]">
+            <p className="text-xs text-zinc-400 truncate">
               {song.title} • {song.artist}
             </p>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-1.5">
+        <div data-lyrics-controls className="flex min-w-0 flex-wrap items-center gap-1.5">
           {/* Script view mode toggle */}
-          <div className="bg-zinc-800/90 rounded-lg p-0.5 flex text-xs">
+          <div className="shrink-0 bg-zinc-800/90 rounded-lg p-0.5 flex text-xs">
             <button
               onClick={() => setDisplayMode('devanagari')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`min-h-10 min-w-10 px-2 py-1 rounded transition-colors ${
                 displayMode === 'devanagari' ? 'bg-zinc-700 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
               title="Devanagari Only"
+              aria-pressed={displayMode === 'devanagari'}
             >
               हिन्दी
             </button>
             <button
               onClick={() => setDisplayMode('bilingual')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`min-h-10 min-w-10 px-2 py-1 rounded transition-colors ${
                 displayMode === 'bilingual' ? 'bg-zinc-700 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
               title="Devanagari + Hinglish"
+              aria-pressed={displayMode === 'bilingual'}
             >
               Dual
             </button>
             <button
               onClick={() => setDisplayMode('all')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`min-h-10 min-w-10 px-2 py-1 rounded transition-colors ${
                 displayMode === 'all' ? 'bg-zinc-700 text-white font-medium' : 'text-zinc-400 hover:text-zinc-200'
               }`}
               title="Devanagari + Romanized + Meaning"
+              aria-pressed={displayMode === 'all'}
             >
               Full
             </button>
@@ -116,7 +122,8 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
               setFontSize((prev) => (prev === 'sm' ? 'md' : prev === 'md' ? 'lg' : 'sm'));
             }}
             title="Adjust Font Size"
-            className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            aria-label="Adjust lyrics font size"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition-colors"
           >
             <Type size={14} />
           </button>
@@ -125,7 +132,8 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
           <button
             onClick={handleCopy}
             title="Copy Lyrics"
-            className="p-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            aria-label={copied ? 'Lyrics copied' : 'Copy lyrics'}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition-colors"
           >
             {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
           </button>
@@ -135,7 +143,8 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
       {/* Lyrics Scrollable Area */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-6 py-10 space-y-7 scroll-smooth relative"
+        data-lyrics-scroll
+        className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-6 sm:px-6 sm:py-10 space-y-5 sm:space-y-7 scroll-smooth relative"
       >
         {timed.length > 0 ? (
           timed.map((item, index) => {
@@ -157,7 +166,7 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
               >
                 {/* Devanagari Hindi Text */}
                 <div
-                  className={`font-devanagari font-bold tracking-wide transition-colors leading-relaxed ${fontSizeClasses.dev} ${
+                  className={`break-words font-devanagari font-bold tracking-wide transition-colors leading-relaxed ${fontSizeClasses.dev} ${
                     isActive
                       ? 'text-white text-shadow-sm font-semibold'
                       : 'text-zinc-300 group-hover:text-zinc-100'
@@ -170,7 +179,7 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
                 {/* Romanized Transliteration */}
                 {(displayMode === 'bilingual' || displayMode === 'all') && item.romanized && (
                   <div
-                    className={`mt-1 font-medium transition-colors ${fontSizeClasses.rom} ${
+                    className={`mt-1 break-words font-medium transition-colors ${fontSizeClasses.rom} ${
                       isActive ? 'text-rose-400 font-semibold' : 'text-zinc-400 group-hover:text-zinc-300'
                     }`}
                   >
@@ -181,7 +190,7 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
                 {/* English Meaning Translation */}
                 {displayMode === 'all' && item.english && (
                   <div
-                    className={`mt-1 italic transition-colors ${fontSizeClasses.eng} ${
+                    className={`mt-1 break-words italic transition-colors ${fontSizeClasses.eng} ${
                       isActive ? 'text-zinc-300' : 'text-zinc-500'
                     }`}
                   >
@@ -198,7 +207,7 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
           })
         ) : (
           /* Fallback plain text lyrics */
-          <div className="whitespace-pre-line font-devanagari text-lg leading-loose text-zinc-300">
+          <div className="whitespace-pre-line break-words font-devanagari text-base sm:text-lg leading-loose text-zinc-300">
             {song.lyrics}
           </div>
         )}
@@ -206,9 +215,9 @@ export const LyricsKaraoke: React.FC<LyricsKaraokeProps> = ({
 
       {/* Song theme footer note */}
       {song.themeNotes && !isCompact && (
-        <div className="px-5 py-2.5 bg-zinc-900/50 border-t border-zinc-800/80 text-xs text-zinc-400 flex items-center gap-2">
+        <div className="shrink-0 min-w-0 px-3 sm:px-5 py-2.5 bg-zinc-900/50 border-t border-zinc-800/80 text-xs text-zinc-400 flex items-center gap-2">
           <Sparkles size={13} className="text-amber-400 shrink-0" />
-          <span className="truncate">{song.themeNotes}</span>
+          <span className="min-w-0 truncate">{song.themeNotes}</span>
         </div>
       )}
     </div>

@@ -158,7 +158,7 @@ export const SystemMediaScannerModal: React.FC<SystemMediaScannerModalProps> = (
                 Successfully Caught {lastImportCount} Media Files!
               </p>
               <p className="text-emerald-300/80 mt-0.5">
-                Imported from folder &ldquo;{folderName}&rdquo; into your SwarSync library under &ldquo;System Downloads&rdquo;.
+                Imported from folder &ldquo;{folderName}&rdquo; into your Sawan Music library under &ldquo;System Downloads&rdquo;.
               </p>
             </div>
           </div>

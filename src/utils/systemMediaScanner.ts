@@ -72,7 +72,7 @@ export function parseFileNameToSongInfo(fileName: string): { title: string; arti
 }
 
 /**
- * Converts a batch of File objects into SwarSync Song objects
+ * Converts a batch of File objects into Sawan Music song objects
  */
 export async function convertFilesToSongs(
   files: File[],

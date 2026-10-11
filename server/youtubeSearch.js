@@ -56,6 +56,7 @@ export async function refreshYouTubeSongs(songs, license = 'any', { apiKey = pro
       if (available(video, license)) refreshed.push({
         ...toSong(video), dateAdded: previous.dateAdded,
         language: previous.language,
+        album: previous.album || '',
         market: previous.market,
         youtubeCategory: previous.youtubeCategory,
         garbaStyles: previous.garbaStyles,

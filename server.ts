@@ -543,7 +543,7 @@ async function setupServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🎵 SwarSync server running on port ${PORT} (isProd: ${isProd})`);
+    console.log(`🎵 Sawan Music server running on port ${PORT} (isProd: ${isProd})`);
   });
 }
 

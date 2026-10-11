@@ -147,7 +147,7 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
         id: `vocal-singing-${Date.now()}`,
         title: `Chahun Main Ya Naa (${vocalVoice} Vocal Singing)`,
         titleDevanagari: `चाहूँ मैं या ना (${vocalVoice} गायकी)`,
-        artist: `SwarSync AI Voice (${vocalVoice})`,
+        artist: `Sawan Music AI Voice (${vocalVoice})`,
         artistDevanagari: `स्वरसिंक एआई आवाज़ (${vocalVoice})`,
         album: 'Aashiqui 2 - AI Vocal Renditions',
         coverUrl: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
@@ -218,7 +218,7 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
               AI Music & Singing Generation Engine
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight font-display">
-              SwarSync Creative Studio
+              Sawan Music Creative Studio
             </h1>
             <p className="text-zinc-300 text-sm md:text-base max-w-xl">
               Sing Hindi lyrics using AI vocal synthesis or compose brand new music tracks with Google Lyria models (<span className="text-rose-400 font-mono text-xs">lyria-3-clip-preview</span> and <span className="text-rose-400 font-mono text-xs">lyria-3-pro-preview</span>).

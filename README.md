@@ -2,7 +2,9 @@
 <img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
 </div>
 
-# Run and deploy your AI Studio app
+# Sawan Music
+
+Run and deploy the Sawan Music app locally.
 
 This contains everything you need to run your app locally.
 
@@ -38,13 +40,44 @@ FreqBlog returns song information, not recordings. Results matching a playable s
 
 Visitors search the songs already included in Sawan using the main search bar. YouTube-backed tracks play their original audio through a playback controller with no visible video panel or popup. Use the bottom music bar for play, pause, seeking, volume, and track changes. Saving a song stores a reference and metadata, not audio or video files.
 
-The existing sample library is retained alongside 79 additional official YouTube recordings: 28 Gujarati, 24 Hindi, 15 English, and 12 South Indian songs (3 each in Tamil, Telugu, Malayalam, and Kannada). Search `Bollywood`, `Hollywood`, or `South` in your library to find these groups, or search a language, title, artist, or album. The imported catalog is in `src/data/youtubeCatalog.json`.
+### Mobile background listening
+
+Imported audio files use the native media player on Android and iOS when **Dolby Sound → Background Listening** is enabled (the default). This avoids routing those files through Web Audio, which mobile browsers can suspend. Sound effects are bypassed in this mobile mode; disabling it restores audio processing. Playback and lock-screen controls follow actual audio events, and an explicit pause stays paused when returning to the app. Supported browsers receive playback audio-session and media-position information.
+
+YouTube-backed catalog songs are still embedded videos. Their background playback is controlled by YouTube and the mobile browser; the app cannot guarantee it or turn metadata-only FreqBlog results into audio streams. A background pause is reported without repeatedly forcing playback. Reliable background playback for the catalog requires licensed direct audio URLs, which can use the same native player as imported files. See [YouTube’s background-player restriction](https://developers.google.com/youtube/terms/developer-policies) and [Chrome’s Media Session guide](https://developer.chrome.com/blog/media-session). Real device testing is required for screen locking, calls, and operating-system power restrictions.
+
+The existing sample library is retained alongside an imported catalog of 212 verified official YouTube recordings, including Gujarati, Hindi, English, Punjabi, Tamil, Telugu, Malayalam, Kannada, Sanskrit, multilingual tracks, and film themes. Search `Bollywood`, `Hollywood`, or `South` in your library to find these groups, or search a language, title, artist, or album. The imported catalog is in `src/data/youtubeCatalog.json`.
+
+### Movie soundtracks
+
+The catalog includes 127 newly added movie songs and themes from official label, studio, and publisher-provided artist uploads. Search a movie name on Home, or open **Library → Albums** to browse its soundtrack. Hindi versions are included for the classic films and several South Indian films, with Telugu originals for Pushpa and Tamil/English tracks for Coolie. Soundtrack and film-video runtimes can differ; alternate language recordings and the original sad reprise are labeled separately.
+
+| Movie / album | Recordings |
+| --- | ---: |
+| Dhurandhar | 11 |
+| Dhurandhar The Revenge | 15 |
+| Baahubali: The Beginning | 8 |
+| Baahubali 2: The Conclusion | 5 |
+| Pushpa: The Rise | 10 |
+| Pushpa 2: The Rule | 6 |
+| KGF: Chapter 1 | 6 |
+| KGF: Chapter 2 | 5 |
+| RRR | 7 |
+| Housefull | 5 |
+| War | 2 |
+| War 2 | 8 |
+| Coolie | 8 |
+| Vivah | 10 |
+| Hum Saath-Saath Hain | 7 |
+| Hum Aapke Hain Koun..! | 15 |
+
+These counts include the previously available Aakhri Ishq from Dhurandhar The Revenge. Owner API refreshes preserve movie/album grouping.
 
 ### Garba and dandiya
 
-Open **Garba & Dandiya** in the sidebar, or **Garba** on mobile. The collection has 32 verified recordings and nonstop sets: 22 Gujarati and 10 Hindi. Filter by language or by Garba, Dandiya, Titoda, Dodhiya, and Mandli. These style categories overlap; a Titoda recording can also be listed under Dandiya. Search supports aliases such as `titodo`, `dodhiyu`, and `mandali`, plus Gujarati style names.
+Open **Garba & Dandiya** in the sidebar, or **Garba** on mobile. The collection has 56 channel-verified recordings and album-length sets, spanning Gujarati and Hindi releases from 2016 through 2026. New featured selections include Ramo Re, Gori Tame Manda Lidha Mohi Raj, Maru Mann Mohi Gayu, Nagar Nandji Na Laal, Garbe Ghume Gori, and Charar Charar Maru Chakdol Chale. The selection includes Falguni Pathak, Geeta Rabari, Kinjal Dave, Kirtidan Gadhvi, Aditya Gadhvi, Umesh Barot, Praful Dave, traditional folk singers, and Hindi film tracks. Filter by language or by Garba, Dandiya, Titoda, Dodhiya, Mandli, and Kathiyawadi. These style and regional tags overlap. Search also supports common spellings such as `titodo`, `dodhiyu`, `mandali`, and `kathiawadi`.
 
-The collection includes original artist/label uploads, traditional raas albums, nonstop garba sets, and Bollywood festival songs. Dodhiya tags identify recordings used by credited choreographers for that dance pattern; the source manifest retains the choreography references. Playback uses the original recording and the app's music controls.
+The collection includes original artist and label uploads, traditional raas and Kathiyawadi folk collections, nonstop garba sets, and Bollywood festival songs. Some entries are long-form mixes with multiple songs and timestamps in their YouTube descriptions. Dodhiya tags identify recordings used by credited choreographers for that dance pattern; the source manifest retains the choreography references. Playback uses the original YouTube recording and the app's music controls.
 
 ### Refresh the selected official songs
 

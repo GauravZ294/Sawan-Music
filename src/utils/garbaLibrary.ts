@@ -6,6 +6,7 @@ export const GARBA_STYLES: { id: GarbaStyle; label: string }[] = [
   { id: 'titoda', label: 'Titoda' },
   { id: 'dodhiya', label: 'Dodhiya' },
   { id: 'mandli', label: 'Mandli' },
+  { id: 'kathiyawadi', label: 'Kathiyawadi' },
 ];
 
 export function filterGarbaSongs(songs: Song[], style: GarbaStyle | 'all' = 'all', language = 'all'): Song[] {
@@ -19,6 +20,7 @@ const STYLE_ALIASES: Record<string, GarbaStyle> = {
   titoda: 'titoda', titodo: 'titoda', 'ટિટોડા': 'titoda', 'ટિટોડો': 'titoda',
   dodhiya: 'dodhiya', dodhiyu: 'dodhiya', dodhiyo: 'dodhiya', 'દોઢિયું': 'dodhiya',
   mandli: 'mandli', mandali: 'mandli', 'મંડળી': 'mandli',
+  kathiyawadi: 'kathiyawadi', kathiawadi: 'kathiyawadi',
 };
 
 export function matchesGarbaStyleSearch(song: Song, query: string): boolean {

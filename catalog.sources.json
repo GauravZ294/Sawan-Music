@@ -12,7 +12,9 @@
     "artist": "Geeta Rabari",
     "channelTitle": "GeetaBen Rabari",
     "language": "Gujarati",
-    "garbaStyles": ["garba"]
+    "garbaStyles": [
+      "garba"
+    ]
   },
   {
     "youtubeId": "N032Hcry1ms",
@@ -401,35 +403,1823 @@
     "album": "Partner",
     "youtubeCategory": "Entertainment"
   },
-  { "youtubeId": "zDRz7QBM7LM", "title": "Garba Wave — Navratri Album 2026", "artist": "Kinjal Dave", "channelTitle": "KD Digital", "language": "Gujarati", "album": "Garba Wave", "garbaStyles": ["garba"] },
-  { "youtubeId": "BPbbBR0X2GY", "title": "Navrangi 2.0 — Nonstop Navratri Garba", "artist": "Kinjal Dave", "channelTitle": "KD Digital", "language": "Gujarati", "album": "Navrangi 2.0", "garbaStyles": ["garba"] },
-  { "youtubeId": "Z5uZWdByrrk", "title": "Taal 4.0 — Nonstop Garba", "artist": "Geeta Rabari", "channelTitle": "GeetaBen Rabari", "language": "Gujarati", "album": "Taal 4.0", "garbaStyles": ["garba"] },
-  { "youtubeId": "lpAqnNxH23A", "title": "Ghammar Valona", "artist": "Falguni Pathak & Shail Hada", "channelTitle": "Alphonso Gujarati", "language": "Gujarati", "garbaStyles": ["garba"] },
-  { "youtubeId": "DcS3Xdjgl-U", "title": "Vasaladi", "artist": "Falguni Pathak & Shail Hada", "channelTitle": "Ishtar Music", "language": "Gujarati", "garbaStyles": ["garba"] },
-  { "youtubeId": "i20fJIw29bA", "title": "Radha Ne Shyam — Garba Raas Anthem", "artist": "Falguni Pathak & Shail Hada", "channelTitle": "Falguni Pathak", "language": "Gujarati", "garbaStyles": ["garba"] },
-  { "youtubeId": "Pm0Yt_iuURw", "title": "Tahukar 10 — Nonstop Garba", "artist": "Kirtidan Gadhvi", "channelTitle": "Kirtidan Gadhvi Official", "language": "Gujarati", "album": "Tahukar 10", "garbaStyles": ["garba"] },
-  { "youtubeId": "0jKh0neli18", "title": "Sangat — Nonstop Garba", "artist": "Falguni Pathak, Rajendra Gadvi, Kishore Manraja, Shaila Sethia, Hema Pandit, Anil Desai & Iqbal Qureshi", "channelTitle": "Tips Official", "language": "Gujarati", "album": "Sangat", "garbaStyles": ["garba", "dandiya"] },
-  { "youtubeId": "gTrFoIWRdjc", "title": "He Mari Ambe Ma", "artist": "Osman Mir & Santvani Trivedi", "channelTitle": "Amdavadi Beats", "language": "Gujarati", "garbaStyles": ["garba"] },
-  { "youtubeId": "YRQV7nsbGEY", "title": "Titodo Raas Garba", "artist": "Hemant Chauhan & Kavita Das", "channelTitle": "Studio Sangeeta", "language": "Gujarati", "album": "Titodo Raas Garba", "garbaStyles": ["garba", "dandiya", "titoda"] },
-  { "youtubeId": "tPc7gETFJeI", "title": "Titodo 2 — Nonstop Raas Garba", "artist": "Asif Jeriya, Neeraj Vyas & Pallavi Jambucha", "channelTitle": "Studio Sangeeta", "language": "Gujarati", "album": "Titodo 2", "garbaStyles": ["garba", "dandiya", "titoda"] },
-  { "youtubeId": "KD-yqYE5_0A", "title": "Taal — Titodo Raas Garba", "artist": "Kiran Prajapati", "channelTitle": "Studio Sangeeta", "language": "Gujarati", "album": "Nonstop Garba", "garbaStyles": ["garba", "dandiya", "titoda"] },
-  { "youtubeId": "RxPY2qRFxxw", "title": "Titodo — Dhol Na Taale", "artist": "Kiran Prajapati", "channelTitle": "Studio Sangeeta", "language": "Gujarati", "album": "Navratri Garba", "garbaStyles": ["garba", "dandiya", "titoda"] },
-  { "youtubeId": "x72431MQQs4", "title": "Mandli Garba — Navratri Nonstop Instrumental", "artist": "DJ Nihar", "channelTitle": "Saregama Gujarati", "language": "Gujarati", "album": "Mandli Garba", "garbaStyles": ["garba", "mandli"] },
-  { "youtubeId": "jdfuIqmnxpw", "title": "Raatladi The Mandli Garba (Laal Ishq)", "artist": "DJ Glory", "channelTitle": "DJ Glory - Topic", "language": "Gujarati", "album": "Raatladi The Mandli Garba (Laal Ishq)", "garbaStyles": ["garba", "mandli"] },
-  { "youtubeId": "9sC8lMyjynk", "title": "Padkaaro 2.0 — Rahda Mandli", "artist": "Amit Dhorda", "channelTitle": "Amit Dhorda", "language": "Gujarati", "album": "Padkaaro 2.0", "garbaStyles": ["garba", "mandli"] },
-  { "youtubeId": "AouxK27ndAc", "title": "Non Stop Mandli Garba 2025", "artist": "Sangeet Music", "channelTitle": "Sangeet Music", "language": "Gujarati", "album": "Mandli Garba 2025", "garbaStyles": ["garba", "mandli"] },
-  { "youtubeId": "9duHngS3N6g", "title": "Rangtali Rangtali", "artist": "Priyanka Kher", "channelTitle": "Priyanka Kher", "language": "Gujarati", "album": "Garbo", "garbaStyles": ["garba", "dodhiya"], "styleSources": ["https://www.youtube.com/watch?v=Agn3M-R0Dp8"] },
-  { "youtubeId": "_ggGmwlWymY", "title": "Dhol Nagada", "artist": "Geeta Rabari", "channelTitle": "RDC Gujarati", "language": "Gujarati", "album": "Dhol Nagada", "garbaStyles": ["garba", "dodhiya"], "styleSources": ["https://www.youtube.com/watch?v=ffLpIuf-4aA"] },
-  { "youtubeId": "gynuMvdPgwk", "title": "Geeta Rabari Ni Ramzat — Nonstop Garba", "artist": "Geeta Rabari", "channelTitle": "RDC Gujarati", "language": "Gujarati", "album": "Geeta Rabari Ni Ramzat", "garbaStyles": ["garba", "dodhiya"], "styleSources": ["https://www.youtube.com/watch?v=_yr4zrvUGoE"] },
-  { "youtubeId": "3X7x4Ye-tqo", "title": "Nagada Sang Dhol", "artist": "Shreya Ghoshal, Osman Mir", "channelTitle": "Sony Music India", "language": "Hindi", "market": "bollywood", "album": "Goliyon Ki Raasleela Ram-Leela", "garbaStyles": ["garba"] },
-  { "youtubeId": "yr7JFNsz5dU", "title": "Chogada", "artist": "Darshan Raval, Asees Kaur", "channelTitle": "T-Series", "language": "Hindi", "market": "bollywood", "album": "Loveyatri", "garbaStyles": ["garba", "dandiya"] },
-  { "youtubeId": "vUHWmOkYk_I", "title": "Kamariya", "artist": "Darshan Raval", "channelTitle": "SonyMusicIndiaVEVO", "language": "Hindi", "market": "bollywood", "album": "Mitron", "garbaStyles": ["garba", "dandiya"] },
-  { "youtubeId": "gQfDmimYgaw", "title": "Dholi Taro Dhol Baaje", "artist": "Kavita Krishnamurthy, Vinod Rathod, Karsan Sargathia", "channelTitle": "T-Series", "language": "Hindi", "market": "bollywood", "album": "Hum Dil De Chuke Sanam", "garbaStyles": ["garba", "dandiya"] },
-  { "youtubeId": "OB12AhjYMIM", "title": "Udi Udi Jaye", "artist": "Sukhwinder Singh, Bhoomi Trivedi, Karsan Sagathia", "channelTitle": "Zee Music Company", "language": "Hindi", "market": "bollywood", "album": "Raees", "garbaStyles": ["garba", "dandiya"] },
-  { "youtubeId": "rz1hAo3Hiy4", "title": "Dholida (Loveyatri)", "artist": "Udit Narayan, Neha Kakkar, Palak Muchhal, Raja Hassan", "channelTitle": "T-Series", "language": "Hindi", "market": "bollywood", "album": "Loveyatri", "garbaStyles": ["garba"] },
-  { "youtubeId": "xLPglKArWRE", "title": "Odhani", "artist": "Neha Kakkar, Darshan Raval, Sachin-Jigar", "channelTitle": "SonyMusicIndiaVEVO", "language": "Hindi", "market": "bollywood", "album": "Made In China", "garbaStyles": ["garba"] },
-  { "youtubeId": "HF2pV2Lxyy4", "title": "Sanedo (Made In China)", "artist": "Mika Singh, Nikhita Gandhi, Benny Dayal", "channelTitle": "SonyMusicIndiaVEVO", "language": "Hindi", "market": "bollywood", "album": "Made In China", "garbaStyles": ["garba"] },
-  { "youtubeId": "IbQStOb7eW0", "title": "Halo Re", "artist": "Aman Trikha", "channelTitle": "T-Series", "language": "Hindi", "market": "bollywood", "album": "Prem Ratan Dhan Payo", "garbaStyles": ["garba", "dandiya"] },
-  { "youtubeId": "uv9Dv6fzg9w", "title": "Dholida (Gangubai Kathiawadi)", "artist": "Janhvi Shrimankar, Shail Hada", "channelTitle": "Saregama Music", "language": "Hindi", "market": "bollywood", "album": "Gangubai Kathiawadi", "garbaStyles": ["garba"] },
-  { "youtubeId": "dlz09a-pyPE", "title": "Shubhaarambh", "artist": "Shruti Pathak, Divya Kumar", "channelTitle": "SonyMusicIndiaVEVO", "language": "Gujarati", "market": "bollywood", "album": "Kai Po Che!", "garbaStyles": ["garba"] }
+  {
+    "youtubeId": "zDRz7QBM7LM",
+    "title": "Garba Wave — Navratri Album 2026",
+    "artist": "Kinjal Dave",
+    "channelTitle": "KD Digital",
+    "language": "Gujarati",
+    "album": "Garba Wave",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "BPbbBR0X2GY",
+    "title": "Navrangi 2.0 — Nonstop Navratri Garba",
+    "artist": "Kinjal Dave",
+    "channelTitle": "KD Digital",
+    "language": "Gujarati",
+    "album": "Navrangi 2.0",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "Z5uZWdByrrk",
+    "title": "Taal 4.0 — Nonstop Garba",
+    "artist": "Geeta Rabari",
+    "channelTitle": "GeetaBen Rabari",
+    "language": "Gujarati",
+    "album": "Taal 4.0",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "lpAqnNxH23A",
+    "title": "Ghammar Valona",
+    "artist": "Falguni Pathak & Shail Hada",
+    "channelTitle": "Alphonso Gujarati",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "DcS3Xdjgl-U",
+    "title": "Vasaladi",
+    "artist": "Falguni Pathak & Shail Hada",
+    "channelTitle": "Ishtar Music",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "i20fJIw29bA",
+    "title": "Radha Ne Shyam — Garba Raas Anthem",
+    "artist": "Falguni Pathak & Shail Hada",
+    "channelTitle": "Falguni Pathak",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "Pm0Yt_iuURw",
+    "title": "Tahukar 10 — Nonstop Garba",
+    "artist": "Kirtidan Gadhvi",
+    "channelTitle": "Kirtidan Gadhvi Official",
+    "language": "Gujarati",
+    "album": "Tahukar 10",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "0jKh0neli18",
+    "title": "Sangat — Nonstop Garba",
+    "artist": "Falguni Pathak, Rajendra Gadvi, Kishore Manraja, Shaila Sethia, Hema Pandit, Anil Desai & Iqbal Qureshi",
+    "channelTitle": "Tips Official",
+    "language": "Gujarati",
+    "album": "Sangat",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "gTrFoIWRdjc",
+    "title": "He Mari Ambe Ma",
+    "artist": "Osman Mir & Santvani Trivedi",
+    "channelTitle": "Amdavadi Beats",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "YRQV7nsbGEY",
+    "title": "Titodo Raas Garba",
+    "artist": "Hemant Chauhan & Kavita Das",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Titodo Raas Garba",
+    "garbaStyles": [
+      "garba",
+      "dandiya",
+      "titoda"
+    ]
+  },
+  {
+    "youtubeId": "tPc7gETFJeI",
+    "title": "Titodo 2 — Nonstop Raas Garba",
+    "artist": "Asif Jeriya, Neeraj Vyas & Pallavi Jambucha",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Titodo 2",
+    "garbaStyles": [
+      "garba",
+      "dandiya",
+      "titoda"
+    ]
+  },
+  {
+    "youtubeId": "KD-yqYE5_0A",
+    "title": "Taal — Titodo Raas Garba",
+    "artist": "Kiran Prajapati",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Nonstop Garba",
+    "garbaStyles": [
+      "garba",
+      "dandiya",
+      "titoda"
+    ]
+  },
+  {
+    "youtubeId": "RxPY2qRFxxw",
+    "title": "Titodo — Dhol Na Taale",
+    "artist": "Kiran Prajapati",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Navratri Garba",
+    "garbaStyles": [
+      "garba",
+      "dandiya",
+      "titoda"
+    ]
+  },
+  {
+    "youtubeId": "x72431MQQs4",
+    "title": "Mandli Garba — Navratri Nonstop Instrumental",
+    "artist": "DJ Nihar",
+    "channelTitle": "Saregama Gujarati",
+    "language": "Gujarati",
+    "album": "Mandli Garba",
+    "garbaStyles": [
+      "garba",
+      "mandli"
+    ]
+  },
+  {
+    "youtubeId": "jdfuIqmnxpw",
+    "title": "Raatladi The Mandli Garba (Laal Ishq)",
+    "artist": "DJ Glory",
+    "channelTitle": "DJ Glory - Topic",
+    "language": "Gujarati",
+    "album": "Raatladi The Mandli Garba (Laal Ishq)",
+    "garbaStyles": [
+      "garba",
+      "mandli"
+    ]
+  },
+  {
+    "youtubeId": "9sC8lMyjynk",
+    "title": "Padkaaro 2.0 — Rahda Mandli",
+    "artist": "Amit Dhorda",
+    "channelTitle": "Amit Dhorda",
+    "language": "Gujarati",
+    "album": "Padkaaro 2.0",
+    "garbaStyles": [
+      "garba",
+      "mandli"
+    ]
+  },
+  {
+    "youtubeId": "AouxK27ndAc",
+    "title": "Non Stop Mandli Garba 2025",
+    "artist": "Sangeet Music",
+    "channelTitle": "Sangeet Music",
+    "language": "Gujarati",
+    "album": "Mandli Garba 2025",
+    "garbaStyles": [
+      "garba",
+      "mandli"
+    ]
+  },
+  {
+    "youtubeId": "9duHngS3N6g",
+    "title": "Rangtali Rangtali",
+    "artist": "Priyanka Kher",
+    "channelTitle": "Priyanka Kher",
+    "language": "Gujarati",
+    "album": "Garbo",
+    "garbaStyles": [
+      "garba",
+      "dodhiya"
+    ],
+    "styleSources": [
+      "https://www.youtube.com/watch?v=Agn3M-R0Dp8"
+    ]
+  },
+  {
+    "youtubeId": "_ggGmwlWymY",
+    "title": "Dhol Nagada",
+    "artist": "Geeta Rabari",
+    "channelTitle": "RDC Gujarati",
+    "language": "Gujarati",
+    "album": "Dhol Nagada",
+    "garbaStyles": [
+      "garba",
+      "dodhiya"
+    ],
+    "styleSources": [
+      "https://www.youtube.com/watch?v=ffLpIuf-4aA"
+    ]
+  },
+  {
+    "youtubeId": "gynuMvdPgwk",
+    "title": "Geeta Rabari Ni Ramzat — Nonstop Garba",
+    "artist": "Geeta Rabari",
+    "channelTitle": "RDC Gujarati",
+    "language": "Gujarati",
+    "album": "Geeta Rabari Ni Ramzat",
+    "garbaStyles": [
+      "garba",
+      "dodhiya"
+    ],
+    "styleSources": [
+      "https://www.youtube.com/watch?v=_yr4zrvUGoE"
+    ]
+  },
+  {
+    "youtubeId": "3X7x4Ye-tqo",
+    "title": "Nagada Sang Dhol",
+    "artist": "Shreya Ghoshal, Osman Mir",
+    "channelTitle": "Sony Music India",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Goliyon Ki Raasleela Ram-Leela",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "yr7JFNsz5dU",
+    "title": "Chogada",
+    "artist": "Darshan Raval, Asees Kaur",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Loveyatri",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "vUHWmOkYk_I",
+    "title": "Kamariya",
+    "artist": "Darshan Raval",
+    "channelTitle": "SonyMusicIndiaVEVO",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Mitron",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "gQfDmimYgaw",
+    "title": "Dholi Taro Dhol Baaje",
+    "artist": "Kavita Krishnamurthy, Vinod Rathod, Karsan Sargathia",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Hum Dil De Chuke Sanam",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "OB12AhjYMIM",
+    "title": "Udi Udi Jaye",
+    "artist": "Sukhwinder Singh, Bhoomi Trivedi, Karsan Sagathia",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Raees",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "rz1hAo3Hiy4",
+    "title": "Dholida (Loveyatri)",
+    "artist": "Udit Narayan, Neha Kakkar, Palak Muchhal, Raja Hassan",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Loveyatri",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "xLPglKArWRE",
+    "title": "Odhani",
+    "artist": "Neha Kakkar, Darshan Raval, Sachin-Jigar",
+    "channelTitle": "SonyMusicIndiaVEVO",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Made In China",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "HF2pV2Lxyy4",
+    "title": "Sanedo (Made In China)",
+    "artist": "Mika Singh, Nikhita Gandhi, Benny Dayal",
+    "channelTitle": "SonyMusicIndiaVEVO",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Made In China",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "IbQStOb7eW0",
+    "title": "Halo Re",
+    "artist": "Aman Trikha",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Prem Ratan Dhan Payo",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "uv9Dv6fzg9w",
+    "title": "Dholida (Gangubai Kathiawadi)",
+    "artist": "Janhvi Shrimankar, Shail Hada",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Gangubai Kathiawadi",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "dlz09a-pyPE",
+    "title": "Shubhaarambh",
+    "artist": "Shruti Pathak, Divya Kumar",
+    "channelTitle": "SonyMusicIndiaVEVO",
+    "language": "Gujarati",
+    "market": "bollywood",
+    "album": "Kai Po Che!",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "l_gQLv002NQ",
+    "title": "Dhurandhar - Title Track",
+    "artist": "Hanumankind, Jasmine Sandlas, Sudhir Yaduvanshi, Shashwat Sachdev, Muhammad Sadiq, Ranjit Kaur",
+    "channelTitle": "Saregama Music",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "PHi-5knjlQ0",
+    "title": "Ishq Jalakar - Karvaan",
+    "artist": "Shashwat Sachdev, Shahzad Ali, Subhadeep Das Chowdhury, Armaan Khan",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "GVizJ_jpUnw",
+    "title": "Gehra Hua",
+    "artist": "Arijit Singh, Armaan Khan, Shashwat Sachdev",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "15Mvh3JgSs0",
+    "title": "Teri Ni Kararan",
+    "artist": "Diljit Dosanjh, Shashwat Sachdev",
+    "channelTitle": "Saregama Music",
+    "language": "Punjabi",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "MduJMWwJJfQ",
+    "title": "Run Down The City - Monica",
+    "artist": "Reble, Shashwat Sachdev, Asha Bhosle, R. D. Burman",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi / English",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "YyepU5ztLf4",
+    "title": "Shararat",
+    "artist": "Madhubanti Bagchi, Jasmine Sandlas",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "P7e46FnZ6d4",
+    "title": "Ez-Ez",
+    "artist": "Diljit Dosanjh, Hanumankind, Shashwat Sachdev",
+    "channelTitle": "Saregama Music",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "MiTgQZa2Zxw",
+    "title": "Lutt Le Gaya",
+    "artist": "Simran Choudhary",
+    "channelTitle": "Saregama Music",
+    "language": "Punjabi",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "SYsTrlxrRss",
+    "title": "Move - Yeh Ishq Ishq",
+    "artist": "Reble, Sonu Nigam, Shashwat Sachdev",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi / English",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "Sj-WAbsqWS4",
+    "title": "Naal Nachna",
+    "artist": "Afsana Khan, Reble",
+    "channelTitle": "Saregama Music",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "EKcQxtFcKSk",
+    "title": "Ramba Ho",
+    "artist": "Madhubanti Bagchi",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "album": "Dhurandhar",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "uS5RVxBwqpk",
+    "title": "Aari Aari",
+    "artist": "Bombay Rockers, Shashwat Sachdev, Khan Saab, Jasmine Sandlas, Sudhir Yaduvanshi, Reble, Token",
+    "channelTitle": "T-Series",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "mWbqPIfESAQ",
+    "title": "Main Aur Tu",
+    "artist": "Jasmine Sandlas, Reble, Shashwat Sachdev",
+    "channelTitle": "T-Series",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "TkLkStcQ0o4",
+    "title": "Jaan Se Guzarte Hain",
+    "artist": "Khan Saab, Shashwat Sachdev",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "OmncQ2CAPXs",
+    "title": "Wild Ride",
+    "artist": "Ellisar, Shashwat Sachdev",
+    "channelTitle": "T-Series",
+    "language": "English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "ldLSmUwyL34",
+    "title": "Vaari Jaavan",
+    "artist": "Jyoti Nooran, Reble",
+    "channelTitle": "T-Series",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "Go4GQQRwEc8",
+    "title": "Phir Se",
+    "artist": "Arijit Singh",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "YVdsmoQgGHM",
+    "title": "Didi (Sher-E-Baloch)",
+    "artist": "Nabil El Houri, Shashwat Sachdev, Sons of Yusuf",
+    "channelTitle": "T-Series",
+    "language": "Arabic / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "C0Uvo4lm_aw",
+    "title": "Destiny - Mann Atkeya",
+    "artist": "Vaibhav Gupta, Shahzad Ali, Token, Shashwat Sachdev",
+    "channelTitle": "T-Series",
+    "language": "Punjabi / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "ilw3MfjcRQY",
+    "title": "Rang De Lal (Oye Oye)",
+    "artist": "Jasmine Sandlas, Afsana Khan, Amit Kumar, Reble, Sapna Mukherjee",
+    "channelTitle": "T-Series",
+    "language": "Hindi / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "WK_PlcL8Tzo",
+    "title": "Jaiye Sajana",
+    "artist": "Jasmine Sandlas, Satinder Sartaaj, Shashwat Sachdev",
+    "channelTitle": "T-Series",
+    "language": "Punjabi",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "ONHJRrOPk-s",
+    "title": "Tere Ishq Ne",
+    "artist": "Jyoti Nooran",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "OVHkruv-dg8",
+    "title": "Hum Pyaar Karne Wale",
+    "artist": "Anuradha Paudwal, Udit Narayan, Qveen Herby",
+    "channelTitle": "T-Series",
+    "language": "Hindi / English",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "WLiCITJD1Wg",
+    "title": "Kanhaiyya",
+    "artist": "Jubin Nautiyal",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "Tus7CBqOnvg",
+    "title": "Tamma Tamma",
+    "artist": "Bappi Lahiri, Anuradha Paudwal",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Dhurandhar The Revenge",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "caySD0OJJvk",
+    "title": "Ghungroo",
+    "artist": "Arijit Singh, Shilpa Rao",
+    "channelTitle": "YRF",
+    "language": "Hindi",
+    "album": "War",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "oGneAab3e88",
+    "title": "Jai Jai Shivshankar",
+    "artist": "Vishal Dadlani, Benny Dayal",
+    "channelTitle": "YRF",
+    "language": "Hindi",
+    "album": "War",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "v5VVPzdhaXA",
+    "title": "Janaab-e-Aali",
+    "artist": "Sachet Tandon, Saaj Bhatt",
+    "channelTitle": "YRF",
+    "language": "Hindi",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "0KZgdVeywys",
+    "title": "Aavan Jaavan",
+    "artist": "Arijit Singh, Nikhita Gandhi",
+    "channelTitle": "YRF Music",
+    "language": "Hindi",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "T8l_ORh1zTY",
+    "title": "Jeete Jeete",
+    "artist": "Jubin Nautiyal",
+    "channelTitle": "YRF Music",
+    "language": "Hindi",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "D4_vZFECbaY",
+    "title": "Shaitan",
+    "artist": "Roll Rida, Riya Duggal",
+    "channelTitle": "YRF Music",
+    "language": "Telugu",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "ktZcBTxDsuY",
+    "title": "Kabir Theme Reloaded",
+    "artist": "Sanchit Balhara, Ankit Balhara",
+    "channelTitle": "YRF Music",
+    "language": "Instrumental",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "7AqQTcRnR-0",
+    "title": "War Theme 2.0",
+    "artist": "Sanchit Balhara, Ankit Balhara",
+    "channelTitle": "YRF Music",
+    "language": "Instrumental",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "4zrY6eRWN8o",
+    "title": "Raghu & Kaboo Theme",
+    "artist": "Sanchit Balhara, Ankit Balhara",
+    "channelTitle": "YRF Music",
+    "language": "Instrumental",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "z0YoZqPOAko",
+    "title": "Tripping High",
+    "artist": "Tsumyoki, Raghav Chaitanya, Poorvi Koutish, Brianna Supriyo, RANJ, Saaj Bhatt, Shreya Phukan, Dev Arijit",
+    "channelTitle": "YRF Music",
+    "language": "English",
+    "album": "War 2",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "wc8h0MfIX6w",
+    "title": "Oh Girl You're Mine",
+    "artist": "Tarun Sagar, Alyssa Mendonsa, Loy Mendonsa",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Housefull",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "M05ozQabLtU",
+    "title": "Papa Jag Jayega",
+    "artist": "Neeraj Shridhar, Ritu Pathak, Alyssa Mendonsa",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Housefull",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "wbGQRPpzo64",
+    "title": "I Don't Know What To Do",
+    "artist": "Shabbir Kumar, Sunidhi Chauhan",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Housefull",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "F9Aha2-uTso",
+    "title": "Aapka Kya Hoga (Dhanno)",
+    "artist": "Mika Singh, Sunidhi Chauhan, Sajid Khan",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Housefull",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "W5HAtRwy94I",
+    "title": "Loser",
+    "artist": "Vivienne Pocha, Amitabh Bhattacharya",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Housefull",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "i4cEmpObT1g",
+    "title": "Do Anjaane Ajnabi",
+    "artist": "Udit Narayan, Shreya Ghoshal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "1WI_ybqZ9cc",
+    "title": "Mujhe Haq Hai",
+    "artist": "Udit Narayan, Shreya Ghoshal",
+    "channelTitle": "Udit Narayan - Topic",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "bv5j1CUTVGM",
+    "title": "Milan Abhi Aadha Adhura Hai",
+    "artist": "Udit Narayan, Shreya Ghoshal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "SBNRlDygFHc",
+    "title": "Savaiyaa Raadhey Krishn Ki Jyoti",
+    "artist": "Shreya Ghoshal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "xRPfC3DtLDg",
+    "title": "Hamari Shaadi Mein",
+    "artist": "Babul Supriyo, Shreya Ghoshal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "Qf4_qYreT_0",
+    "title": "Kal Jisne Janam Yahan Paaya",
+    "artist": "Suresh Wadkar, Kumar Sanu, Ravindra Jain",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "VKq7YW2rXi0",
+    "title": "Jai Gauri Maa",
+    "artist": "Pamela Jain",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "DceAZXQiYm0",
+    "title": "O Jiji",
+    "artist": "Pamela Jain, Shreya Ghoshal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "cCcFEjwQ9qM",
+    "title": "Tere Dware Pe Aayi Baraat",
+    "artist": "Sudesh Bhosle",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "pjAhJT-G2Qc",
+    "title": "Savaiyaa Chhota Sa Saajan",
+    "artist": "Suresh Wadkar, Aparna Bhagwat",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Vivah",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "Po8_sGUustA",
+    "title": "Yeh To Sach Hai Ki Bhagwan Hai",
+    "artist": "Hariharan, Pratima Rao, Ghanshyam Vaswani, Santosh Tiwari, Ravinder Rawal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "su1gYfBSr7k",
+    "title": "Mhare Hiwda Mein Naache Mor",
+    "artist": "Kavita Krishnamurthy, Hariharan, Kumar Sanu, Alka Yagnik, Udit Narayan, Anuradha Paudwal",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "RpCFCkw1mO0",
+    "title": "Hum Saath Saath Hain",
+    "artist": "Kumar Sanu, Alka Yagnik, Hariharan, Anuradha Paudwal, Udit Narayan, Kavita Krishnamurthy",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "caEfgyFv4SM",
+    "title": "Chhote Chhote Bhaiyon Ke Bade Bhaiyya",
+    "artist": "Udit Narayan, Kavita Krishnamurthy, Kumar Sanu",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "ptfsDUSS8KA",
+    "title": "Sunoji Dulhan Ek Baat Sunoji",
+    "artist": "Udit Narayan, Kavita Krishnamurthy, Sonu Nigam, Roop Kumar Rathod, Pratima Rao",
+    "channelTitle": "Roop Kumar Rathod - Topic",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "QyJoeduGpJI",
+    "title": "Hum Aapke Hain Koun",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "K38OA13ZBiY",
+    "title": "Maiyya Yashoda",
+    "artist": "Alka Yagnik, Anuradha Paudwal, Kavita Krishnamurthy",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "b88mB53amDE",
+    "title": "ABCDEFGHI... I Love You",
+    "artist": "Udit Narayan, Hariharan, Hema Sardesai, Shankar Mahadevan, Saif Ali Khan",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Saath-Saath Hain",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "v67otk5uSvk",
+    "title": "Wah Wah Ramji",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "WNDqhmcH4YA",
+    "title": "Dhiktana (Part 1)",
+    "artist": "S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "UWzH4aFeJY8",
+    "title": "Joote De Do Paise Le Lo",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "0UJbl8H3_No",
+    "title": "Mausam Ka Jaadu",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "U_UjsT_RkI8",
+    "title": "Didi Tera Devar Deewana",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "LMfxvd9w3Uc",
+    "title": "Dhiktana (Part 2)",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam, Udit Narayan, Shailendra Singh",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "uDrC2zjjvIY",
+    "title": "Babul",
+    "artist": "Sharda Sinha",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "yLpa8f2xK-k",
+    "title": "Mujhse Juda Hokar",
+    "artist": "Lata Mangeshkar, S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "1pd9Dq5rcQg",
+    "title": "Chocolate Lime Juice",
+    "artist": "Lata Mangeshkar",
+    "channelTitle": "Saregama Music",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "gIODEFkvjTA",
+    "title": "Pehla Pehla Pyar Hai",
+    "artist": "S. P. Balasubrahmanyam",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "Ua5AW2czRAE",
+    "title": "Maye Ni Maye",
+    "artist": "Lata Mangeshkar",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "nopOmxeaCLA",
+    "title": "Lo Chali Main",
+    "artist": "Lata Mangeshkar",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "EG7qi1VbTIA",
+    "title": "Mujhse Juda Hokar (Sad Version)",
+    "artist": "Lata Mangeshkar",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "uCHhzFHISAs",
+    "title": "Samdhi Samdhan (Aaj Humaare Dil Mein)",
+    "artist": "Lata Mangeshkar, Kumar Sanu",
+    "channelTitle": "Rajshri",
+    "language": "Hindi",
+    "album": "Hum Aapke Hain Koun..!",
+    "market": "bollywood"
+  },
+  {
+    "youtubeId": "jjWWuEWCBas",
+    "title": "Mamta Se Bhari",
+    "artist": "Bombay Jayashri",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "rZHUkYa4UBE",
+    "title": "Kaun Hain Voh",
+    "artist": "Kailash Kher, Mounima",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "-MQyj91CS1k",
+    "title": "Panchhi Bole",
+    "artist": "M. M. Kreem, Palak Muchhal",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "snpV6awcBPo",
+    "title": "Manohari",
+    "artist": "Divya Kumar, Neeti Mohan",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "cyrtbEoIqww",
+    "title": "Khoya Hain",
+    "artist": "Neeti Mohan, Kaala Bhairava",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "JqwthoWINxY",
+    "title": "Jal Rahin Hain",
+    "artist": "Kailash Kher",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "V2H-kUAW9iM",
+    "title": "Jiyo Re Baahubali",
+    "artist": "Daler Mehndi, Sanjeev Chimmalgi, Ramya Behara",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali 2: The Conclusion",
+    "market": "south"
+  },
+  {
+    "youtubeId": "RIXs6qy6CRY",
+    "title": "Veeron Ke Veer Aa",
+    "artist": "Aditi Paul, Deepu",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali 2: The Conclusion",
+    "market": "south"
+  },
+  {
+    "youtubeId": "WTjZxav7naU",
+    "title": "Soja Zara",
+    "artist": "Madhushree",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali 2: The Conclusion",
+    "market": "south"
+  },
+  {
+    "youtubeId": "8iWgvwi80n8",
+    "title": "Jay-Jaykara",
+    "artist": "Kailash Kher",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali 2: The Conclusion",
+    "market": "south"
+  },
+  {
+    "youtubeId": "MxXpPqRG2ZU",
+    "title": "Shivam",
+    "artist": "Kaala Bhairava",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali 2: The Conclusion",
+    "market": "south"
+  },
+  {
+    "youtubeId": "q07X5HINHD4",
+    "title": "Jaago Jaago Bakre",
+    "artist": "Vishal Dadlani",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "v2IGNN7CA4M",
+    "title": "Srivalli",
+    "artist": "Javed Ali",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "kbGTg-VFoW0",
+    "title": "Saami Saami",
+    "artist": "Sunidhi Chauhan",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "fSrZFwtQmC8",
+    "title": "Eyy Bidda Ye Mera Adda",
+    "artist": "Nakash Aziz",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "iCRh1IGw5wI",
+    "title": "Oo Bolega Ya Oo Oo Bolega",
+    "artist": "Kanika Kapoor",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "kN6HHzEXKFU",
+    "title": "Pushpa Pushpa",
+    "artist": "Mika Singh, Nakash Aziz",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa 2: The Rule",
+    "market": "south"
+  },
+  {
+    "youtubeId": "OgRoRBLZbUQ",
+    "title": "Angaaron",
+    "artist": "Shreya Ghoshal",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa 2: The Rule",
+    "market": "south"
+  },
+  {
+    "youtubeId": "cMulQrRnwtc",
+    "title": "Kissik",
+    "artist": "Lothika, Sublahshini",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa 2: The Rule",
+    "market": "south"
+  },
+  {
+    "youtubeId": "h6qwhCDI3vQ",
+    "title": "Peelings",
+    "artist": "Javed Ali, Madhubanti Bagchi",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa 2: The Rule",
+    "market": "south"
+  },
+  {
+    "youtubeId": "aa2gJCi1mfo",
+    "title": "Kaali Mahaa Kaali",
+    "artist": "Kailash Kher",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa 2: The Rule",
+    "market": "south"
+  },
+  {
+    "youtubeId": "8vblpMr3wBs",
+    "title": "Jeeva Nadhi",
+    "artist": "Geetha Madhuri",
+    "channelTitle": "Lahari Music",
+    "language": "Telugu",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "gKKDbWAKL9U",
+    "title": "Daakko Daakko Meka",
+    "artist": "Sivam",
+    "channelTitle": "Aditya Music PLAYBACK",
+    "language": "Telugu",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "5IEbR79kBPY",
+    "title": "Srivalli",
+    "artist": "Sid Sriram",
+    "channelTitle": "Aditya Music",
+    "language": "Telugu",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "JJFVjxFmYlY",
+    "title": "Saami Saami",
+    "artist": "Mounika Yadav",
+    "channelTitle": "Aditya Music PLAYBACK",
+    "language": "Telugu",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "pHHig1XBML0",
+    "title": "Eyy Bidda Idhi Naa Adda",
+    "artist": "Nakash Aziz",
+    "channelTitle": "Aditya Music",
+    "language": "Telugu",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "u6BoyOceiPE",
+    "title": "Oo Antava Mawa Oo Oo Antava",
+    "artist": "Indravathi Chauhan",
+    "channelTitle": "Aditya Music",
+    "language": "Telugu",
+    "album": "Pushpa: The Rise",
+    "market": "south"
+  },
+  {
+    "youtubeId": "Oa31UzJC5oQ",
+    "title": "Swapn Sunehere",
+    "artist": "Bombay Jayashri, Swetha Raj",
+    "channelTitle": "Zee Music Company",
+    "language": "Hindi",
+    "album": "Baahubali: The Beginning",
+    "market": "south"
+  },
+  {
+    "youtubeId": "v4F1WlRTxDc",
+    "title": "Dum Hai To Rok Ke Bata",
+    "artist": "Shreyas Talpade",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "Pushpa 2: The Rule",
+    "market": "south"
+  },
+  {
+    "youtubeId": "qAvH_fcw2O4",
+    "title": "Sab Ke Sapnon Ki",
+    "artist": "Airaa Udupi",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "KGF: Chapter 1",
+    "market": "south"
+  },
+  {
+    "youtubeId": "A0eJ-Xiu-ac",
+    "title": "Salaam Rocky Bhai",
+    "artist": "Vijay Prakash, Mohan Krishna, Santhosh Venky, Renjith Unni, Balraj Jagadeesh Kumar, Deepesh A. K., H. S. Srinivasa Murthy, Vijay Urs, Abhishek Chaithra Soman, Chethan Naik, Madhwesh Bharadwaj",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "KGF: Chapter 1",
+    "market": "south"
+  },
+  {
+    "youtubeId": "bcgdlO9VBS8",
+    "title": "Ho Jaane Do Aar Paar",
+    "artist": "Ananya Bhat, Mohan Krishna, Santhosh Venky, Renjith Unni, Balraj Jagadeesh Kumar, Deepesh A. K., H. S. Srinivasa Murthy, Vijay Urs, Abhishek Chaithra Soman, Chethan Naik, Madhwesh Bharadwaj",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "KGF: Chapter 1",
+    "market": "south"
+  },
+  {
+    "youtubeId": "0j8FYH9Ps2U",
+    "title": "Sultan",
+    "artist": "Ananya Bhat, Mohan Krishna, Santhosh Venky, Renjith Unni, Balraj Jagadeesh Kumar, Deepesh A. K., H. S. Srinivasa Murthy, Vijay Urs, Abhishek Chaithra Soman, Chethan Naik, Madhwesh Bharadwaj",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "KGF: Chapter 1",
+    "market": "south"
+  },
+  {
+    "youtubeId": "fsdl9eXIS1U",
+    "title": "Kokh Ke Rath Mein",
+    "artist": "Ananya Bhat",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "KGF: Chapter 1",
+    "market": "south"
+  },
+  {
+    "youtubeId": "VID289p3GTc",
+    "title": "Gali Gali",
+    "artist": "Neha Kakkar",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "KGF: Chapter 1",
+    "market": "south"
+  },
+  {
+    "youtubeId": "zR5-HbFW6hc",
+    "title": "Toofan",
+    "artist": "Brijesh Shandilya, Mohan Krishna, Laxman Datta Naik, Saaj Bhatt, Santhosh Venky, Sandesh Datta Naik, Sachin Basrur, Ravi Basrur, Puneeth Rudranag, Priyanka Bharali",
+    "channelTitle": "MRT Music",
+    "language": "Hindi",
+    "album": "KGF: Chapter 2",
+    "market": "south"
+  },
+  {
+    "youtubeId": "5CP9fycq8pk",
+    "title": "Falak Tu Garaj Tu",
+    "artist": "Suchetha Basrur",
+    "channelTitle": "MRT Music",
+    "language": "Hindi",
+    "album": "KGF: Chapter 2",
+    "market": "south"
+  },
+  {
+    "youtubeId": "suk3mW0tDPA",
+    "title": "Mehabooba",
+    "artist": "Ananya Bhat",
+    "channelTitle": "MRT Music",
+    "language": "Hindi",
+    "album": "KGF: Chapter 2",
+    "market": "south"
+  },
+  {
+    "youtubeId": "Jdt3HEGiOyI",
+    "title": "Sulthan",
+    "artist": "Brijesh Shandilya, Mohan Krishna, Laxman Datta Naik, Saaj Bhatt, Santhosh Venky, Sandesh Datta Naik, Sachin Basrur, Ravi Basrur, Puneeth Rudranag, Manish Dinakar, Sarwar Khan Dangri",
+    "channelTitle": "MRT Music",
+    "language": "Hindi",
+    "album": "KGF: Chapter 2",
+    "market": "south"
+  },
+  {
+    "youtubeId": "R4He_Gcn7cA",
+    "title": "The Monster Song",
+    "artist": "Adithi Sagar",
+    "channelTitle": "Hombale Films",
+    "language": "English",
+    "album": "KGF: Chapter 2",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "8zxRrPWLBy8",
+    "title": "Dosti",
+    "artist": "Amit Trivedi",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "tFFAvatjLj0",
+    "title": "Naacho Naacho",
+    "artist": "Vishal Mishra, Rahul Sipligunj",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "hpH1pHdyJPE",
+    "title": "Janani",
+    "artist": "M. M. Kreem",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "5LbfFarCNIg",
+    "title": "Sholay",
+    "artist": "Vishal Mishra, Benny Dayal, Sahithi Chaganti, Harika Narayan",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "otcg1GoaAjo",
+    "title": "Komuram Bheemudo",
+    "artist": "Kaala Bhairava",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "mGqOl-WzMfk",
+    "title": "Raamam Raaghavam",
+    "artist": "Vijay Prakash, Chandana Bala Kalyan, Charu Hariharan",
+    "channelTitle": "T-Series",
+    "language": "Sanskrit",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "Rm5VI32UmDg",
+    "title": "Ambar Se Toda",
+    "artist": "Raag Patel",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "album": "RRR",
+    "market": "south"
+  },
+  {
+    "youtubeId": "rsJ-LGpE7Lc",
+    "title": "Chikitu",
+    "artist": "T. Rajhendherr, Anirudh Ravichander, Arivu",
+    "channelTitle": "Sun TV",
+    "language": "Tamil",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "2qCpY38ompo",
+    "title": "Monica",
+    "artist": "Sublahshini, Anirudh Ravichander, Asal Kolaar",
+    "channelTitle": "Sun TV",
+    "language": "Tamil",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "OXHTlMPbX7o",
+    "title": "Powerhouse",
+    "artist": "Arivu, Anirudh Ravichander",
+    "channelTitle": "Sun TV",
+    "language": "Tamil",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "4vrajmQSRMY",
+    "title": "I Am The Danger",
+    "artist": "Siddharth Basrur, Anirudh Ravichander",
+    "channelTitle": "Sun TV",
+    "language": "English",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "apr91bI5jUc",
+    "title": "Uyirnaadi Nanbane",
+    "artist": "Sai Smriti, Anirudh Ravichander",
+    "channelTitle": "Sun TV",
+    "language": "Tamil",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "QMu5nTORP2M",
+    "title": "Kokki",
+    "artist": "Sooraj Santhosh, Amogh Balaji",
+    "channelTitle": "Sun TV",
+    "language": "Tamil",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "hZqW1pGQ0AU",
+    "title": "Mobsta",
+    "artist": "Anirudh Ravichander",
+    "channelTitle": "Sun TV",
+    "language": "Tamil / English",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "ReVGCvWIANA",
+    "title": "Coolie Disco",
+    "artist": "Anirudh Ravichander",
+    "channelTitle": "Sun TV",
+    "language": "Tamil",
+    "album": "Coolie",
+    "market": "south",
+    "youtubeCategory": "Entertainment"
+  },
+  {
+    "youtubeId": "STkJ41iKvlQ",
+    "title": "Zankaar 4.0 - Nonstop Garba 2026",
+    "artist": "Geeta Rabari",
+    "channelTitle": "GeetaBen Rabari",
+    "language": "Gujarati",
+    "album": "Zankaar 4.0",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "hsdIkV1hNKE",
+    "title": "Garbe Ghumta",
+    "artist": "Umesh Barot",
+    "channelTitle": "Soor Mandir",
+    "language": "Gujarati",
+    "album": "Navratri Garba 2026",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "BxlXT_wAOB0",
+    "title": "Killol 3.0 - Nonstop Navratri Garba",
+    "artist": "Kinjal Dave",
+    "channelTitle": "KD Digital",
+    "language": "Gujarati",
+    "album": "Killol 3.0",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "yvs-M7yDfwQ",
+    "title": "Killol 2.0 - Nonstop Trantali Garba",
+    "artist": "Kinjal Dave",
+    "channelTitle": "KD Digital",
+    "language": "Gujarati",
+    "album": "Killol 2.0",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "Te-1fu0UdQE",
+    "title": "Galgoto Me Zukine Lidho",
+    "artist": "Geeta Rabari",
+    "channelTitle": "GeetaBen Rabari",
+    "language": "Gujarati",
+    "album": "Zankaar 2.0",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "EgLkO8sXmtY",
+    "title": "Koi Kejo Kana Na Kan Maa",
+    "artist": "Geeta Rabari",
+    "channelTitle": "GeetaBen Rabari",
+    "language": "Gujarati",
+    "album": "Zankaar 2.0",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "w-OPHohw8Co",
+    "title": "Kesariya Garba No Rang Lagyo",
+    "artist": "Geeta Rabari",
+    "channelTitle": "GeetaBen Rabari",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "V4f5I_xJVoA",
+    "title": "Ochhav - Nonstop Gujarati Garba and Lok Geet",
+    "artist": "Aditya Gadhvi",
+    "channelTitle": "Aditya Gadhvi",
+    "language": "Gujarati",
+    "album": "Ochhav",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "VBfBerqLFBQ",
+    "title": "Navratri Garba - Traditional Garba and Aarti",
+    "artist": "Asif Jeriya, Amee Joshi, Suresh Rawal, Meena Patel, Arvind Barot and Bhavna Rana",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Navratri Garba",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "M5S9odjXc08",
+    "title": "Mataji Na Prachin Garba - Ultimate Collection",
+    "artist": "Suresh Rawal, Meena Patel, Damyanti Bardayi, Mathur Kanjaria, Arvind Barot and Bhavna Rana",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Mataji Na Prachin Garba",
+    "garbaStyles": [
+      "garba"
+    ]
+  },
+  {
+    "youtubeId": "6x7OAy_N5XA",
+    "title": "Non Stop Garba by Falguni Pathak",
+    "artist": "Falguni Pathak",
+    "channelTitle": "Nova Gujarati",
+    "language": "Gujarati",
+    "album": "Non Stop Garba",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "AOm0hFHXqKA",
+    "title": "Falguni Pathak Non Stop Garba, Vol. 2",
+    "artist": "Falguni Pathak",
+    "channelTitle": "Nova Gujarati",
+    "language": "Gujarati",
+    "album": "Non Stop Garba, Vol. 2",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "YfHxBdRK294",
+    "title": "Kathiyawadi Lokgeet - Non Stop Garba",
+    "artist": "Praful Dave",
+    "channelTitle": "Jhankar Music Bhakti Sagar",
+    "language": "Gujarati",
+    "album": "Kathiyawadi Lokgeet",
+    "garbaStyles": [
+      "garba",
+      "dandiya",
+      "kathiyawadi"
+    ]
+  },
+  {
+    "youtubeId": "vFV0ByhKJRs",
+    "title": "Kathiyawadi Lokgeet - Popular Gujarati Folk Songs",
+    "artist": "Diwaliben Bhil, Bhikhudan Gadhvi, Suresh Raval, Meena Patel and Saroj Vaishnav",
+    "channelTitle": "Studio Sangeeta",
+    "language": "Gujarati",
+    "album": "Kathiyawadi Lokgeet",
+    "garbaStyles": [
+      "garba",
+      "kathiyawadi"
+    ]
+  },
+  {
+    "youtubeId": "jWYzR_Ij-HE",
+    "title": "Kathiyawadi Tahuko",
+    "artist": "Dev Bhatt, Kirtidan Gadhvi and Ashok Bhatt",
+    "channelTitle": "Ram Audio",
+    "language": "Gujarati",
+    "album": "Kathiyawadi Tahuko",
+    "garbaStyles": [
+      "garba",
+      "kathiyawadi"
+    ]
+  },
+  {
+    "youtubeId": "JyD4I1O6RpI",
+    "title": "Kathiyawadi Tahuko - Malvethi Poythu Halyu",
+    "artist": "Kirtidan Gadhvi",
+    "channelTitle": "Ram Audio",
+    "language": "Gujarati",
+    "album": "Kathiyawadi Tahuko",
+    "garbaStyles": [
+      "garba",
+      "kathiyawadi"
+    ]
+  },
+  {
+    "youtubeId": "nZoBteEl_OM",
+    "title": "Rammo Rammo",
+    "artist": "Udit Narayan, Neeti Mohan and Palak Muchhal",
+    "channelTitle": "T-Series",
+    "language": "Hindi",
+    "market": "bollywood",
+    "album": "Bhuj: The Pride of India",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "jXg8Vwh6W9Y",
+    "title": "Mehendi (Dhol Mix)",
+    "artist": "Dhvani Bhanushali and Vishal Dadlani",
+    "channelTitle": "Dhvani Bhanushali - Topic",
+    "language": "Hindi",
+    "album": "Mehendi (Dhol Mix)",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "9n7tWwa77mY",
+    "title": "Ramo Re",
+    "artist": "Jigardan Gadhavi, Kavya Limaye",
+    "channelTitle": "Jigrra",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "pGG_Zosn-qo",
+    "title": "Gori Tame Manda Lidha Mohi Raj",
+    "artist": "Umesh Barot, Ishani Dave",
+    "channelTitle": "Saga Music Gujarati",
+    "language": "Gujarati",
+    "album": "Saiyar Mori Re",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "dAcx2vfE7SM",
+    "title": "Garbe Ghume Gori",
+    "artist": "Arif Mir",
+    "channelTitle": "Saregama Gujarati",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "AYpbrNpGA24",
+    "title": "Maru Mann Mohi Gayu",
+    "artist": "Sreerama Chandra",
+    "channelTitle": "Vani Music Gujarati",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "CzPJkOJ4AAQ",
+    "title": "Nagar Nandji Na Laal",
+    "artist": "Bhaktiba Jethwa",
+    "channelTitle": "Bhaktiba Jethwa",
+    "language": "Gujarati",
+    "album": "Naad",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  },
+  {
+    "youtubeId": "laj4yX-gi9E",
+    "title": "Charar Charar Maru Chakdol Chale",
+    "artist": "Rajdeep Barot",
+    "channelTitle": "Saga Music Gujarati",
+    "language": "Gujarati",
+    "garbaStyles": [
+      "garba",
+      "dandiya"
+    ]
+  }
 ]

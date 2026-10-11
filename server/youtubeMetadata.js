@@ -46,7 +46,7 @@ export async function importYouTubeSong(source, {
       (source.market !== undefined && !['bollywood', 'hollywood', 'south'].includes(source.market)) ||
       (source.youtubeCategory !== undefined && !['Music', 'Entertainment'].includes(source.youtubeCategory)) ||
       (source.garbaStyles !== undefined && (!Array.isArray(source.garbaStyles) ||
-        source.garbaStyles.some(style => !['garba', 'dandiya', 'titoda', 'dodhiya', 'mandli'].includes(style)))) ||
+        source.garbaStyles.some(style => !['garba', 'dandiya', 'titoda', 'dodhiya', 'mandli', 'kathiyawadi'].includes(style)))) ||
       typeof source.channelTitle !== 'string' || !source.channelTitle.trim()) {
     throw new Error('Each source needs a valid YouTube ID, title, artist, official channel, and a valid optional language.');
   }

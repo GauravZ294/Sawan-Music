@@ -5,7 +5,7 @@ export interface TimedLyric {
   english?: string;
 }
 
-export type GarbaStyle = 'garba' | 'dandiya' | 'titoda' | 'dodhiya' | 'mandli';
+export type GarbaStyle = 'garba' | 'dandiya' | 'titoda' | 'dodhiya' | 'mandli' | 'kathiyawadi';
 
 export interface Song {
   id: string;

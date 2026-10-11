@@ -438,7 +438,7 @@ const RAW_INITIAL_SONGS: Song[] = [
     id: 'chahun-main-lofi',
     title: 'Chahun Main Ya Naa (Lo-Fi Slowed + Reverb)',
     titleDevanagari: 'चाहूँ मैं या ना (लो-फ़ाई स्लोड + रीवर्ब)',
-    artist: 'Arijit Singh / SwarSync Lo-Fi Lab',
+    artist: 'Arijit Singh / Sawan Music Lo-Fi Lab',
     artistDevanagari: 'अरिजीत सिंह / लो-फ़ाई क्लब',
     album: 'Midnight Bollywood Lo-Fi, Vol. 1',
     coverUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&auto=format&fit=crop&q=80',

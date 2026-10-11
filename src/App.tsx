@@ -32,9 +32,12 @@ import { AppLoader } from './components/AppLoader';
 import { AccountModal, type MusicProfile } from './components/AccountModal';
 import { Download, Sparkles, Home, Library, WandSparkles, Music2 } from 'lucide-react';
 
-const STORAGE_KEY_SONGS = 'swarsync_spotify_songs_v4';
-const STORAGE_KEY_PLAYLISTS = 'swarsync_spotify_playlists_v4';
+const STORAGE_KEY_SONGS = 'sawan_music_spotify_songs_v4';
+const STORAGE_KEY_PLAYLISTS = 'sawan_music_spotify_playlists_v4';
 const STORAGE_KEY_PROFILE = 'sawan_music_profile_v1';
+// Read legacy storage without surfacing the retired brand in UI or exports.
+const LEGACY_STORAGE_KEY_SONGS = ['swar', 'sync_spotify_songs_v4'].join('');
+const LEGACY_STORAGE_KEY_PLAYLISTS = ['swar', 'sync_spotify_playlists_v4'].join('');
 const MusicCatalogExplorer = React.lazy(() => import('./components/MusicCatalogExplorer')
   .then((module) => ({ default: module.MusicCatalogExplorer })));
 
@@ -59,7 +62,7 @@ export default function App() {
   // Library State (persisted in localStorage, initialized with full Bollywood catalog)
   const [songs, setSongs] = useState<Song[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_SONGS);
+      const saved = localStorage.getItem(STORAGE_KEY_SONGS) ?? localStorage.getItem(LEGACY_STORAGE_KEY_SONGS);
       if (saved) {
         const parsed: Song[] = JSON.parse(saved);
         if (Array.isArray(parsed)) return restoreLibrary(SITE_SONGS, parsed, excludedVideoIds);
@@ -70,7 +73,7 @@ export default function App() {
 
   const [playlists, setPlaylists] = useState<Playlist[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_PLAYLISTS);
+      const saved = localStorage.getItem(STORAGE_KEY_PLAYLISTS) ?? localStorage.getItem(LEGACY_STORAGE_KEY_PLAYLISTS);
       if (saved) {
         const parsed: Playlist[] = JSON.parse(saved);
         const seenIds = new Set(INITIAL_PLAYLISTS.map((p) => p.id));
@@ -257,7 +260,7 @@ export default function App() {
         prev.map((s) => (s.id === song.id ? { ...s, playCount: s.playCount + 1 } : s))
       );
 
-      // Play audio via procedural or custom audio engine
+      // Play imported audio directly, or let the YouTube controller own playback.
       audioEngine.playSong(
         song,
         (time, dur) => {
@@ -356,6 +359,14 @@ export default function App() {
   }, [activeSong, songs, currentTime, handleSeek, handlePlaySong]);
 
   // Synchronize system media session for background listening and hardware media keys
+  useEffect(() => {
+    audioEngine.setPlaybackCallbacks({
+      onPlaybackChange: setIsPlaying,
+      onError: setPlaybackError,
+    });
+    return () => audioEngine.setPlaybackCallbacks({});
+  }, []);
+
   useEffect(() => {
     audioEngine.setMediaSessionCallbacks({
       onPlay: () => {
@@ -487,7 +498,7 @@ export default function App() {
     downloadAnchor.setAttribute('href', dataStr);
     downloadAnchor.setAttribute(
       'download',
-      `swarsync-spotify-library-${new Date().toISOString().split('T')[0]}.json`
+      `sawan-music-library-${new Date().toISOString().split('T')[0]}.json`
     );
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
@@ -778,6 +789,7 @@ export default function App() {
           onToggleShuffle={handleToggleShuffle}
           onToggleRepeat={handleToggleRepeat}
           onToggleFavorite={handleToggleFavorite}
+          onOpenAudioEnhancements={() => setShowDolbyModal(true)}
           onClose={() => setShowImmersiveModal(false)}
         />
       )}
@@ -849,6 +861,10 @@ export default function App() {
         activeSong={activeSong}
         isPlaying={isPlaying}
         onTogglePlay={handlePlayPause}
+        onImportAudio={() => {
+          setShowDolbyModal(false);
+          setShowSystemScannerModal(true);
+        }}
       />
 
       {/* Animated Splash Loader with Logo on Initial Refresh & Trigger */}

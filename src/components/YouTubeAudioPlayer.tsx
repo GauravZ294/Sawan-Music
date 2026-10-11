@@ -159,6 +159,9 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
               }, 500);
             } else {
               if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                if (event.data === YT.PlayerState.PAUSED && document.hidden && propsRef.current.isPlaying) {
+                  propsRef.current.onError?.('YouTube paused this song in the background. Press Play to continue, or use an imported audio file for background listening.');
+                }
                 propsRef.current.onPlaybackChange(false);
               }
               if (tickerRef.current !== null) window.clearInterval(tickerRef.current);

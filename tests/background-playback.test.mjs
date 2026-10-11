@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { transformWithOxc } from 'vite';
 
-test('YouTube playback survives hiding the page and still responds to pause and track end', async () => {
+test('hiding the page does not issue an app pause; provider pauses and explicit controls are respected', async () => {
   const effects = [];
   const refs = [];
   const cleanups = [];
@@ -102,6 +102,14 @@ test('YouTube playback survives hiding the page and still responds to pause and 
   assert.equal(pauseCalls, 0);
   assert.deepEqual(changes, [true]);
 
+  // A mobile browser/provider can suspend the embed. Report this without
+  // retrying playback in the background or pretending the song still plays.
+  const playCallsBeforeProviderPause = playCalls;
+  options.events.onStateChange({ data: 2 });
+  assert.equal(changes.at(-1), false);
+  assert.match(errors.at(-1), /YouTube paused this song in the background/);
+  assert.equal(playCalls, playCallsBeforeProviderPause);
+
   // Explicit pause must still work while hidden.
   effects.length = 0;
   refIndex = 0;
@@ -112,6 +120,9 @@ test('YouTube playback survives hiding the page and still responds to pause and 
   options.events.onStateChange({ data: 1 });
   assert.equal(pauseCalls, 2);
   assert.equal(changes.length, changesBeforeLateEvent);
+  const errorsBeforeExplicitPause = errors.length;
+  options.events.onStateChange({ data: 2 });
+  assert.equal(errors.length, errorsBeforeExplicitPause);
   options.events.onStateChange({ data: 0 });
   assert.equal(endedCalls, 1);
   assert.equal(changes.at(-1), false);
