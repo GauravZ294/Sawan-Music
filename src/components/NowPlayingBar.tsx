@@ -69,7 +69,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
   if (!song) return null;
 
   const effectiveTime = isScrubbing ? scrubValue : currentTime;
-  const progressPercent = duration > 0 ? (effectiveTime / duration) * 100 : 0;
+  const progressPercent = duration > 0 ? Math.min(100, Math.max(0, (effectiveTime / duration) * 100)) : 0;
 
   const formatTime = (secs: number) => {
     if (isNaN(secs) || secs < 0) return '0:00';
@@ -223,7 +223,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
             <div className="w-full h-1 bg-[#4d4d4d] rounded-full overflow-hidden">
               {/* Filled Progress */}
               <div
-                className={`h-full transition-all rounded-full ${
+                className={`h-full rounded-full ${!isScrubbing ? 'transition-[width] duration-100' : ''} ${
                   isHoveringScrubber ? 'bg-[#1db954]' : 'bg-white'
                 }`}
                 style={{ width: `${progressPercent}%` }}
@@ -246,18 +246,32 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
               min={0}
               max={duration || 100}
               value={effectiveTime}
-              onMouseDown={() => setIsScrubbing(true)}
+              aria-label="Seek playback position"
+              onPointerDown={(event) => {
+                setScrubValue(Number(event.currentTarget.value));
+                setIsScrubbing(true);
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
                 setScrubValue(val);
               }}
-              onMouseUp={() => {
+              onPointerUp={(event) => {
+                const finalValue = Number(event.currentTarget.value);
                 setIsScrubbing(false);
-                onSeek(scrubValue);
+                setScrubValue(finalValue);
+                onSeek(finalValue);
               }}
-              onTouchEnd={() => {
+              onPointerCancel={(event) => {
+                const finalValue = Number(event.currentTarget.value);
                 setIsScrubbing(false);
-                onSeek(scrubValue);
+                setScrubValue(finalValue);
+                onSeek(finalValue);
+              }}
+              onKeyUp={(event) => {
+                const finalValue = Number(event.currentTarget.value);
+                setScrubValue(finalValue);
+                onSeek(finalValue);
               }}
               className="absolute inset-0 w-full opacity-0 cursor-pointer"
             />
