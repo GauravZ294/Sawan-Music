@@ -16,8 +16,7 @@ import { AppNavbar } from './components/AppNavbar';
 import { YourLibraryPage } from './components/YourLibraryPage';
 import { NowPlayingBar } from './components/NowPlayingBar';
 import { LyricsKaraoke } from './components/LyricsKaraoke';
-// Temporarily disabled; keep the original AI implementation for re-enabling.
-// import { AiMusicStudio } from './components/AiMusicStudio';
+import { AiSongAnalyzer } from './components/AiSongAnalyzer';
 import { AiComingSoonPage } from './components/AiComingSoonPage';
 import { ImmersivePlayerModal } from './components/ImmersivePlayerModal';
 import { SongEditorModal } from './components/SongEditorModal';
@@ -26,7 +25,7 @@ import { AudioImportModal } from './components/AudioImportModal';
 import { CreatePlaylistModal } from './components/CreatePlaylistModal';
 import { SystemMediaScannerModal } from './components/SystemMediaScannerModal';
 import { YouTubeAudioPlayer } from './components/YouTubeAudioPlayer';
-// import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
+import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
 import { DolbyAudioModal } from './components/DolbyAudioModal';
 import { AppLoader } from './components/AppLoader';
 import { AccountModal, type MusicProfile } from './components/AccountModal';
@@ -88,6 +87,8 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('all-songs');
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [librarySearch, setLibrarySearch] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('all');
+  const [languageSongs, setLanguageSongs] = useState<Song[] | null>(null);
 
   // Playback State
   const [activeSong, setActiveSong] = useState<Song | null>(() => {
@@ -125,8 +126,8 @@ export default function App() {
   const [showIntroLoader, setShowIntroLoader] = useState<boolean>(true);
 
   // AI Mood Tagger state
-  // const [showMoodTaggerModal, setShowMoodTaggerModal] = useState<boolean>(false);
-  // const [moodTaggerTargetSong, setMoodTaggerTargetSong] = useState<Song | null>(null);
+  const [showMoodTaggerModal, setShowMoodTaggerModal] = useState<boolean>(false);
+  const [moodTaggerTargetSong, setMoodTaggerTargetSong] = useState<Song | null>(null);
 
   // Keyboard shortcut Ctrl+B or Cmd+B to toggle left panel
   useEffect(() => {
@@ -141,9 +142,8 @@ export default function App() {
   }, []);
 
   const handleOpenMoodTagger = (target?: Song) => {
-    // setMoodTaggerTargetSong(target || null);
-    // setShowMoodTaggerModal(true);
-    handleSelectView('ai-mood');
+    setMoodTaggerTargetSong(target || null);
+    setShowMoodTaggerModal(true);
   };
 
   const handleBatchUpdateSongs = (updatedList: Song[]) => {
@@ -605,6 +605,29 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (selectedLanguage === 'all') {
+      setLanguageSongs(null);
+      return;
+    }
+    const controller = new AbortController();
+    setLanguageSongs(null);
+    fetch(`/api/youtube/search?language=${encodeURIComponent(selectedLanguage)}`, { signal: controller.signal, cache: 'no-store' })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok || !Array.isArray(body.songs)) throw new Error(body.error || 'YouTube search is unavailable.');
+        setLanguageSongs(body.songs as Song[]);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setLanguageSongs(songs.filter((song) => song.language?.toLowerCase() === selectedLanguage.toLowerCase()));
+      });
+    return () => controller.abort();
+  }, [selectedLanguage]);
+
+  const visibleSongs = selectedLanguage === 'all'
+    ? songs
+    : languageSongs ?? songs.filter((song) => song.language?.toLowerCase() === selectedLanguage.toLowerCase());
+
   const systemMediaCount = songs.filter(
     (s) => s.isSystemMedia || s.playlistIds?.includes('system-downloads')
   ).length;
@@ -653,6 +676,8 @@ export default function App() {
           onHome={() => handleSelectView('all-songs')}
           onOpenAccount={(mode) => setAccountModalMode(mode)}
           onSignOut={handleSignOut}
+          selectedLanguage={selectedLanguage}
+          onLanguageChange={setSelectedLanguage}
         />
         {/* View Switcher */}
         {currentView === 'library' ? (
@@ -683,29 +708,21 @@ export default function App() {
               />
             </React.Suspense>
           </div>
-        ) : currentView === 'ai-studio' || currentView === 'ai-mood' ? (
-          <>
-            {/* Original AI studio preserved while the feature is unavailable:
-            <div className="min-h-0 flex-1 overflow-y-auto px-8 py-6">
-              <AiMusicStudio
-                onSongCreated={handleSongCreated}
-                onPlaySong={handlePlaySong}
-              />
-            </div>
-            */}
+        ) : currentView === 'ai-studio' ? (
+          <AiSongAnalyzer onBack={() => handleSelectView('all-songs')} />
+        ) : currentView === 'ai-mood' ? (
             <AiComingSoonPage
-              feature={currentView === 'ai-mood' ? 'mood' : 'lyrics'}
+              feature="mood"
               onGoHome={() => handleSelectView('all-songs')}
               onOpenLibrary={handleOpenLibrary}
             />
-          </>
         ) : (
           <div className="flex min-h-0 flex-1 overflow-hidden">
             {/* Library Table / Grids */}
             <LibraryView
               currentView={currentView}
               onSelectView={handleSelectView}
-              songs={songs}
+              songs={visibleSongs}
               playlists={playlists}
               selectedPlaylistId={selectedPlaylistId}
               activeSong={activeSong}
@@ -888,7 +905,7 @@ export default function App() {
         />
       )}
 
-      {/* AI Mood Tagger Modal temporarily disabled; original wiring preserved.
+      {/* AI Mood Tagger Modal */}
       <AiMoodTaggerModal
         isOpen={showMoodTaggerModal}
         onClose={() => setShowMoodTaggerModal(false)}
@@ -897,7 +914,6 @@ export default function App() {
         onUpdateSong={handleSaveSongEdit}
         onBatchUpdateSongs={handleBatchUpdateSongs}
       />
-      */}
 
       {/* Dolby Audio Enhancer & Sound Effects Suite Modal */}
       <DolbyAudioModal

@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import retiredYouTubeSearch from './api/youtube/search.js';
 import freqblogHandler from './api/freqblog/[action].js';
 
@@ -30,6 +30,40 @@ function getGenAI() {
     throw new Error('GEMINI_API_KEY is not configured in the environment.');
   }
   return new GoogleGenAI({ apiKey });
+}
+
+async function getOpenAIJson(input: string) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not configured in the environment.');
+  }
+
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      input,
+      text: { format: { type: 'json_object' } },
+      store: false,
+    }),
+    signal: AbortSignal.timeout(20_000),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = payload?.error?.message || `OpenAI request failed (${response.status}).`;
+    throw new Error(message);
+  }
+
+  const outputText = payload.output_text || payload.output
+    ?.flatMap((item: any) => item.content || [])
+    .find((item: any) => item.type === 'output_text')?.text;
+  if (!outputText) throw new Error('OpenAI returned an empty response.');
+  return JSON.parse(outputText);
 }
 
 // Endpoint 1: Lyria Music Generation (Clip or Pro)
@@ -166,8 +200,6 @@ app.post('/api/music/sing-lyrics', async (req, res) => {
 app.post('/api/music/analyze-song', async (req, res) => {
   try {
     const { lyrics, songName = 'Chahun Main Ya Naa' } = req.body;
-    const ai = getGenAI();
-
     const promptText = `You are an expert musicologist and lyric synchronizer.
 Analyze the following lyrics for the song "${songName}":
 """
@@ -183,58 +215,11 @@ Return a clean JSON object with:
 - mood: Mood description (e.g. "Soulful Romantic", "Bittersweet Melancholy")
 - genre: Genre tags
 - themeAnalysis: 2-3 sentences explaining the lyrical meaning, emotion, and poetic nuances
-- timedLyrics: array of objects { time: number (seconds from 0 to 120), devanagari: string, romanized: string, english: string } for the key verses, spaced chronologically for a 2-3 minute song.`;
+- timedLyrics: array of objects { time: number (seconds from 0 to 120), devanagari: string, romanized: string, english: string } for the key verses, spaced chronologically for a 2-3 minute song.
 
-    const interaction = await ai.interactions.create({
-      model: 'gemini-3.8-flash',
-      input: promptText,
-      response_format: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING },
-          originalArtist: { type: Type.STRING },
-          movieOrAlbum: { type: Type.STRING },
-          keySignature: { type: Type.STRING },
-          bpm: { type: Type.INTEGER },
-          mood: { type: Type.STRING },
-          genre: { type: Type.STRING },
-          themeAnalysis: { type: Type.STRING },
-          timedLyrics: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                time: { type: Type.NUMBER },
-                devanagari: { type: Type.STRING },
-                romanized: { type: Type.STRING },
-                english: { type: Type.STRING },
-              },
-            },
-          },
-        },
-      },
-    });
+Return only a JSON object with those fields. Do not invent exact lyrics or claim uncertain song credits as facts.`;
 
-    const lastStep = interaction.steps.at(-1);
-    let result = null;
-    if (lastStep?.type === 'model_output') {
-      const textContent = lastStep.content?.find((c) => c.type === 'text');
-      if (textContent?.text) {
-        try {
-          result = JSON.parse(textContent.text.trim());
-        } catch {
-          // Lenient fallback
-        }
-      }
-    }
-
-    if (!result && interaction.output_text) {
-      try {
-        result = JSON.parse(interaction.output_text);
-      } catch {
-        // fallback
-      }
-    }
+    const result = await getOpenAIJson(promptText);
 
     return res.json({ success: true, analysis: result });
   } catch (err: any) {
@@ -252,8 +237,8 @@ app.post('/api/music/suggest-mood-tags', async (req, res) => {
       return res.status(400).json({ error: 'No song data provided for mood tagging.' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const isMockKey = !apiKey || apiKey === 'MY_GEMINI_API_KEY';
+    const apiKey = process.env.OPENAI_API_KEY;
+    const isMockKey = !apiKey;
 
     const analyzeLocally = (item: any) => {
       const title = (item.title || '').toLowerCase();
@@ -344,7 +329,6 @@ app.post('/api/music/suggest-mood-tags', async (req, res) => {
       });
     }
 
-    const ai = getGenAI();
     const songsToAnalyze = targetSongs.slice(0, 10);
     const songDescriptions = songsToAnalyze
       .map(
@@ -388,40 +372,13 @@ Return a clean JSON array of analysis objects:
   }
 ]`;
 
-    const interactionPromise = ai.interactions.create({
-      model: 'gemini-3.8-flash',
-      input: prompt,
-      response_format: { type: 'json' },
-    });
+    const parsed = await getOpenAIJson(`${prompt}\nReturn a JSON object with one property, "results", containing the array above.`);
 
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI tagger timed out')), 6000)
-    );
-
-    const interaction: any = await Promise.race([interactionPromise, timeoutPromise]);
-    let parsed: any = null;
-
-    const lastStep = interaction.steps?.at(-1);
-    if (lastStep?.type === 'model_output') {
-      const textContent = lastStep.content?.find((c: any) => c.type === 'text');
-      if (textContent?.text) {
-        try {
-          parsed = JSON.parse(textContent.text.trim());
-        } catch {}
-      }
-    }
-
-    if (!parsed && interaction.output_text) {
-      try {
-        parsed = JSON.parse(interaction.output_text);
-      } catch {}
-    }
-
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed.results) && parsed.results.length > 0) {
       return res.json({
         success: true,
-        source: 'gemini_ai',
-        results: targetSongs.length === 1 ? parsed[0] : parsed,
+        source: 'openai',
+        results: targetSongs.length === 1 ? parsed.results[0] : parsed.results,
       });
     }
 

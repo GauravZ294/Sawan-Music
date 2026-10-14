@@ -97,6 +97,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const [garbaStyle, setGarbaStyle] = useState<GarbaStyle | 'all'>('all');
   const [garbaLanguage, setGarbaLanguage] = useState('all');
   const [activeMenuSongId, setActiveMenuSongId] = useState<string | null>(null);
+  const [homeTileSeed] = useState(() => Math.random());
 
   useEffect(() => {
     if (currentView === 'garba') {
@@ -109,25 +110,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     }
   }, [currentView]);
 
-  // Dynamic system time ticker updating every 15 seconds
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 15000);
-    return () => clearInterval(timer);
-  }, []);
+  const [currentTime] = useState<Date>(() => new Date());
 
   // Dynamic system time-based greeting & subtitle
   const greetingInfo = useMemo(() => {
     const hour = currentTime.getHours();
-    const timeStr = currentTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
     if (hour >= 4 && hour < 12) {
       return {
         title: 'Good morning',
         icon: '☀️',
         subtitle: 'Start your morning with peaceful melodies, morning devotional ragas & fresh chai vibes.',
-        period: 'morning',
-        timeStr,
       };
     }
     if (hour >= 12 && hour < 17) {
@@ -135,8 +127,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         title: 'Good afternoon',
         icon: '🌤️',
         subtitle: 'Power through your day with high-energy Bollywood, Punjabi beats & Pan-India chartbusters.',
-        period: 'afternoon',
-        timeStr,
       };
     }
     if (hour >= 17 && hour < 22) {
@@ -144,18 +134,28 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         title: 'Good evening',
         icon: '🌆',
         subtitle: 'Unwind with dance remixes, romantic acoustic medleys & golden-hour sunset rhythms.',
-        period: 'evening',
-        timeStr,
       };
     }
     return {
       title: 'Late Night Vibes',
       icon: '🌙',
       subtitle: 'Midnight lo-fi, slowed + reverb, and peaceful acoustic unplugged soundtracks for deep relaxation.',
-      period: 'night',
-      timeStr,
     };
   }, [currentTime]);
+
+  const homeTiles = useMemo(() => {
+    const eligible = songs.filter((song) => song.coverUrl && (song.youtubeId || song.audioSrc));
+    const hash = (value: string) => {
+      let result = 2166136261;
+      for (let index = 0; index < value.length; index++) result = Math.imul(result ^ value.charCodeAt(index), 16777619);
+      return result >>> 0;
+    };
+    return eligible.map((song) => {
+      const random = (hash(`${homeTileSeed}:${song.id}`) + 1) / 4294967297;
+      const listeningWeight = Math.max(1, (song.playCount || 0) + (song.isFavorite ? 2 : 0) + 1);
+      return { song, rank: -Math.log(random) / listeningWeight };
+    }).sort((left, right) => left.rank - right.rank).slice(0, 6).map(({ song }) => song);
+  }, [songs, homeTileSeed]);
 
   // Filter songs based on current view, category filter, mood filter, and search query
   const filteredSongs = useMemo(() => {
@@ -310,10 +310,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
                     {greetingInfo.title}
                   </h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-zinc-800 text-emerald-400 border border-zinc-700/60 shadow-inner flex items-center gap-1.5">
-                    <Clock size={12} />
-                    <span>{greetingInfo.timeStr}</span>
-                  </span>
                 </div>
                 <p className="text-xs text-zinc-400 mt-1">
                   {greetingInfo.subtitle}
@@ -342,82 +338,26 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               </div>
             </div>
 
-            {/* Spotify 6-Grid Quick Access Tiles */}
+            {/* Rotating song picks, weighted toward listening history */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {[
-                {
-                  id: 'chahun-main-ya-naa',
-                  title: 'Chahun Main Ya Naa',
-                  subtitle: 'Arijit Singh & Palak Muchhal',
-                  cover:
-                    'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
-                  songId: 'chahun-main-ya-naa',
-                },
-                {
-                  id: 'tum-hi-ho',
-                  title: 'Tum Hi Ho',
-                  subtitle: 'Aashiqui 2 Anthem',
-                  cover:
-                    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80',
-                  songId: 'tum-hi-ho',
-                },
-                {
-                  id: 'workout-shelf',
-                  title: 'Bollywood Workout & Cardio',
-                  subtitle: 'High BPM Gym & Fitness Beats',
-                  cover:
-                    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80',
-                  mood: 'Workout',
-                },
-                {
-                  id: 'remix-shelf',
-                  title: 'Club & Dance Party Remixes',
-                  subtitle: 'Party Bangers & DJ Chetas',
-                  cover:
-                    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80',
-                  mood: 'Party',
-                },
-                {
-                  id: 'lofi-shelf',
-                  title: 'Bollywood Relaxing Lo-Fi',
-                  subtitle: 'Midnight Chill & De-stress',
-                  cover:
-                    'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
-                  mood: 'Relaxing',
-                },
-                {
-                  id: 'youtube-shelf',
-                  title: 'Browse song catalog',
-                  subtitle: 'Search songs available on Sawan',
-                  cover:
-                    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80',
-                  action: onBrowseCatalog,
-                },
-              ].map((tile) => {
-                const targetSong = tile.songId ? songs.find((s) => s.id === tile.songId) : null;
+              {homeTiles.map((targetSong) => {
                 const isThisPlaying = targetSong && activeSong?.id === targetSong.id && isPlaying;
 
                 return (
                   <div
-                    key={tile.id}
+                    key={targetSong.id}
                     onClick={() => {
-                      if (tile.action) {
-                        tile.action();
-                      } else if (targetSong) {
-                        if (isThisPlaying) onPauseSong();
-                        else onPlaySong(targetSong);
-                      } else if (tile.mood) {
-                        setMoodFilter(tile.mood);
-                      }
+                      if (isThisPlaying) onPauseSong();
+                      else onPlaySong(targetSong);
                     }}
                     className="group relative flex items-center bg-[#282828]/60 hover:bg-[#282828] rounded-md overflow-hidden cursor-pointer transition-all shadow-md"
                   >
                     <div className="w-16 h-16 shrink-0 bg-black">
-                      <img src={tile.cover} alt={tile.title} className="w-full h-full object-cover" />
+                      <img src={targetSong.youtubeId ? `https://i.ytimg.com/vi/${targetSong.youtubeId}/hqdefault.jpg` : targetSong.coverUrl} alt={`${targetSong.title} artwork`} className="w-full h-full object-cover" />
                     </div>
                     <div className="px-4 py-2 min-w-0 flex-1">
-                      <h4 className="text-sm font-bold text-white truncate">{tile.title}</h4>
-                      <p className="text-xs text-zinc-400 truncate">{tile.subtitle}</p>
+                      <h4 className="text-sm font-bold text-white truncate">{targetSong.title}</h4>
+                      <p className="text-xs text-zinc-400 truncate">{targetSong.artist}</p>
                     </div>
 
                     <div className="pr-4 opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-xl translate-y-1 group-hover:translate-y-0 duration-200">

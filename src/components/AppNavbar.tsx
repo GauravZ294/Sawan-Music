@@ -12,6 +12,8 @@ interface AppNavbarProps {
   onHome: () => void;
   onOpenAccount: (mode: 'signup' | 'login') => void;
   onSignOut: () => void;
+  selectedLanguage: string;
+  onLanguageChange: (language: string) => void;
 }
 
 export const AppNavbar: React.FC<AppNavbarProps> = ({
@@ -23,6 +25,8 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   onHome,
   onOpenAccount,
   onSignOut,
+  selectedLanguage,
+  onLanguageChange,
 }) => {
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
@@ -137,6 +141,11 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
         </div>
 
         <nav className="app-navbar-actions flex min-w-0 items-center gap-2" aria-label="Main navigation">
+          <label className="sr-only" htmlFor="song-language">Song language</label>
+          <select id="song-language" value={selectedLanguage} onChange={(event) => onLanguageChange(event.target.value)} aria-label="Filter songs by language" className="h-10 min-w-0 max-w-28 rounded-full border border-zinc-700 bg-zinc-800 px-2 text-xs font-semibold text-zinc-100 outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760] sm:max-w-36 sm:px-3">
+            <option value="all">All languages</option>
+            {['Gujarati', 'Hindi', 'English', 'Telugu', 'Punjabi', 'Tamil'].map((language) => <option key={language} value={language}>{language}</option>)}
+          </select>
           <button
             type="button"
             onClick={() => {
