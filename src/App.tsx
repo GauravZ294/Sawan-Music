@@ -17,7 +17,8 @@ import { YourLibraryPage } from './components/YourLibraryPage';
 import { NowPlayingBar } from './components/NowPlayingBar';
 import { LyricsKaraoke } from './components/LyricsKaraoke';
 // Temporarily disabled; keep the original AI implementation for re-enabling.
-// import { AiMusicStudio } from './components/AiMusicStudio';
+import { AiMusicStudio } from './components/AiMusicStudio';
+import { AiMoodTaggerPage } from './components/AiMoodTaggerPage';
 import { AiComingSoonPage } from './components/AiComingSoonPage';
 import { ImmersivePlayerModal } from './components/ImmersivePlayerModal';
 import { SongEditorModal } from './components/SongEditorModal';
@@ -26,7 +27,6 @@ import { AudioImportModal } from './components/AudioImportModal';
 import { CreatePlaylistModal } from './components/CreatePlaylistModal';
 import { SystemMediaScannerModal } from './components/SystemMediaScannerModal';
 import { YouTubeAudioPlayer } from './components/YouTubeAudioPlayer';
-// import { AiMoodTaggerModal } from './components/AiMoodTaggerModal';
 import { DolbyAudioModal } from './components/DolbyAudioModal';
 import { AppLoader } from './components/AppLoader';
 import { AccountModal, type MusicProfile } from './components/AccountModal';
@@ -44,9 +44,11 @@ const MusicCatalogExplorer = React.lazy(() => import('./components/MusicCatalogE
 // Imported metadata is refreshed by the owner; visitors search this local snapshot.
 const catalogAge = importedCatalog.updatedAt ? Date.now() - Date.parse(importedCatalog.updatedAt) : Infinity;
 const catalogIsFresh = catalogAge < 30 * 24 * 60 * 60 * 1000;
+const DISALLOWED_SONG_IDS = new Set(['chahun-main-ya-naa', 'chahun-main-lofi', 'chahun-main-ya-naa-yt', 'chahun-main-lofi-yt']);
 const excludedVideoIds = [...importedCatalog.excludedVideoIds,
+  'jazrixVDB3o', 'VYE6IVoYeKM',
   ...(!catalogIsFresh ? (importedCatalog.songs as Song[]).map((song) => song.youtubeId!) : [])];
-const SITE_SONGS = buildSiteCatalog(INITIAL_SONGS,
+const SITE_SONGS = buildSiteCatalog(INITIAL_SONGS.filter((s) => !DISALLOWED_SONG_IDS.has(s.id)),
   catalogIsFresh ? importedCatalog.songs as Song[] : [], excludedVideoIds);
 
 export default function App() {
@@ -65,7 +67,10 @@ export default function App() {
       const saved = localStorage.getItem(STORAGE_KEY_SONGS) ?? localStorage.getItem(LEGACY_STORAGE_KEY_SONGS);
       if (saved) {
         const parsed: Song[] = JSON.parse(saved);
-        if (Array.isArray(parsed)) return restoreLibrary(SITE_SONGS, parsed, excludedVideoIds);
+        if (Array.isArray(parsed)) {
+          const sanitized = parsed.filter((s) => !DISALLOWED_SONG_IDS.has(s.id) && s.youtubeId !== 'jazrixVDB3o' && s.youtubeId !== 'VYE6IVoYeKM');
+          return restoreLibrary(SITE_SONGS, sanitized, excludedVideoIds);
+        }
       }
     } catch {}
     return SITE_SONGS;
@@ -89,16 +94,13 @@ export default function App() {
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [librarySearch, setLibrarySearch] = useState('');
 
-  // Playback State
-  const [activeSong, setActiveSong] = useState<Song | null>(() => {
-    // Default to the user's requested song "Chahun Main Ya Naa"
-    return songs.find((s) => s.id === 'chahun-main-ya-naa') || songs[0] || null;
-  });
+  // Playback State: Do not default to any song on site open
+  const [activeSong, setActiveSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [seekVersion, setSeekVersion] = useState<number>(0);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
-  const [duration, setDuration] = useState<number>(() => activeSong?.duration || 202);
+  const [duration, setDuration] = useState<number>(0);
   const [volume, setVolume] = useState<number>(0.85);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
   const [isShuffle, setIsShuffle] = useState<boolean>(false);
@@ -125,8 +127,8 @@ export default function App() {
   const [showIntroLoader, setShowIntroLoader] = useState<boolean>(true);
 
   // AI Mood Tagger state
-  // const [showMoodTaggerModal, setShowMoodTaggerModal] = useState<boolean>(false);
-  // const [moodTaggerTargetSong, setMoodTaggerTargetSong] = useState<Song | null>(null);
+  const [showMoodTaggerModal, setShowMoodTaggerModal] = useState<boolean>(false);
+  const [moodTaggerTargetSong, setMoodTaggerTargetSong] = useState<Song | null>(null);
 
   // Keyboard shortcut Ctrl+B or Cmd+B to toggle left panel
   useEffect(() => {
@@ -141,8 +143,7 @@ export default function App() {
   }, []);
 
   const handleOpenMoodTagger = (target?: Song) => {
-    // setMoodTaggerTargetSong(target || null);
-    // setShowMoodTaggerModal(true);
+    setMoodTaggerTargetSong(target || null);
     handleSelectView('ai-mood');
   };
 
@@ -323,8 +324,39 @@ export default function App() {
     audioEngine.seek(seconds);
   }, []);
 
+  // Determine active queue based on playlist, garba, favorites, system downloads, or full song catalog
+  const getActiveQueue = useCallback(() => {
+    if (selectedPlaylistId) {
+      const targetPl = playlists.find((p) => p.id === selectedPlaylistId);
+      if (targetPl && targetPl.songIds.length > 0) {
+        const plSongs = targetPl.songIds
+          .map((id) => songs.find((s) => s.id === id))
+          .filter((s): s is Song => Boolean(s));
+        if (plSongs.length > 0) return plSongs;
+      }
+    }
+    if (currentView === 'garba') {
+      const garbaSongs = songs.filter((s) => s.garbaStyles?.length || s.genre?.toLowerCase().includes('garba'));
+      if (garbaSongs.length > 0) return garbaSongs;
+    }
+    if (currentView === 'favorites') {
+      const favs = songs.filter((s) => s.isFavorite);
+      if (favs.length > 0) return favs;
+    }
+    if (currentView === 'system-downloads') {
+      const downloads = songs.filter((s) => s.isSystemMedia || s.playlistIds?.includes('system-downloads'));
+      if (downloads.length > 0) return downloads;
+    }
+    return songs;
+  }, [selectedPlaylistId, playlists, currentView, songs]);
+
   const handleNextSong = useCallback(() => {
-    if (!activeSong || songs.length === 0) return;
+    const queue = getActiveQueue();
+    if (queue.length === 0) return;
+    if (!activeSong) {
+      handlePlaySong(queue[0]);
+      return;
+    }
 
     if (repeatMode === 'one') {
       handlePlaySong(activeSong);
@@ -332,40 +364,19 @@ export default function App() {
     }
 
     if (isShuffle) {
-      const randomIndex = Math.floor(Math.random() * songs.length);
-      handlePlaySong(songs[randomIndex]);
+      const candidates = queue.length > 1 ? queue.filter((s) => s.id !== activeSong.id) : queue;
+      const randomIndex = Math.floor(Math.random() * candidates.length);
+      handlePlaySong(candidates[randomIndex]);
       return;
     }
 
-    const currentIndex = songs.findIndex((s) => s.id === activeSong.id);
-    const nextIndex = (currentIndex + 1) % songs.length;
-    handlePlaySong(songs[nextIndex]);
-  }, [activeSong, songs, repeatMode, isShuffle, handlePlaySong]);
+    const currentIndex = queue.findIndex((s) => s.id === activeSong.id);
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % queue.length;
+    handlePlaySong(queue[nextIndex]);
+  }, [activeSong, getActiveQueue, repeatMode, isShuffle, handlePlaySong]);
 
   // In the foreground, keep the normal mixed queue. While backgrounded, only
   // direct audio files can advance; never start an embedded YouTube video hidden.
-  nextSongRef.current = () => {
-    if (typeof document !== 'undefined' && document.hidden) {
-      if (activeSong?.audioSrc) handleMediaSessionNext();
-      else setPlaybackError('Return to Sawan Music to continue YouTube playback. Background listening is available for imported audio files.');
-      return;
-    }
-    handleNextSong();
-  };
-
-  const handlePrevSong = useCallback(() => {
-    if (!activeSong || songs.length === 0) return;
-
-    if (currentTime > 3) {
-      handleSeek(0);
-      return;
-    }
-
-    const currentIndex = songs.findIndex((s) => s.id === activeSong.id);
-    const prevIndex = (currentIndex - 1 + songs.length) % songs.length;
-    handlePlaySong(songs[prevIndex]);
-  }, [activeSong, songs, currentTime, handleSeek, handlePlaySong]);
-
   const handleMediaSessionNext = useCallback(() => {
     if (!activeSong || songs.length === 0) return;
     if (repeatMode === 'one' && activeSong.audioSrc) {
@@ -402,6 +413,44 @@ export default function App() {
       }
     }
   }, [activeSong, songs, currentTime, handleSeek, handlePlaySong]);
+
+  // In the foreground, keep the normal mixed queue. While backgrounded, only
+  // direct audio files can advance; never start an embedded YouTube video hidden.
+  useEffect(() => {
+    nextSongRef.current = () => {
+      if (typeof document !== 'undefined' && document.hidden) {
+        if (activeSong?.audioSrc) handleMediaSessionNext();
+        else setPlaybackError('Return to Sawan Music to continue YouTube playback. Background listening is available for imported audio files.');
+        return;
+      }
+      handleNextSong();
+    };
+  }, [activeSong, handleNextSong, handleMediaSessionNext]);
+
+  const handlePrevSong = useCallback(() => {
+    const queue = getActiveQueue();
+    if (queue.length === 0) return;
+    if (!activeSong) {
+      handlePlaySong(queue[0]);
+      return;
+    }
+
+    if (currentTime > 3) {
+      handleSeek(0);
+      return;
+    }
+
+    if (isShuffle) {
+      const candidates = queue.length > 1 ? queue.filter((s) => s.id !== activeSong.id) : queue;
+      const randomIndex = Math.floor(Math.random() * candidates.length);
+      handlePlaySong(candidates[randomIndex]);
+      return;
+    }
+
+    const currentIndex = queue.findIndex((s) => s.id === activeSong.id);
+    const prevIndex = currentIndex === -1 ? 0 : (currentIndex - 1 + queue.length) % queue.length;
+    handlePlaySong(queue[prevIndex]);
+  }, [activeSong, getActiveQueue, currentTime, handleSeek, isShuffle, handlePlaySong]);
 
   // Synchronize system media session for background listening and hardware media keys
   useEffect(() => {
@@ -524,7 +573,7 @@ export default function App() {
       name: `Mood: ${mood}`,
       description: `Smart playlist automatically clustered for ${mood} vibes.`,
       coverUrl: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
-      color: '#1db954',
+      color: '#38bdf8',
       songIds: sIds,
       createdAt: new Date().toISOString().split('T')[0],
     }));
@@ -610,19 +659,19 @@ export default function App() {
   ).length;
 
   return (
-    <div className="app-shell flex h-screen w-screen overflow-hidden bg-black text-[#b3b3b3] select-none relative font-sans">
+    <div className="app-shell flex h-screen w-screen overflow-hidden bg-[#070d1e] text-[#94a3b8] select-none relative font-sans">
       {/* Full-screen Drag and Drop Overlay for System Downloads */}
       {isDraggingFiles && (
-        <div className="absolute inset-0 z-50 bg-[#1db954]/90 backdrop-blur-md border-4 border-dashed border-white flex flex-col items-center justify-center gap-4 text-center p-6 animate-in fade-in duration-150 pointer-events-none text-black">
-          <div className="w-20 h-20 rounded-3xl bg-black/20 border border-black/30 flex items-center justify-center text-black shadow-2xl animate-pulse">
+        <div className="absolute inset-0 z-50 bg-[#38bdf8]/90 backdrop-blur-md border-4 border-dashed border-white flex flex-col items-center justify-center gap-4 text-center p-6 animate-in fade-in duration-150 pointer-events-none text-slate-950">
+          <div className="w-20 h-20 rounded-3xl bg-slate-950/20 border border-slate-950/30 flex items-center justify-center text-slate-950 shadow-2xl animate-pulse">
             <Download size={40} />
           </div>
           <div className="space-y-1">
-            <h2 className="text-3xl font-black text-black">
+            <h2 className="text-3xl font-black text-slate-950">
               Drop System Downloaded Media Here
             </h2>
-            <p className="text-sm font-semibold text-zinc-900">
-              Files will be automatically caught with original thumbnails and added to your Spotify library.
+            <p className="text-sm font-semibold text-slate-900">
+              Files will be automatically caught with original thumbnails and added to your library.
             </p>
           </div>
         </div>
@@ -642,8 +691,11 @@ export default function App() {
         onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
       />
 
-      {/* Main Spotify Area */}
-      <main className="relative m-2 ml-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-[#121212] pb-20">
+      {/* Main Music Area */}
+      <main
+        className={`relative m-2 ml-0 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl bg-[#0f172a] border border-sky-500/10 ${activeSong ? 'pb-20' : 'pb-0'}`}
+        data-has-active-song={Boolean(activeSong)}
+      >
         <AppNavbar
           profile={profile}
           currentView={currentView}
@@ -683,22 +735,24 @@ export default function App() {
               />
             </React.Suspense>
           </div>
-        ) : currentView === 'ai-studio' || currentView === 'ai-mood' ? (
-          <>
-            {/* Original AI studio preserved while the feature is unavailable:
-            <div className="min-h-0 flex-1 overflow-y-auto px-8 py-6">
-              <AiMusicStudio
-                onSongCreated={handleSongCreated}
-                onPlaySong={handlePlaySong}
-              />
-            </div>
-            */}
-            <AiComingSoonPage
-              feature={currentView === 'ai-mood' ? 'mood' : 'lyrics'}
-              onGoHome={() => handleSelectView('all-songs')}
-              onOpenLibrary={handleOpenLibrary}
+        ) : currentView === 'ai-studio' ? (
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+            <AiMusicStudio
+              songs={songs}
+              onSongCreated={handleSongCreated}
+              onPlaySong={handlePlaySong}
             />
-          </>
+          </div>
+        ) : currentView === 'ai-mood' ? (
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+            <AiMoodTaggerPage
+              songs={songs}
+              targetSong={moodTaggerTargetSong}
+              onUpdateSong={handleSaveSongEdit}
+              onBatchUpdateSongs={handleBatchUpdateSongs}
+              onGoHome={() => handleSelectView('all-songs')}
+            />
+          </div>
         ) : (
           <div className="flex min-h-0 flex-1 overflow-hidden">
             {/* Library Table / Grids */}
@@ -751,6 +805,7 @@ export default function App() {
           currentTime={currentTime}
           seekVersion={seekVersion}
           volume={volume}
+          playbackRate={playbackRate}
           onTimeUpdate={(time, dur) => {
             setCurrentTime(time);
             if (dur > 0) setDuration(dur);
@@ -790,7 +845,6 @@ export default function App() {
       <nav className="mobile-nav" aria-label="Primary navigation">
         <button onClick={() => handleSelectView('all-songs')} aria-current={currentView === 'all-songs' ? 'page' : undefined}><Home size={19} /><span>Home</span></button>
         <button onClick={handleOpenLibrary} aria-current={['library', 'playlists', 'playlist-detail', 'favorites', 'system-downloads', 'artists', 'albums'].includes(currentView) ? 'page' : undefined}><Library size={19} /><span>Library</span></button>
-        <button onClick={() => handleSelectView('garba')} aria-current={currentView === 'garba' ? 'page' : undefined}><Music2 size={19} /><span>Garba</span></button>
         <button onClick={() => handleSelectView('ai-studio')} aria-current={currentView === 'ai-studio' ? 'page' : undefined}><WandSparkles size={19} /><span>AI Lyrics</span></button>
         <button onClick={handleBrowseCatalog}><Sparkles size={19} /><span>Explore</span></button>
       </nav>
@@ -887,17 +941,6 @@ export default function App() {
           onClose={() => setShowSystemScannerModal(false)}
         />
       )}
-
-      {/* AI Mood Tagger Modal temporarily disabled; original wiring preserved.
-      <AiMoodTaggerModal
-        isOpen={showMoodTaggerModal}
-        onClose={() => setShowMoodTaggerModal(false)}
-        songs={songs}
-        targetSong={moodTaggerTargetSong}
-        onUpdateSong={handleSaveSongEdit}
-        onBatchUpdateSongs={handleBatchUpdateSongs}
-      />
-      */}
 
       {/* Dolby Audio Enhancer & Sound Effects Suite Modal */}
       <DolbyAudioModal

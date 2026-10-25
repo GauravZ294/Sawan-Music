@@ -255,7 +255,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   };
 
   return (
-    <div className="flex-1 h-full bg-[#121212] flex flex-col min-w-0 overflow-hidden text-zinc-100 select-none">
+    <div className="flex-1 h-full bg-[#0b1329] flex flex-col min-w-0 overflow-hidden text-zinc-100 select-none">
       {/* Main Scrollable View */}
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-7 scroll-smooth">
         {/* Dynamic Header Banner */}
@@ -310,10 +310,6 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
                     {greetingInfo.title}
                   </h1>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-zinc-800 text-emerald-400 border border-zinc-700/60 shadow-inner flex items-center gap-1.5">
-                    <Clock size={12} />
-                    <span>{greetingInfo.timeStr}</span>
-                  </span>
                 </div>
                 <p className="text-xs text-zinc-400 mt-1">
                   {greetingInfo.subtitle}
@@ -342,24 +338,24 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               </div>
             </div>
 
-            {/* Spotify 6-Grid Quick Access Tiles */}
+            {/* 6-Grid Quick Access Tiles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {[
                 {
-                  id: 'chahun-main-ya-naa',
-                  title: 'Chahun Main Ya Naa',
-                  subtitle: 'Arijit Singh & Palak Muchhal',
+                  id: 'stree2-shelf',
+                  title: 'Aayi Nai (Stree 2)',
+                  subtitle: 'Pawan Singh & Sachin-Jigar',
                   cover:
-                    'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
-                  songId: 'chahun-main-ya-naa',
+                    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80',
+                  songId: 'aayi-nai-stree2',
                 },
                 {
-                  id: 'tum-hi-ho',
-                  title: 'Tum Hi Ho',
-                  subtitle: 'Aashiqui 2 Anthem',
+                  id: 'kesariya-shelf',
+                  title: 'Kesariya (Brahmāstra)',
+                  subtitle: 'Arijit Singh & Pritam',
                   cover:
-                    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80',
-                  songId: 'tum-hi-ho',
+                    'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
+                  songId: 'kesariya-original',
                 },
                 {
                   id: 'workout-shelf',
@@ -421,7 +417,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     </div>
 
                     <div className="pr-4 opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-xl translate-y-1 group-hover:translate-y-0 duration-200">
-                      <div className="w-10 h-10 rounded-full bg-[#1db954] hover:bg-[#1ed760] hover:scale-105 flex items-center justify-center text-black shadow-lg">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] hover:scale-105 flex items-center justify-center text-slate-950 shadow-lg shadow-sky-500/20">
                         {isThisPlaying ? (
                           <Pause size={18} fill="currentColor" />
                         ) : (
@@ -437,10 +433,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         )}
 
         {/* Format Categories & AI Mood Labels */}
-        <div className="space-y-2.5 bg-[#18181b]/50 p-3 rounded-2xl border border-zinc-800/60 shadow-md">
+        <div className="space-y-2.5 bg-[#0f172a]/80 p-3 rounded-2xl border border-sky-500/10 shadow-md">
           {/* Format Categories Filter (Originals, Lo-Fi, Remix, Mashup) */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider shrink-0 pr-1">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 pr-1">
               Format:
             </span>
             {[
@@ -455,8 +451,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 onClick={() => setCategoryFilter(cat.id as any)}
                 className={`text-xs px-3.5 py-1 rounded-full font-bold whitespace-nowrap transition-all ${
                   categoryFilter === cat.id
-                    ? 'bg-white text-black shadow-md'
-                    : 'bg-[#242424] text-zinc-300 hover:bg-[#303030] hover:text-white'
+                    ? 'bg-sky-400 text-slate-950 shadow-md'
+                    : 'bg-[#1e293b] text-slate-300 hover:bg-[#334155] hover:text-white'
                 }`}
               >
                 {cat.label}
@@ -465,7 +461,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           </div>
 
           {/* AI Mood Labels Filter Bar (Workout, Relaxing, Party, Romantic, etc.) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-t border-zinc-800/40 pt-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none border-t border-slate-800/40 pt-2">
             <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0 pr-1">
               <Tags size={13} />
               AI Mood:
@@ -487,8 +483,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   onClick={() => setMoodFilter(mood.id)}
                   className={`text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-[#1db954] text-black shadow-md shadow-[#1db954]/20 scale-102 font-extrabold'
-                      : 'bg-[#1e1e1e] text-zinc-300 hover:bg-[#282828] border border-zinc-800'
+                      ? 'bg-[#38bdf8] text-slate-950 shadow-md shadow-sky-500/20 scale-102 font-extrabold'
+                      : 'bg-[#1e293b] text-slate-300 hover:bg-[#334155] border border-slate-800'
                   }`}
                 >
                   {Icon && <Icon size={13} className={isSelected ? 'text-black' : mood.color} />}
@@ -538,16 +534,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     <div
                       key={song.id}
                       onClick={() => handleRowClick(song)}
-                      className="group p-3.5 rounded-lg bg-[#181818] hover:bg-[#282828] cursor-pointer transition-all duration-200 flex flex-col shadow-md"
+                      className="group p-3.5 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] border border-sky-500/10 cursor-pointer transition-all duration-200 flex flex-col shadow-md"
                     >
-                      <div className="relative aspect-square w-full rounded-md overflow-hidden bg-black mb-3 shadow-lg">
+                      <div className="relative aspect-square w-full rounded-md overflow-hidden bg-slate-950 mb-3 shadow-lg">
                         <img
                           src={song.coverUrl}
                           alt={song.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200">
-                          <div className="w-11 h-11 rounded-full bg-[#1db954] hover:bg-[#1ed760] hover:scale-105 flex items-center justify-center text-black shadow-xl">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] hover:scale-105 flex items-center justify-center text-slate-950 shadow-xl shadow-sky-500/20">
                             {isThisPlaying ? (
                               <Pause size={20} fill="currentColor" />
                             ) : (
@@ -558,12 +554,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                       </div>
                       <h4
                         className={`text-sm font-bold truncate ${
-                          activeSong?.id === song.id ? 'text-[#1db954]' : 'text-white'
+                          activeSong?.id === song.id ? 'text-[#38bdf8]' : 'text-white'
                         }`}
                       >
                         {song.title}
                       </h4>
-                      <p className="text-xs text-zinc-400 truncate mt-1">{song.artist}</p>
+                      <p className="text-xs text-slate-400 truncate mt-1">{song.artist}</p>
                     </div>
                   );
                 })}
@@ -577,13 +573,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                     🌿 Bollywood Relaxing & Lo-Fi Chill
                   </h3>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-slate-400">
                     Acoustic calm, slowed & reverb aesthetics for late-night relaxation
                   </p>
                 </div>
                 <button
                   onClick={() => setMoodFilter('Relaxing')}
-                  className="text-xs font-bold text-[#b3b3b3] hover:text-white hover:underline transition-colors"
+                  className="text-xs font-bold text-slate-300 hover:text-white hover:underline transition-colors"
                 >
                   Show all
                 </button>
@@ -596,16 +592,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     <div
                       key={song.id}
                       onClick={() => handleRowClick(song)}
-                      className="group p-3.5 rounded-lg bg-[#181818] hover:bg-[#282828] cursor-pointer transition-all duration-200 flex flex-col shadow-md"
+                      className="group p-3.5 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] border border-sky-500/10 cursor-pointer transition-all duration-200 flex flex-col shadow-md"
                     >
-                      <div className="relative aspect-square w-full rounded-md overflow-hidden bg-black mb-3 shadow-lg">
+                      <div className="relative aspect-square w-full rounded-md overflow-hidden bg-slate-950 mb-3 shadow-lg">
                         <img
                           src={song.coverUrl}
                           alt={song.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200">
-                          <div className="w-11 h-11 rounded-full bg-[#1db954] hover:bg-[#1ed760] hover:scale-105 flex items-center justify-center text-black shadow-xl">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] hover:scale-105 flex items-center justify-center text-slate-950 shadow-xl shadow-sky-500/20">
                             {isThisPlaying ? (
                               <Pause size={20} fill="currentColor" />
                             ) : (
@@ -616,12 +612,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                       </div>
                       <h4
                         className={`text-sm font-bold truncate ${
-                          activeSong?.id === song.id ? 'text-[#1db954]' : 'text-white'
+                          activeSong?.id === song.id ? 'text-[#38bdf8]' : 'text-white'
                         }`}
                       >
                         {song.title}
                       </h4>
-                      <p className="text-xs text-zinc-400 truncate mt-1">{song.artist}</p>
+                      <p className="text-xs text-slate-400 truncate mt-1">{song.artist}</p>
                     </div>
                   );
                 })}
@@ -635,13 +631,13 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
                     ⚡ Workout Fuel & Party Bangers
                   </h3>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-slate-400">
                     High BPM workout music, club remixes, and bass-boosted fitness anthems
                   </p>
                 </div>
                 <button
                   onClick={() => setMoodFilter('Workout')}
-                  className="text-xs font-bold text-[#b3b3b3] hover:text-white hover:underline transition-colors"
+                  className="text-xs font-bold text-slate-300 hover:text-white hover:underline transition-colors"
                 >
                   Show all
                 </button>
@@ -654,16 +650,16 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     <div
                       key={song.id}
                       onClick={() => handleRowClick(song)}
-                      className="group p-3.5 rounded-lg bg-[#181818] hover:bg-[#282828] cursor-pointer transition-all duration-200 flex flex-col shadow-md"
+                      className="group p-3.5 rounded-lg bg-[#0f172a] hover:bg-[#1e293b] border border-sky-500/10 cursor-pointer transition-all duration-200 flex flex-col shadow-md"
                     >
-                      <div className="relative aspect-square w-full rounded-md overflow-hidden bg-black mb-3 shadow-lg">
+                      <div className="relative aspect-square w-full rounded-md overflow-hidden bg-slate-950 mb-3 shadow-lg">
                         <img
                           src={song.coverUrl}
                           alt={song.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200">
-                          <div className="w-11 h-11 rounded-full bg-[#1db954] hover:bg-[#1ed760] hover:scale-105 flex items-center justify-center text-black shadow-xl">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] hover:scale-105 flex items-center justify-center text-slate-950 shadow-xl shadow-sky-500/20">
                             {isThisPlaying ? (
                               <Pause size={20} fill="currentColor" />
                             ) : (
@@ -674,12 +670,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                       </div>
                       <h4
                         className={`text-sm font-bold truncate ${
-                          activeSong?.id === song.id ? 'text-[#1db954]' : 'text-white'
+                          activeSong?.id === song.id ? 'text-[#38bdf8]' : 'text-white'
                         }`}
                       >
                         {song.title}
                       </h4>
-                      <p className="text-xs text-zinc-400 truncate mt-1">{song.artist}</p>
+                      <p className="text-xs text-slate-400 truncate mt-1">{song.artist}</p>
                     </div>
                   );
                 })}
@@ -732,7 +728,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     setGarbaStyle('all');
                     setGarbaLanguage('all');
                   }}
-                  className="mt-3 px-4 py-1.5 bg-[#1db954] text-black font-bold text-xs rounded-full"
+                  className="mt-3 px-4 py-1.5 bg-[#38bdf8] text-slate-950 font-bold text-xs rounded-full"
                 >
                   Clear Filters
                 </button>
@@ -752,15 +748,15 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                   <div
                     key={song.id}
                     onDoubleClick={() => handleRowClick(song)}
-                    className={`group grid grid-cols-[3rem_1fr_10rem_9rem_6rem_4rem] items-center px-4 py-2.5 rounded-md hover:bg-[#282828] cursor-pointer transition-colors relative ${
-                      isCurrentActive ? 'bg-[#242424]' : ''
+                    className={`group grid grid-cols-[3rem_1fr_10rem_9rem_6rem_4rem] items-center px-4 py-2.5 rounded-md hover:bg-[#1e293b] cursor-pointer transition-colors relative ${
+                      isCurrentActive ? 'bg-[#1e293b]/90 border-l-2 border-[#38bdf8]' : ''
                     }`}
                   >
                     {/* Column 1: Index or Play icon */}
                     <div className="flex items-center justify-center text-xs">
-                      <span className="group-hover:hidden text-zinc-400 font-mono">
+                      <span className="group-hover:hidden text-slate-400 font-mono">
                         {isCurrentlyPlaying ? (
-                          <span className="text-[#1db954] animate-pulse">▶</span>
+                          <span className="text-[#38bdf8] animate-pulse">▶</span>
                         ) : (
                           idx + 1
                         )}
@@ -770,7 +766,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                           e.stopPropagation();
                           handleRowClick(song);
                         }}
-                        className="hidden group-hover:flex text-white hover:text-[#1db954] transition-colors"
+                        className="hidden group-hover:flex text-white hover:text-[#38bdf8] transition-colors"
                       >
                         {isCurrentlyPlaying ? (
                           <Pause size={15} fill="currentColor" />
@@ -782,7 +778,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
                     {/* Column 2: Title & Artist with Artwork + Quick AI Tag Action */}
                     <div className="flex items-center gap-3.5 min-w-0 pr-4">
-                      <div className="relative w-10 h-10 rounded overflow-hidden shrink-0 bg-black">
+                      <div className="relative w-10 h-10 rounded overflow-hidden shrink-0 bg-slate-950">
                         <img
                           src={song.coverUrl}
                           alt={song.title}
@@ -793,7 +789,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                         <div className="flex items-center gap-2">
                           <h4
                             className={`text-sm font-bold truncate ${
-                              isCurrentActive ? 'text-[#1db954]' : 'text-white'
+                              isCurrentActive ? 'text-[#38bdf8]' : 'text-white'
                             }`}
                           >
                             {song.title}
@@ -806,17 +802,17 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                                 e.stopPropagation();
                                 onTagSongMood(song);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-zinc-700 text-zinc-400 hover:text-amber-300 transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-slate-700 text-slate-400 hover:text-amber-300 transition-all"
                               title="Inspect & Edit AI Mood Tags"
                             >
                               <Sparkles size={12} />
                             </button>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-zinc-400 truncate mt-0.5">
+                        <div className="flex items-center gap-2 text-xs text-slate-400 truncate mt-0.5">
                           <span className="truncate">{song.artist}</span>
                           {song.titleDevanagari && (
-                            <span className="text-[11px] text-zinc-500 font-devanagari truncate">
+                            <span className="text-[11px] text-slate-500 font-devanagari truncate">
                               • {song.titleDevanagari}
                             </span>
                           )}
@@ -825,7 +821,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     </div>
 
                     {/* Column 3: Album */}
-                    <div className="hidden md:block text-xs text-zinc-400 truncate pr-4">
+                    <div className="hidden md:block text-xs text-slate-400 truncate pr-4">
                       {song.album || 'Single'}
                     </div>
 
@@ -833,7 +829,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     <div className="hidden sm:flex items-center gap-1.5 flex-wrap pr-3">
                       {/* Language Badge */}
                       {song.language && (
-                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-teal-950/80 text-teal-300 border border-teal-800/50">
+                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-800/50">
                           {song.language}
                         </span>
                       )}
@@ -862,14 +858,14 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
                       {/* Category Pill */}
                       {song.category && song.category !== 'regular' && (
-                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
                           {song.category}
                         </span>
                       )}
                     </div>
 
                     {/* Column 5: Source */}
-                    <div className="hidden lg:flex items-center gap-1.5 text-xs text-zinc-400">
+                    <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-400">
                       {song.youtubeId ? (
                         <span className="flex items-center gap-1 text-red-400 text-[11px] font-medium">
                           <Youtube size={13} />
@@ -881,12 +877,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                           <span>System</span>
                         </span>
                       ) : (
-                        <span className="text-[11px] text-purple-400 font-medium">Sawan Music</span>
+                        <span className="text-[11px] text-sky-400 font-medium">Sawan Music</span>
                       )}
                     </div>
 
                     {/* Column 6: Duration, AI Tag & Like Heart */}
-                    <div className="flex items-center justify-end gap-2.5 text-xs text-zinc-400 font-mono">
+                    <div className="flex items-center justify-end gap-2.5 text-xs text-slate-400 font-mono">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -894,8 +890,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                         }}
                         className={`transition-colors ${
                           song.isFavorite
-                            ? 'text-[#1db954]'
-                            : 'text-zinc-500 opacity-0 group-hover:opacity-100 hover:text-white'
+                            ? 'text-[#38bdf8]'
+                            : 'text-slate-500 opacity-0 group-hover:opacity-100 hover:text-white'
                         }`}
                         title="Like song"
                       >
@@ -909,6 +905,12 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
             )}
           </div>
         </div>
+
+        {/* Footer with Copyright */}
+        <footer className="mt-12 mb-6 border-t border-zinc-800/60 pt-6 px-4 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-zinc-400">
+          <p>© 2026 Gaurav Zalavadiya. All rights reserved.</p>
+          <p className="text-zinc-500">Sawan Music • Designed & Developed by Gaurav Zalavadiya</p>
+        </footer>
       </div>
     </div>
   );

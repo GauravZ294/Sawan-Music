@@ -66,7 +66,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   };
 
   return (
-    <header className="app-navbar sticky top-0 z-40 shrink-0 border-b border-zinc-800/60 bg-[#121212]/95 px-3 py-3 text-zinc-100 backdrop-blur-md sm:px-6" style={{ containerType: 'inline-size' }}>
+    <header className="app-navbar sticky top-0 z-40 shrink-0 border-b border-sky-500/10 bg-[#0f172a]/90 px-3 py-3 text-slate-100 backdrop-blur-md sm:px-6" style={{ containerType: 'inline-size' }}>
       <style>{`
         .app-navbar .app-navbar-row {
           display: grid;
@@ -102,7 +102,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
           aria-label="Home"
           aria-current={currentView === 'all-songs' ? 'page' : undefined}
           onClick={goHome}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-zinc-300 transition hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/80 text-slate-300 transition hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
         >
           <Home size={19} aria-hidden="true" />
         </button>
@@ -129,7 +129,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                 onSearchChange('');
                 searchRef.current?.focus();
               }}
-              className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-zinc-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]"
+              className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
             >
               <X size={16} aria-hidden="true" />
             </button>
@@ -144,7 +144,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
               onOpenLibrary();
             }}
             aria-current={isLibraryView ? 'page' : undefined}
-            className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760] ${isLibraryView ? 'border-emerald-500/40 bg-emerald-500/15 text-[#1ed760]' : 'border-zinc-700 bg-zinc-800/60 text-zinc-200 hover:border-zinc-500 hover:bg-zinc-800 hover:text-white'}`}
+            className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] ${isLibraryView ? 'border-sky-500/40 bg-sky-500/15 text-[#38bdf8]' : 'border-slate-700 bg-slate-800/60 text-slate-200 hover:border-slate-500 hover:bg-slate-800 hover:text-white'}`}
           >
             <Library size={16} aria-hidden="true" />
             <span>Library</span>
@@ -159,27 +159,27 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                 aria-label="Open account menu"
                 aria-expanded={isAccountMenuOpen}
                 aria-controls={accountMenuId}
-                className="flex h-10 items-center gap-2 rounded-full bg-zinc-800 p-1 text-white transition hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760] sm:pr-3"
+                className="flex h-10 items-center gap-2 rounded-full bg-slate-800 p-1 text-white transition hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] sm:pr-3"
               >
-                <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#1db954] to-emerald-300 text-xs font-extrabold text-black">
+                <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] text-xs font-extrabold text-slate-950">
                   {profile.name.trim().slice(0, 1).toUpperCase() || 'S'}
                 </span>
                 <span className="hidden max-w-24 truncate text-xs font-semibold sm:inline">{profile.name}</span>
               </button>
               {isAccountMenuOpen && (
-                <div id={accountMenuId} aria-label="Account menu" className="absolute right-0 top-12 z-50 w-64 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-zinc-700 bg-[#282828] p-2 text-sm text-zinc-100 shadow-2xl">
-                  <div className="border-b border-zinc-700 px-3 py-2">
+                <div id={accountMenuId} aria-label="Account menu" className="absolute right-0 top-12 z-50 w-64 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-slate-700 bg-[#0f172a] p-2 text-sm text-slate-100 shadow-2xl">
+                  <div className="border-b border-slate-700 px-3 py-2">
                     <p className="truncate font-bold text-white">{profile.name}</p>
-                    <p className="truncate text-xs text-zinc-400">{profile.email}</p>
+                    <p className="truncate text-xs text-slate-400">{profile.email}</p>
                   </div>
-                  <button type="button" onClick={goHome} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]">Recently played</button>
+                  <button type="button" onClick={goHome} className="block w-full rounded-lg px-3 py-2 text-left hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]">Recently played</button>
                   <button
                     type="button"
                     onClick={() => {
                       setIsAccountMenuOpen(false);
                       onSignOut();
                     }}
-                    className="mt-1 block w-full rounded-lg border-t border-zinc-700 px-3 pb-2 pt-3 text-left hover:text-[#1ed760] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]"
+                    className="mt-1 block w-full rounded-lg border-t border-slate-700 px-3 pb-2 pt-3 text-left hover:text-[#38bdf8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
                   >
                     Log out
                   </button>
@@ -188,8 +188,8 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             </div>
           ) : (
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" onClick={() => onOpenAccount('signup')} className="hidden rounded-full px-3 py-2 text-xs font-bold text-zinc-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760] sm:block">Sign up</button>
-              <button type="button" onClick={() => onOpenAccount('login')} className="h-10 rounded-full bg-white px-4 text-xs font-extrabold text-black transition hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]">Log in</button>
+              <button type="button" onClick={() => onOpenAccount('signup')} className="hidden rounded-full px-3 py-2 text-xs font-bold text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] sm:block">Sign up</button>
+              <button type="button" onClick={() => onOpenAccount('login')} className="h-10 rounded-full bg-[#38bdf8] hover:bg-sky-300 px-4 text-xs font-extrabold text-slate-950 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]">Log in</button>
             </div>
           )}
         </nav>

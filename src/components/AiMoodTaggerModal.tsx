@@ -211,12 +211,12 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="bg-[#181818] border border-zinc-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-zinc-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div className="bg-[#0f172a] border border-sky-500/20 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-slate-100">
         {/* Modal Top Bar */}
-        <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between bg-[#121212]/90">
+        <div className="px-6 py-4 border-b border-sky-500/10 flex items-center justify-between bg-[#0b1329]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1db954] to-emerald-400 flex items-center justify-center text-black shadow-lg shadow-[#1db954]/20">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] flex items-center justify-center text-slate-950 shadow-lg shadow-sky-500/20">
               <Sparkles size={20} className="stroke-[2.5]" />
             </div>
             <div>
@@ -224,11 +224,11 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                 <h2 className="text-base font-extrabold text-white tracking-tight">
                   AI Song Mood Tagger
                 </h2>
-                <span className="text-[10px] uppercase font-bold bg-[#1db954]/20 text-[#1db954] px-2 py-0.5 rounded-full border border-[#1db954]/30">
+                <span className="text-[10px] uppercase font-bold bg-sky-500/20 text-[#38bdf8] px-2 py-0.5 rounded-full border border-sky-500/30">
                   Gemini Audio Intelligence
                 </span>
               </div>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-slate-400">
                 Analyzes song metadata, genre, tempo (BPM), and vibe to assign smart mood labels:
                 Workout, Relaxing, Party, etc.
               </p>
@@ -236,7 +236,7 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             <X size={20} />
           </button>
@@ -245,19 +245,19 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
         {/* Modal Body: Two Column Layout */}
         <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Left Column: Quick Mood Categories & Batch Tagger */}
-          <div className="md:col-span-5 flex flex-col gap-4 border-b md:border-b-0 md:border-r border-zinc-800 md:pr-6">
+          <div className="md:col-span-5 flex flex-col gap-4 border-b md:border-b-0 md:border-r border-slate-800 md:pr-6">
             {/* Batch Auto-Tagger Card */}
-            <div className="p-4 rounded-2xl bg-gradient-to-b from-[#242424] to-[#1c1c1c] border border-zinc-700/60 shadow-lg space-y-3">
+            <div className="p-4 rounded-2xl bg-slate-900 border border-sky-500/10 shadow-lg space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <TrendingUp size={14} className="text-[#1db954]" />
+                  <TrendingUp size={14} className="text-[#38bdf8]" />
                   Library Auto-Tagger
                 </span>
-                <span className="text-[11px] font-semibold text-zinc-400">
+                <span className="text-[11px] font-semibold text-slate-400">
                   {songs.length} Tracks
                 </span>
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed">
+              <p className="text-xs text-slate-300 leading-relaxed">
                 Scan your entire Bollywood library. AI will analyze genres, rhythms, and tags across
                 all songs simultaneously.
               </p>
@@ -265,17 +265,17 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
               {isBatchProcessing ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="flex items-center gap-2 text-[#1db954]">
+                    <span className="flex items-center gap-2 text-[#38bdf8]">
                       <Loader2 size={14} className="animate-spin" />
                       Analyzing songs...
                     </span>
-                    <span className="text-zinc-300">
+                    <span className="text-slate-300">
                       {batchProgress.current} / {batchProgress.total}
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#1db954] to-emerald-400 transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-[#3b82f6] to-[#38bdf8] transition-all duration-300"
                       style={{
                         width: `${
                           batchProgress.total
@@ -289,7 +289,7 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
               ) : (
                 <button
                   onClick={handleRunBatchAutoTag}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#1db954] hover:bg-[#1ed760] text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#1db954]/25 transition-all hover:scale-101"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#38bdf8] hover:bg-sky-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all hover:scale-101"
                 >
                   <Sparkles size={16} />
                   <span>Analyze & Tag All {songs.length} Songs with AI</span>
@@ -384,25 +384,25 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                     <div className="flex items-center gap-3 mt-1.5 text-[11px] text-zinc-400">
                       <span>Genre: <b className="text-zinc-200">{selectedSong.genre}</b></span>
                       <span>•</span>
-                      <span>Tempo: <b className="text-[#1db954]">{selectedSong.bpm} BPM</b></span>
+                      <span>Tempo: <b className="text-[#38bdf8]">{selectedSong.bpm} BPM</b></span>
                       <span>•</span>
-                      <span>Year: <b className="text-zinc-200">{selectedSong.year}</b></span>
+                      <span>Year: <b className="text-slate-200">{selectedSong.year}</b></span>
                     </div>
                   </div>
                   <button
                     onClick={() => runSingleAnalysis(selectedSong)}
                     disabled={isAnalyzing}
-                    className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors"
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
                     title="Re-run AI Analysis"
                   >
-                    <Sparkles size={16} className={isAnalyzing ? 'animate-spin text-[#1db954]' : ''} />
+                    <Sparkles size={16} className={isAnalyzing ? 'animate-spin text-[#38bdf8]' : ''} />
                   </button>
                 </div>
 
                 {/* AI Analysis Result Card */}
                 {isAnalyzing ? (
-                  <div className="py-12 flex flex-col items-center justify-center gap-3 text-zinc-400">
-                    <Loader2 size={28} className="animate-spin text-[#1db954]" />
+                  <div className="py-12 flex flex-col items-center justify-center gap-3 text-slate-400">
+                    <Loader2 size={28} className="animate-spin text-[#38bdf8]" />
                     <p className="text-xs font-semibold">
                       Analyzing metadata, tempo, and genre with Gemini...
                     </p>
@@ -463,11 +463,11 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                     {/* Interactive Mood Labels Pill Selector */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
-                          <Tag size={14} className="text-[#1db954]" />
+                        <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                          <Tag size={14} className="text-[#38bdf8]" />
                           Active Mood Labels (Click to toggle)
                         </label>
-                        <span className="text-[11px] text-zinc-500">
+                        <span className="text-[11px] text-slate-500">
                           {customTags.length} labels selected
                         </span>
                       </div>
@@ -484,8 +484,8 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                                 onClick={() => handleToggleTag(mood)}
                                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
                                   isSelected
-                                    ? 'bg-[#1db954] text-black shadow-md shadow-[#1db954]/20 scale-102'
-                                    : 'bg-[#2a2a2a] hover:bg-[#333] text-zinc-300 border border-zinc-700'
+                                    ? 'bg-[#38bdf8] text-slate-950 shadow-md shadow-sky-500/20 scale-102'
+                                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                                 }`}
                               >
                                 {isSelected && <Check size={13} className="stroke-[3]" />}
@@ -503,12 +503,12 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                           value={newTagInput}
                           onChange={(e) => setNewTagInput(e.target.value)}
                           placeholder="Add custom mood tag (e.g. Cardio Fuel, Midnight Melancholy)..."
-                          className="flex-1 px-3 py-1.5 bg-[#242424] border border-zinc-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#1db954]"
+                          className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#38bdf8]"
                         />
                         <button
                           type="submit"
                           disabled={!newTagInput.trim()}
-                          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
+                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
                         >
                           <Plus size={14} />
                           <span>Add</span>
@@ -517,10 +517,10 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                     </div>
 
                     {/* Action Bar */}
-                    <div className="pt-2 flex items-center justify-end gap-3 border-t border-zinc-800">
+                    <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-800">
                       <button
                         onClick={handleSaveCurrentSongTags}
-                        className="px-5 py-2.5 bg-[#1db954] hover:bg-[#1ed760] text-black font-extrabold text-xs rounded-full shadow-lg shadow-[#1db954]/20 flex items-center gap-2 transition-all hover:scale-102"
+                        className="px-5 py-2.5 bg-[#38bdf8] hover:bg-sky-300 text-slate-950 font-extrabold text-xs rounded-full shadow-lg shadow-sky-500/20 flex items-center gap-2 transition-all hover:scale-102"
                       >
                         <Check size={16} />
                         <span>Save & Apply Mood Tags to Song</span>
@@ -530,7 +530,7 @@ export const AiMoodTaggerModal: React.FC<AiMoodTaggerModalProps> = ({
                 ) : null}
               </>
             ) : (
-              <div className="py-20 text-center text-zinc-500 text-xs">
+              <div className="py-20 text-center text-slate-500 text-xs">
                 Select a song to inspect its mood analysis.
               </div>
             )}

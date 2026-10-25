@@ -280,27 +280,27 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
         : request ? `Results for “${request.value}”` : 'Discover your next favorite';
   const canSubmit = mode === 'search' ? !!query.trim() : mode === 'artist' ? !!artist.trim() : mode === 'genres' ? !!genre : true;
   const isPageable = request?.mode === 'genres' || request?.mode === 'artist' || Boolean(error && results && request);
-  const inputClass = 'min-w-0 flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20';
+  const inputClass = 'min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20';
 
   return (
-    <section className="flex h-full min-h-0 flex-1 flex-col overflow-y-auto bg-[#121212] text-zinc-100" aria-label="Music catalog">
-      <div className="border-b border-zinc-800 bg-gradient-to-br from-emerald-950/80 via-[#171c18] to-[#121212] px-5 py-7 sm:px-8">
-        <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition hover:border-zinc-500 hover:text-white">
+    <section className="flex h-full min-h-0 flex-1 flex-col overflow-y-auto bg-[#0b1329] text-slate-100" aria-label="Music catalog">
+      <div className="border-b border-sky-500/10 bg-gradient-to-br from-sky-950/80 via-[#0f172a] to-[#0b1329] px-5 py-7 sm:px-8">
+        <button onClick={onBack} className="mb-6 inline-flex items-center gap-2 rounded-full border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white">
           <ArrowLeft size={14} /> Back to your library
         </button>
         <div className="flex items-start gap-4">
-          <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300 sm:flex"><Disc3 size={33} /></div>
+          <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-sky-300 sm:flex"><Disc3 size={33} /></div>
           <div className="min-w-0">
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-400">{hasServerCatalog() ? 'FreqBlog music discovery' : 'Sawan YouTube music library'}</p>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.22em] text-sky-400">{hasServerCatalog() ? 'FreqBlog music discovery' : 'Sawan YouTube music library'}</p>
             <h1 className="text-3xl font-black tracking-tight sm:text-4xl">A world of music.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300">{hasServerCatalog() ? 'Explore song titles and artists. Play linked songs here or find an official recording on YouTube.' : 'Browse and play the YouTube songs already included in Sawan. Search by title, artist, language, or album.'}</p>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300">{hasServerCatalog() ? 'Explore song titles and artists. Play linked songs here or find an official recording on YouTube.' : 'Browse and play the YouTube songs already included in Sawan. Search by title, artist, language, or album.'}</p>
           </div>
         </div>
-        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-400" aria-live="polite">
-          <span className={`inline-flex items-center gap-1.5 ${status?.connected ? 'text-emerald-400' : 'text-zinc-400'}`}><span className={`h-1.5 w-1.5 rounded-full ${status?.connected ? 'bg-emerald-400' : 'bg-zinc-500'}`} />{!hasServerCatalog() ? 'Sawan YouTube catalog' : statusLoading ? 'Checking connection…' : status?.connected ? 'Catalog connected' : status?.configured ? 'Catalog temporarily unavailable' : status ? 'Catalog is not configured' : 'Connection unavailable'}</span>
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400" aria-live="polite">
+          <span className={`inline-flex items-center gap-1.5 ${status?.connected ? 'text-sky-400' : 'text-slate-400'}`}><span className={`h-1.5 w-1.5 rounded-full ${status?.connected ? 'bg-sky-400' : 'bg-slate-500'}`} />{!hasServerCatalog() ? 'Sawan YouTube catalog' : statusLoading ? 'Checking connection…' : status?.connected ? 'Catalog connected' : status?.configured ? 'Catalog temporarily unavailable' : status ? 'Catalog is not configured' : 'Connection unavailable'}</span>
           {status?.tier && <span className="capitalize">{status.tier} plan</span>}
           {status?.quota && <span>{status.quota.remaining.toLocaleString()} of {status.quota.limit.toLocaleString()} requests remaining</span>}
-          {hasServerCatalog() && <button onClick={() => void loadStatus()} disabled={statusLoading} className="inline-flex items-center gap-1 text-zinc-400 hover:text-white disabled:opacity-50" aria-label="Refresh catalog connection and quota"><RefreshCw size={12} className={statusLoading ? 'animate-spin' : ''} /> Refresh status</button>}
+          {hasServerCatalog() && <button onClick={() => void loadStatus()} disabled={statusLoading} className="inline-flex items-center gap-1 text-slate-400 hover:text-white disabled:opacity-50" aria-label="Refresh catalog connection and quota"><RefreshCw size={12} className={statusLoading ? 'animate-spin' : ''} /> Refresh status</button>}
           {statusError && <span className="text-amber-300">{statusError}</span>}
         </div>
       </div>
@@ -313,56 +313,56 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
             event.preventDefault();
             selectMode(MODES[nextIndex].id);
             document.getElementById(`catalog-tab-${MODES[nextIndex].id}`)?.focus();
-          }} className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${mode === id ? 'bg-[#1db954] text-black' : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white'}`}><Icon size={16} />{label}</button>)}
+          }} className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${mode === id ? 'bg-[#38bdf8] text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'}`}><Icon size={16} />{label}</button>)}
         </div>
 
         <div id="catalog-panel" role="tabpanel" aria-labelledby={`catalog-tab-${mode}`}>
           <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
             {mode === 'search' && <><label className="sr-only" htmlFor="catalog-query">Song title, artist, or album</label><input id="catalog-query" name="catalogQuery" type="search" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={200} placeholder="Try Gujarati garba, Arijit Singh, or your favorite song…" className={inputClass} /></>}
             {mode === 'artist' && <><label className="sr-only" htmlFor="catalog-artist">Artist name</label><input id="catalog-artist" name="catalogArtist" value={artist} onChange={(event) => setArtist(event.target.value)} maxLength={200} placeholder="Enter an artist, such as Geeta Rabari or Taylor Swift" className={inputClass} /></>}
-            {mode === 'charts' && hasServerCatalog() && <><label className="sr-only" htmlFor="catalog-country">Chart country</label><div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 pl-4"><Globe2 size={18} className="shrink-0 text-emerald-400" /><select id="catalog-country" name="catalogCountry" value={country} onChange={(event) => setCountry(event.target.value)} className="w-full rounded-xl bg-zinc-900 px-2 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-400/40">{COUNTRIES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}</select></div><label className="sr-only" htmlFor="catalog-chart-type">Chart type</label><select id="catalog-chart-type" name="catalogChartType" value={chartType} onChange={(event) => setChartType(event.target.value as 'most-played' | 'new-music')} className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400"><option value="most-played">Most played</option><option value="new-music">New music</option></select></>}
+            {mode === 'charts' && hasServerCatalog() && <><label className="sr-only" htmlFor="catalog-country">Chart country</label><div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-700 bg-slate-900 pl-4"><Globe2 size={18} className="shrink-0 text-sky-400" /><select id="catalog-country" name="catalogCountry" value={country} onChange={(event) => setCountry(event.target.value)} className="w-full rounded-xl bg-slate-900 px-2 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-sky-400/40">{COUNTRIES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}</select></div><label className="sr-only" htmlFor="catalog-chart-type">Chart type</label><select id="catalog-chart-type" name="catalogChartType" value={chartType} onChange={(event) => setChartType(event.target.value as 'most-played' | 'new-music')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-sky-400"><option value="most-played">Most played</option><option value="new-music">New music</option></select></>}
             {mode === 'genres' && <><label className="sr-only" htmlFor="catalog-genre">Music genre</label><select id="catalog-genre" name="catalogGenre" value={genre} onChange={(event) => setGenre(event.target.value)} disabled={genresLoading || genres.length === 0} className={inputClass}><option value="">{genresLoading ? 'Loading genres…' : 'Choose a music genre'}</option>{genres.map((item) => <option key={item.name} value={item.name}>{item.name} ({item.count.toLocaleString()} tracks)</option>)}</select></>}
-            {mode === 'charts' && !hasServerCatalog() && <p className="flex flex-1 items-center text-sm text-zinc-400">Browse the official YouTube songs included in Sawan Music.</p>}
-            <button type="submit" disabled={!canSubmit || loading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1db954] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#1ed760] disabled:cursor-not-allowed disabled:opacity-45">{loading ? <Loader2 size={17} className="animate-spin" /> : <Search size={17} />}{mode === 'search' ? 'Search songs' : mode === 'artist' ? 'Find artist' : mode === 'genres' ? 'Browse genre' : hasServerCatalog() ? 'Show charts' : 'Show YouTube songs'}</button>
+            {mode === 'charts' && !hasServerCatalog() && <p className="flex flex-1 items-center text-sm text-slate-400">Browse the official YouTube songs included in Sawan Music.</p>}
+            <button type="submit" disabled={!canSubmit || loading} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#38bdf8] hover:bg-sky-300 px-6 py-3 text-sm font-bold text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-45">{loading ? <Loader2 size={17} className="animate-spin" /> : <Search size={17} />}{mode === 'search' ? 'Search songs' : mode === 'artist' ? 'Find artist' : mode === 'genres' ? 'Browse genre' : hasServerCatalog() ? 'Show charts' : 'Show YouTube songs'}</button>
           </form>
           {mode === 'genres' && genresError && <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-amber-300" role="alert"><span>{genresError}</span><button onClick={() => void loadGenres()} className="font-bold underline">Retry genres</button></div>}
-          {mode === 'genres' && !genresLoading && !genresError && genres.length === 0 && <p className="mt-3 text-sm text-zinc-400">No genres are available right now.</p>}
-          {mode === 'search' && <p className="mt-3 text-xs text-zinc-500">Search runs when you press Enter or Search songs.</p>}
+          {mode === 'genres' && !genresLoading && !genresError && genres.length === 0 && <p className="mt-3 text-sm text-slate-400">No genres are available right now.</p>}
+          {mode === 'search' && <p className="mt-3 text-xs text-slate-500">Search runs when you press Enter or Search songs.</p>}
         </div>
 
         <div>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-bold text-white">{resultLabel}</h2>
-            {results && <span className="text-xs text-zinc-400">{results.total !== null && Number.isFinite(results.total) ? `${results.total.toLocaleString()} tracks · ` : ''}{results.tracks.length} shown</span>}
+            {results && <span className="text-xs text-slate-400">{results.total !== null && Number.isFinite(results.total) ? `${results.total.toLocaleString()} tracks · ` : ''}{results.tracks.length} shown</span>}
           </div>
 
           {error && results && <p className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-xs text-amber-200" role="status">{error}</p>}
 
           {loading ? (
-            <div className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/40 text-sm text-zinc-400" role="status"><Loader2 size={26} className="animate-spin text-emerald-400" />Finding music…</div>
+            <div className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-sky-500/10 bg-slate-900/40 text-sm text-slate-400" role="status"><Loader2 size={26} className="animate-spin text-sky-400" />Finding music…</div>
           ) : error && !results ? (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6" role="alert"><p className="text-sm text-amber-200">{error}</p>{request && <button onClick={() => void loadResults(request)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-700"><RefreshCw size={14} />Try again</button>}</div>
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6" role="alert"><p className="text-sm text-amber-200">{error}</p>{request && <button onClick={() => void loadResults(request)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-xs font-bold text-white hover:bg-slate-700"><RefreshCw size={14} />Try again</button>}</div>
           ) : results?.tracks.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800 p-10 text-center"><Music2 size={30} className="mx-auto mb-3 text-zinc-600" /><p className="text-sm font-semibold text-zinc-300">No songs found.</p><p className="mt-2 text-xs text-zinc-500">Try another song title, artist, genre, or country.</p></div>
+            <div className="rounded-2xl border border-slate-800 p-10 text-center"><Music2 size={30} className="mx-auto mb-3 text-slate-600" /><p className="text-sm font-semibold text-slate-300">No songs found.</p><p className="mt-2 text-xs text-slate-500">Try another song title, artist, genre, or country.</p></div>
           ) : results ? (
-            <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/25">
+            <div className="overflow-hidden rounded-2xl border border-sky-500/10 bg-slate-900/25">
               {results.tracks.map((track, index) => {
                 const linkedSong = localSongsByTitle.get(normalize(track.title))?.find((song) => matchesArtist(song.artist, track.artist));
                 const artwork = safeArtwork(track.artworkUrl);
                 return (
-                  <article key={`${track.id}-${index}`} className="flex flex-col gap-3 border-b border-zinc-800/70 px-4 py-4 transition last:border-b-0 hover:bg-zinc-800/35 sm:flex-row sm:items-center">
+                  <article key={`${track.id}-${index}`} className="flex flex-col gap-3 border-b border-slate-800/70 px-4 py-4 transition last:border-b-0 hover:bg-slate-800/35 sm:flex-row sm:items-center">
                     <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <span className="hidden w-6 shrink-0 text-center font-mono text-xs text-zinc-500 lg:block">{(request?.offset || 0) + index + 1}</span>
-                      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-zinc-700/50 bg-gradient-to-br from-emerald-900/50 to-zinc-900 text-emerald-300/50"><Music2 size={23} />{artwork && <img src={artwork} alt="" loading="lazy" referrerPolicy="no-referrer" onError={(event) => { event.currentTarget.style.display = 'none'; }} className="absolute inset-0 h-full w-full object-cover" />}</div>
+                      <span className="hidden w-6 shrink-0 text-center font-mono text-xs text-slate-500 lg:block">{(request?.offset || 0) + index + 1}</span>
+                      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-sky-500/20 bg-gradient-to-br from-sky-950/50 to-slate-900 text-sky-300/50"><Music2 size={23} />{artwork && <img src={artwork} alt="" loading="lazy" referrerPolicy="no-referrer" onError={(event) => { event.currentTarget.style.display = 'none'; }} className="absolute inset-0 h-full w-full object-cover" />}</div>
                       <div className="min-w-0">
-                        <h3 className="truncate text-sm font-bold text-white" title={track.title}>{track.title}{track.explicit && <span className="ml-2 inline-block rounded bg-zinc-600 px-1 text-[9px] font-bold text-zinc-200" aria-label="Explicit">E</span>}</h3>
-                        <p className="mt-0.5 truncate text-xs text-zinc-400" title={track.artist}>{track.artist}</p>
-                        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">{track.genre && <span className="rounded bg-emerald-950/70 px-1.5 py-0.5 text-emerald-300">{track.genre}</span>}{track.album && <span className="max-w-48 truncate" title={track.album}>{track.album}</span>}{track.releaseDate && <span>{track.releaseDate.slice(0, 4)}</span>}</div>
+                        <h3 className="truncate text-sm font-bold text-white" title={track.title}>{track.title}{track.explicit && <span className="ml-2 inline-block rounded bg-slate-700 px-1 text-[9px] font-bold text-slate-200" aria-label="Explicit">E</span>}</h3>
+                        <p className="mt-0.5 truncate text-xs text-slate-400" title={track.artist}>{track.artist}</p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[10px] text-slate-500">{track.genre && <span className="rounded bg-sky-950/70 px-1.5 py-0.5 text-sky-300">{track.genre}</span>}{track.album && <span className="max-w-48 truncate" title={track.album}>{track.album}</span>}{track.releaseDate && <span>{track.releaseDate.slice(0, 4)}</span>}</div>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center justify-between gap-4 pl-15 sm:justify-end sm:pl-0">
-                      <span className="font-mono text-xs text-zinc-500">{formatDuration(track.duration)}</span>
-                      {linkedSong ? <button onClick={() => onPlaySong(linkedSong)} aria-label={`Play ${track.title} in Sawan`} className="inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3.5 py-2 text-xs font-bold text-emerald-300 transition hover:bg-emerald-400/20"><Play size={13} fill="currentColor" />Play in Sawan</button> : <a href={youtubeSearch(track)} target="_blank" rel="noopener noreferrer" aria-label={`Find ${track.title} by ${track.artist} on YouTube, opens in a new tab`} className="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-3.5 py-2 text-xs font-semibold text-zinc-300 transition hover:border-zinc-500 hover:text-white">Find on YouTube<ExternalLink size={12} /></a>}
+                      <span className="font-mono text-xs text-slate-500">{formatDuration(track.duration)}</span>
+                      {linkedSong ? <button onClick={() => onPlaySong(linkedSong)} aria-label={`Play ${track.title} in Sawan`} className="inline-flex items-center gap-2 rounded-full bg-sky-400/10 px-3.5 py-2 text-xs font-bold text-sky-300 transition hover:bg-sky-400/20"><Play size={13} fill="currentColor" />Play in Sawan</button> : <a href={youtubeSearch(track)} target="_blank" rel="noopener noreferrer" aria-label={`Find ${track.title} by ${track.artist} on YouTube, opens in a new tab`} className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3.5 py-2 text-xs font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white">Find on YouTube<ExternalLink size={12} /></a>}
                     </div>
                   </article>
                 );

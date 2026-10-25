@@ -30,7 +30,7 @@ const featureDetails = {
 };
 
 const waveformHeights = [12, 20, 32, 18, 42, 28, 52, 34, 64, 44, 30, 48, 24, 36, 18, 26, 12];
-const focusClass = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1ed760]';
+const focusClass = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#38bdf8]';
 
 export function AiComingSoonPage({ feature, onGoHome, onOpenLibrary }: AiComingSoonPageProps) {
   const details = featureDetails[feature];
@@ -39,7 +39,7 @@ export function AiComingSoonPage({ feature, onGoHome, onOpenLibrary }: AiComingS
   return (
     <section
       aria-labelledby="ai-coming-soon-title"
-      className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-[#121212]"
+      className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-[#0b1329]"
       style={{ backgroundImage: `radial-gradient(ellipse at 50% 0%, ${details.glow}, transparent 65%)` }}
     >
       <div className="flex min-h-full w-full flex-col items-center justify-center px-4 py-5 sm:px-8 sm:py-6">
@@ -47,21 +47,21 @@ export function AiComingSoonPage({ feature, onGoHome, onOpenLibrary }: AiComingS
           <button
             type="button"
             onClick={onGoHome}
-            className={`mb-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white ${focusClass}`}
+            className={`mb-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-medium text-slate-400 transition-colors hover:text-white ${focusClass}`}
           >
             <ArrowLeft size={16} aria-hidden="true" />
             Back to Home
           </button>
 
-          <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#181818] shadow-2xl shadow-black/20">
+          <div className="relative overflow-hidden rounded-3xl border border-sky-500/10 bg-[#0f172a] shadow-2xl shadow-slate-950/40">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0 top-0 h-64"
               style={{ background: `radial-gradient(ellipse at 50% 0%, ${details.glow}, transparent 75%)` }}
             />
 
-            <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4 sm:px-8 sm:py-5">
-              <div className="flex items-center gap-2.5 text-sm font-bold text-zinc-200">
+            <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-sky-500/10 px-5 py-4 sm:px-8 sm:py-5">
+              <div className="flex items-center gap-2.5 text-sm font-bold text-slate-200">
                 <FeatureIcon size={18} style={{ color: details.accent }} aria-hidden="true" />
                 <span>{details.title}</span>
               </div>
@@ -78,22 +78,22 @@ export function AiComingSoonPage({ feature, onGoHome, onOpenLibrary }: AiComingS
                 <div className={`relative flex h-14 w-14 items-center justify-center rounded-2xl border sm:h-16 sm:w-16 ${details.iconClass}`}>
                   <FeatureIcon size={34} strokeWidth={1.5} />
                 </div>
-                <Music2 size={16} className="absolute left-3 top-6 -rotate-12 text-zinc-500 sm:left-4 sm:top-8" />
-                <Sparkles size={16} className="absolute right-4 top-3 text-zinc-500 sm:right-5 sm:top-5" />
-                <div className="absolute bottom-0 left-1/2 flex h-8 -translate-x-1/2 items-center gap-1 rounded-full border border-white/[0.06] bg-[#181818] px-3">
+                <Music2 size={16} className="absolute left-3 top-6 -rotate-12 text-slate-500 sm:left-4 sm:top-8" />
+                <Sparkles size={16} className="absolute right-4 top-3 text-slate-500 sm:right-5 sm:top-5" />
+                <div className="absolute bottom-0 left-1/2 flex h-8 -translate-x-1/2 items-center gap-1 rounded-full border border-sky-500/10 bg-[#0f172a] px-3">
                   {waveformHeights.map((height, index) => (
                     <span key={index} className={`w-0.5 rounded-full ${details.barClass}`} style={{ height: `${height / 3}px` }} />
                   ))}
                 </div>
               </div>
 
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-400">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">
                 {details.caption}
               </p>
               <h1 id="ai-coming-soon-title" className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
                 Coming soon
               </h1>
-              <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-zinc-400 sm:text-base">
+              <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-slate-400 sm:text-base">
                 {details.description}
               </p>
 
@@ -101,7 +101,7 @@ export function AiComingSoonPage({ feature, onGoHome, onOpenLibrary }: AiComingS
                 <button
                   type="button"
                   onClick={onGoHome}
-                  className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#1db954] px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-[#1ed760] ${focusClass}`}
+                  className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#38bdf8] px-6 py-3 text-sm font-bold text-slate-950 transition-colors hover:bg-sky-300 ${focusClass}`}
                 >
                   <Headphones size={18} aria-hidden="true" />
                   Explore music

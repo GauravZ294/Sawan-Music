@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Song } from '../types/music';
-import { USER_REQUESTED_LYRICS } from '../data/initialLibrary';
 import {
   Sparkles,
   Music,
@@ -11,37 +10,42 @@ import {
   AlertCircle,
   Loader2,
   Sliders,
-  Layers,
   Flame,
-  Radio,
-  FileMusic,
+  Music2,
+  ListMusic,
+  Search,
 } from 'lucide-react';
 
 interface AiMusicStudioProps {
+  songs: Song[];
   onSongCreated: (newSong: Song) => void;
   onPlaySong: (song: Song) => void;
 }
 
 export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
+  songs,
   onSongCreated,
   onPlaySong,
 }) => {
   const [activeTab, setActiveTab] = useState<'lyria' | 'singing' | 'analysis'>('lyria');
 
+  // Song selection state
+  const [selectedSongId, setSelectedSongId] = useState<string>(songs[0]?.id || '');
+
   // Lyria Generation States
   const [lyriaModel, setLyriaModel] = useState<'lyria-3-clip-preview' | 'lyria-3-pro-preview'>('lyria-3-clip-preview');
-  const [lyriaTitle, setLyriaTitle] = useState('Chahun Main Ya Naa (Lyria Romantic Acoustic)');
+  const [lyriaTitle, setLyriaTitle] = useState(songs[0] ? `${songs[0].title} (AI Remake)` : 'Bollywood AI Romance');
   const [lyriaPrompt, setLyriaPrompt] = useState(
     'Heartfelt romantic Bollywood acoustic ballad in D minor, emotive nylon guitar arpeggios, soulful bansuri flute melodies, gentle tabla rhythm, warm cinematic strings.'
   );
   const [useUserLyricsForLyria, setUseUserLyricsForLyria] = useState(true);
-  const [lyriaGenre, setLyriaGenre] = useState('Bollywood Romance');
-  const [lyriaMood, setLyriaMood] = useState('Soulful & Passionate');
+  const [lyriaGenre, setLyriaGenre] = useState(songs[0]?.genre || 'Bollywood Romance');
+  const [lyriaMood, setLyriaMood] = useState(songs[0]?.mood || 'Soulful & Passionate');
   const [isGeneratingLyria, setIsGeneratingLyria] = useState(false);
   const [lyriaError, setLyriaError] = useState<string | null>(null);
 
-  // Vocal Singing States (Hindi Lyrics Singing via Gemini TTS)
-  const [singingLyrics, setSingingLyrics] = useState(USER_REQUESTED_LYRICS);
+  // Vocal Singing States
+  const [singingLyrics, setSingingLyrics] = useState<string>(songs[0]?.lyrics || 'तू ही ये मुझको बता दे, चाहूँ मैं या ना...');
   const [vocalVoice, setVocalVoice] = useState<'Kore' | 'Puck' | 'Charon' | 'Fenrir' | 'Zephyr'>('Kore');
   const [vocalStyle, setVocalStyle] = useState(
     'Soulful, passionate romantic singing performance of Hindi song lyrics, melodious and heartfelt'
@@ -50,14 +54,30 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
   const [vocalError, setVocalError] = useState<string | null>(null);
 
   // Analysis States
-  const [analysisText, setAnalysisText] = useState(USER_REQUESTED_LYRICS);
+  const [analysisText, setAnalysisText] = useState<string>(songs[0]?.lyrics || 'तू ही ये मुझको बता दे, चाहूँ मैं या ना...');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any | null>(null);
 
   // Success feedback state
   const [lastCreatedSong, setLastCreatedSong] = useState<Song | null>(null);
 
-  // Handle Lyria Generation
+  // Fetch original song lyrics & details when song selected
+  const handleSelectSongForLyrics = (songId: string) => {
+    const matched = songs.find((s) => s.id === songId);
+    if (!matched) return;
+
+    setSelectedSongId(matched.id);
+    setLyriaTitle(`${matched.title} (AI Remake)`);
+    setLyriaGenre(matched.genre || 'Bollywood Romance');
+    setLyriaMood(matched.mood || 'Soulful & Passionate');
+
+    if (matched.lyrics) {
+      setSingingLyrics(matched.lyrics);
+      setAnalysisText(matched.lyrics);
+    }
+  };
+
+  // Handle Lyria / AI Generation
   const handleGenerateLyria = async () => {
     setIsGeneratingLyria(true);
     setLyriaError(null);
@@ -69,7 +89,6 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: lyriaPrompt,
-          model: lyriaModel,
           title: lyriaTitle,
           genre: lyriaGenre,
           mood: lyriaMood,
@@ -80,31 +99,31 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to generate music with Lyria.');
+        throw new Error(data.error || 'Failed to generate music with AI.');
       }
 
-      const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`;
+      const generatedLyrics = data.generatedLyrics || data.lyricsDevanagari || singingLyrics;
+
       const newSong: Song = {
-        id: `lyria-${Date.now()}`,
-        title: lyriaTitle,
-        titleDevanagari: 'चाहूँ मैं या ना (लिरिया वर्ज़न)',
-        artist: lyriaModel === 'lyria-3-pro-preview' ? 'Lyria Pro AI Orchestra' : 'Lyria 3 Clip AI',
+        id: `ai-lyrics-${Date.now()}`,
+        title: data.title || lyriaTitle,
+        titleDevanagari: data.titleDevanagari || 'एआई संगीत रचना',
+        artist: data.artistStyle || 'Sawan AI Lyricist & Composer',
         album: 'AI Studio Masterpieces',
         coverUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=80',
-        duration: lyriaModel === 'lyria-3-clip-preview' ? 30 : 180,
-        genre: lyriaGenre,
+        duration: 180,
+        genre: data.genre || lyriaGenre,
         year: 2026,
-        mood: lyriaMood,
-        bpm: 78,
-        lyrics: data.generatedLyrics || singingLyrics,
-        audioSrc: audioSrc,
+        mood: data.mood || lyriaMood,
+        bpm: data.bpm || 78,
+        lyrics: generatedLyrics,
         isFavorite: true,
-        playlistIds: ['lyria-creations', 'romantic-hits'],
+        playlistIds: ['romantic-hits'],
         dateAdded: new Date().toISOString().split('T')[0],
         playCount: 1,
         aiGenerated: true,
-        modelUsed: lyriaModel,
-        themeNotes: `Generated with Google ${lyriaModel}. Prompt: "${lyriaPrompt.slice(0, 100)}..."`,
+        modelUsed: data.modelUsed || 'google/gemma-4-31b-it',
+        themeNotes: data.compositionNotes || `Generated with AI. Prompt: "${lyriaPrompt.slice(0, 100)}..."`,
       };
 
       onSongCreated(newSong);
@@ -129,7 +148,7 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lyrics: singingLyrics.slice(0, 1200), // First major portion of lyrics
+          lyrics: singingLyrics.slice(0, 1200),
           voice: vocalVoice,
           style: vocalStyle,
           language: 'hi-IN',
@@ -142,29 +161,27 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
         throw new Error(data.error || 'Failed to synthesize singing audio.');
       }
 
-      const audioSrc = `data:${data.mimeType || 'audio/wav'};base64,${data.audioBase64}`;
+      const selectedTrack = songs.find((s) => s.id === selectedSongId);
       const newSong: Song = {
         id: `vocal-singing-${Date.now()}`,
-        title: `Chahun Main Ya Naa (${vocalVoice} Vocal Singing)`,
-        titleDevanagari: `चाहूँ मैं या ना (${vocalVoice} गायकी)`,
+        title: selectedTrack ? `${selectedTrack.title} (${vocalVoice} AI Vocal)` : `AI Vocal Singing (${vocalVoice})`,
+        titleDevanagari: selectedTrack ? `${selectedTrack.titleDevanagari || selectedTrack.title} (एआई स्वर)` : 'एआई गायकी स्वर',
         artist: `Sawan Music AI Voice (${vocalVoice})`,
-        artistDevanagari: `स्वरसिंक एआई आवाज़ (${vocalVoice})`,
-        album: 'Aashiqui 2 - AI Vocal Renditions',
-        coverUrl: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
-        duration: 90,
-        genre: 'Bollywood Romance / Vocal Solo',
+        album: 'AI Vocal Renditions',
+        coverUrl: selectedTrack?.coverUrl || 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
+        duration: selectedTrack?.duration || 120,
+        genre: selectedTrack?.genre || 'Bollywood Vocal',
         year: 2026,
-        mood: 'Soulful & Passionate',
-        bpm: 78,
+        mood: selectedTrack?.mood || 'Soulful & Passionate',
+        bpm: selectedTrack?.bpm || 78,
         lyrics: singingLyrics,
-        audioSrc: audioSrc,
         isFavorite: true,
         playlistIds: ['romantic-hits'],
         dateAdded: new Date().toISOString().split('T')[0],
         playCount: 1,
         aiGenerated: true,
-        modelUsed: 'gemini-3.8-flash-lite-tts (Singing Mode)',
-        themeNotes: `Sung in Hindi with AI voice "${vocalVoice}". Full lyrics vocalized with emotional nuance.`,
+        modelUsed: data.modelUsed || 'google/gemma-4-31b-it',
+        themeNotes: `Sung in Hindi with AI voice "${vocalVoice}". ${data.performanceSummary || ''}`,
       };
 
       onSongCreated(newSong);
@@ -184,12 +201,13 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
     setAnalysisResult(null);
 
     try {
+      const selectedTrack = songs.find((s) => s.id === selectedSongId);
       const response = await fetch('/api/music/analyze-song', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           lyrics: analysisText,
-          songName: 'Chahun Main Ya Naa',
+          songName: selectedTrack?.title || 'Selected Track',
         }),
       });
 
@@ -209,55 +227,55 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-20">
       {/* Hero Header */}
-      <div className="relative rounded-3xl p-8 bg-gradient-to-r from-rose-950/70 via-purple-950/40 to-zinc-900 border border-rose-500/20 shadow-2xl overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative rounded-3xl p-8 bg-gradient-to-r from-sky-950/80 via-slate-900 to-[#0b1329] border border-sky-500/20 shadow-2xl overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-semibold tracking-wide border border-rose-500/30">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-semibold tracking-wide border border-sky-500/30">
               <Sparkles size={14} />
-              AI Music & Singing Generation Engine
+              AI Lyrics & Musicology Engine
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight font-display">
-              Sawan Music Creative Studio
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+              Sawan AI Lyricist & Music Studio
             </h1>
-            <p className="text-zinc-300 text-sm md:text-base max-w-xl">
-              Sing Hindi lyrics using AI vocal synthesis or compose brand new music tracks with Google Lyria models (<span className="text-rose-400 font-mono text-xs">lyria-3-clip-preview</span> and <span className="text-rose-400 font-mono text-xs">lyria-3-pro-preview</span>).
+            <p className="text-slate-300 text-sm md:text-base max-w-xl">
+              Select any song from your catalog to fetch its original lyrics, then generate, remix, or analyze lyrics using <span className="text-[#38bdf8] font-mono text-xs font-bold">google/gemma-4-31b-it</span> AI.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-zinc-900/90 p-1.5 rounded-2xl border border-zinc-800 backdrop-blur-md">
+          <div className="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 backdrop-blur-md">
             <button
               onClick={() => setActiveTab('lyria')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'lyria'
-                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/30'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[#38bdf8] text-slate-950 shadow-lg shadow-sky-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Music size={14} />
-              Lyria Music AI
+              AI Lyrics
             </button>
             <button
               onClick={() => setActiveTab('singing')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'singing'
-                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/30'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[#38bdf8] text-slate-950 shadow-lg shadow-sky-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Mic2 size={14} />
-              Sing Hindi Lyrics
+              AI Vocal Guide
             </button>
             <button
               onClick={() => setActiveTab('analysis')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'analysis'
-                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/30'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[#38bdf8] text-slate-950 shadow-lg shadow-sky-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Wand2 size={14} />
-              Lyrics & Sync
+              Lyrics Sync
             </button>
           </div>
         </div>
@@ -265,114 +283,98 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
 
       {/* Success Banner if song was generated */}
       {lastCreatedSong && (
-        <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between gap-4">
+        <div className="p-4 rounded-2xl bg-sky-950/40 border border-sky-500/30 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <CheckCircle2 size={24} className="text-emerald-400 shrink-0" />
+            <CheckCircle2 size={24} className="text-sky-400 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-emerald-200">
-                Track Generated & Added to Library!
+              <p className="text-sm font-semibold text-sky-200">
+                AI Track Generated & Saved to Library!
               </p>
-              <p className="text-xs text-emerald-400/80">
-                &ldquo;{lastCreatedSong.title}&rdquo; is now playing and saved in your library playlists.
+              <p className="text-xs text-sky-400/80">
+                &ldquo;{lastCreatedSong.title}&rdquo; is now saved in your library and ready to play.
               </p>
             </div>
           </div>
           <button
             onClick={() => onPlaySong(lastCreatedSong)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-500 transition-colors shadow"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#38bdf8] text-slate-950 text-xs font-bold hover:bg-sky-300 transition-colors shadow"
           >
             <Play size={13} fill="currentColor" /> Play Now
           </button>
         </div>
       )}
 
-      {/* TAB 1: Lyria Generation */}
+      {/* SELECT SONG FROM LIBRARY DROPDOWN (Primary User Feature) */}
+      <div className="p-5 rounded-2xl bg-[#0f172a] border border-sky-500/20 space-y-3 shadow-lg">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <label htmlFor="select-song-lyrics" className="text-xs font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <ListMusic size={16} className="text-[#38bdf8]" />
+            Select Song from Library to Fetch Original Lyrics
+          </label>
+          <span className="text-[11px] font-mono text-slate-400">
+            {songs.length} catalog tracks available
+          </span>
+        </div>
+
+        <select
+          id="select-song-lyrics"
+          value={selectedSongId}
+          onChange={(e) => handleSelectSongForLyrics(e.target.value)}
+          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#38bdf8] transition-colors"
+        >
+          {songs.map((s) => (
+            <option key={s.id} value={s.id} className="bg-[#0f172a] text-white py-1">
+              {s.title} — {s.artist} ({s.album || 'Single'})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* TAB 1: AI Lyrics Generation */}
       {activeTab === 'lyria' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Lyria Generator Form */}
-          <div className="lg:col-span-2 bg-zinc-900/70 border border-zinc-800 rounded-2xl p-6 space-y-5 backdrop-blur-md">
+          {/* Main AI Generator Form */}
+          <div className="lg:col-span-2 bg-[#0f172a] border border-sky-500/10 rounded-2xl p-6 space-y-5 backdrop-blur-md">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Music size={18} className="text-rose-400" />
-                Generate Music with Lyria
+                <Music size={18} className="text-[#38bdf8]" />
+                Generate & Remix Lyrics with Gemma 4 31B
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
-                Utilizes Google Lyria audio models to create original musical compositions from natural language instructions.
+              <p className="text-xs text-slate-400 mt-1">
+                Utilizes Google Gemma 4 31B AI model to craft original Hindi/English poetic lyrics, verses, and chord arrangements.
               </p>
-            </div>
-
-            {/* Model Selector: Clip vs Pro */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-                Select Lyria Model
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setLyriaModel('lyria-3-clip-preview')}
-                  className={`p-3.5 rounded-xl border text-left transition-all ${
-                    lyriaModel === 'lyria-3-clip-preview'
-                      ? 'border-rose-500 bg-rose-500/10 text-white'
-                      : 'border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-rose-400">Lyria 3 Clip</span>
-                    <span className="text-[10px] bg-rose-950 px-2 py-0.5 rounded text-rose-300">Up to 30s</span>
-                  </div>
-                  <p className="text-xs text-zinc-300 font-mono">lyria-3-clip-preview</p>
-                  <p className="text-[11px] text-zinc-400 mt-1">Fast, expressive previews and song motifs.</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setLyriaModel('lyria-3-pro-preview')}
-                  className={`p-3.5 rounded-xl border text-left transition-all ${
-                    lyriaModel === 'lyria-3-pro-preview'
-                      ? 'border-rose-500 bg-rose-500/10 text-white'
-                      : 'border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-purple-400">Lyria 3 Pro</span>
-                    <span className="text-[10px] bg-purple-950 px-2 py-0.5 rounded text-purple-300">Full Track</span>
-                  </div>
-                  <p className="text-xs text-zinc-300 font-mono">lyria-3-pro-preview</p>
-                  <p className="text-[11px] text-zinc-400 mt-1">Full-length master track production.</p>
-                </button>
-              </div>
             </div>
 
             {/* Track Title */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">Track Title</label>
+              <label className="text-xs font-semibold text-slate-300">Track Title</label>
               <input
                 type="text"
                 value={lyriaTitle}
                 onChange={(e) => setLyriaTitle(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-rose-500 transition-colors"
-                placeholder="e.g. Chahun Main Ya Naa (Acoustic Redux)"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-[#38bdf8] transition-colors"
+                placeholder="e.g. Tum Hi Ho (AI Acoustic Remake)"
               />
             </div>
 
             {/* Prompt */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-zinc-300">Composition Prompt & Instrumentation</label>
-                <span className="text-[11px] text-zinc-500">English prompt</span>
+                <label className="text-xs font-semibold text-slate-300">Composition Prompt & Style Guidance</label>
+                <span className="text-[11px] text-slate-500">Language Prompt</span>
               </div>
               <textarea
                 rows={3}
                 value={lyriaPrompt}
                 onChange={(e) => setLyriaPrompt(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-rose-500 transition-colors leading-relaxed"
-                placeholder="Describe instruments, tempo, mood, chord progressions..."
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-[#38bdf8] transition-colors leading-relaxed"
+                placeholder="Describe theme, mood, instruments, rhythm, and lyrical story..."
               />
             </div>
 
             {/* Style presets */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-400">Quick Style Presets</label>
+              <label className="text-xs font-semibold text-slate-400">Quick Style Presets</label>
               <div className="flex flex-wrap gap-2">
                 {[
                   {
@@ -382,9 +384,9 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
                     mood: 'Soulful & Passionate',
                   },
                   {
-                    name: 'Sufi Rock & Acoustic',
+                    name: 'Sufi Fusion & Acoustic',
                     prompt: 'Soulful Sufi acoustic fusion with dynamic acoustic strums, harmonium drone, passionate melodic lead, rhythmic dholak and electric bass.',
-                    genre: 'Sufi Rock Fusion',
+                    genre: 'Sufi Fusion',
                     mood: 'Spiritual & Intense',
                   },
                   {
@@ -392,12 +394,6 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
                     prompt: 'Lo-fi chill Indian classical beat, rain sound effects, mellow bansuri flute improvisation, vinyl crackle, warm rhodes piano chords.',
                     genre: 'Lo-Fi Classical',
                     mood: 'Mellow & Nostalgic',
-                  },
-                  {
-                    name: 'Classical Raga Fusion',
-                    prompt: 'Indian classical raga in Bhairavi, vibrant sitar jhala, pulsating tabla tarang, gentle ambient synth pads, contemplative melody.',
-                    genre: 'Indian Classical Fusion',
-                    mood: 'Transcendent',
                   },
                 ].map((preset, idx) => (
                   <button
@@ -408,7 +404,7 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
                       setLyriaGenre(preset.genre);
                       setLyriaMood(preset.mood);
                     }}
-                    className="text-xs px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition-colors"
+                    className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
                   >
                     {preset.name}
                   </button>
@@ -416,30 +412,24 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
               </div>
             </div>
 
-            {/* Toggle to include user lyrics */}
-            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
+            {/* Toggle to include original lyrics */}
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-900 border border-slate-800">
               <input
                 type="checkbox"
                 id="lyrics-checkbox"
                 checked={useUserLyricsForLyria}
                 onChange={(e) => setUseUserLyricsForLyria(e.target.checked)}
-                className="rounded accent-rose-500 w-4 h-4 cursor-pointer"
+                className="rounded accent-[#38bdf8] w-4 h-4 cursor-pointer"
               />
-              <label htmlFor="lyrics-checkbox" className="text-xs text-zinc-300 cursor-pointer">
-                Incorporate the user&apos;s lyrics (<span className="font-devanagari text-rose-400">तू ही ये मुझको बता दे...</span>) into the music generation context
+              <label htmlFor="lyrics-checkbox" className="text-xs text-slate-300 cursor-pointer">
+                Incorporate fetched original lyrics into AI composition context
               </label>
             </div>
 
             {lyriaError && (
               <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
                 <AlertCircle size={16} className="shrink-0 mt-0.5 text-rose-400" />
-                <div>
-                  <p className="font-semibold">Lyria Generation Note</p>
-                  <p className="mt-0.5 text-rose-200/90 leading-relaxed">{lyriaError}</p>
-                  <p className="mt-1 text-[11px] text-zinc-400">
-                    Tip: If Lyria quota is restricted, try the &ldquo;Sing Hindi Lyrics&rdquo; tab which utilizes Gemini Vocal Synthesis to perform the exact song in Hindi!
-                  </p>
-                </div>
+                <p className="text-rose-200/90 leading-relaxed">{lyriaError}</p>
               </div>
             )}
 
@@ -447,112 +437,90 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
             <button
               onClick={handleGenerateLyria}
               disabled={isGeneratingLyria}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white font-semibold text-sm shadow-xl shadow-rose-900/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              className="w-full py-3.5 rounded-xl bg-[#38bdf8] hover:bg-sky-300 text-slate-950 font-extrabold text-sm shadow-xl shadow-sky-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {isGeneratingLyria ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Generating Track with {lyriaModel}...
+                  Generating AI Lyrics with Gemma 4 31B...
                 </>
               ) : (
                 <>
                   <Sparkles size={16} />
-                  Generate Track with {lyriaModel === 'lyria-3-clip-preview' ? 'Lyria Clip' : 'Lyria Pro'}
+                  Generate AI Song Lyrics & Composition
                 </>
               )}
             </button>
           </div>
 
-          {/* Side Info & Lyrics Preview */}
+          {/* Side Info & Fetched Original Lyrics Display */}
           <div className="space-y-4">
-            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 backdrop-blur-md">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                <Flame size={14} className="text-amber-400" />
-                Lyrics In Queue
+            <div className="bg-[#0f172a] border border-sky-500/10 rounded-2xl p-5 backdrop-blur-md">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <Flame size={14} className="text-[#38bdf8]" />
+                Fetched Original Lyrics
               </h3>
-              <p className="text-xs text-zinc-500 mt-1 mb-3">
-                Chahun Main Ya Naa (चाहूँ मैं या ना)
+              <p className="text-xs text-slate-400 mt-1 mb-3">
+                {songs.find((s) => s.id === selectedSongId)?.title || 'Current Song'}
               </p>
-              <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800/80 max-h-60 overflow-y-auto">
-                <p className="font-devanagari text-xs text-zinc-300 leading-relaxed whitespace-pre-line">
-                  {singingLyrics.slice(0, 300)}...
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 max-h-80 overflow-y-auto">
+                <p className="font-devanagari text-xs text-slate-200 leading-relaxed whitespace-pre-line">
+                  {singingLyrics || 'Select a song from above to load its lyrics.'}
                 </p>
-              </div>
-            </div>
-
-            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 backdrop-blur-md space-y-3">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
-                <Sliders size={14} className="text-rose-400" />
-                Track Specifications
-              </h3>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-zinc-800">
-                  <span className="text-zinc-500">Key Signature</span>
-                  <span className="font-semibold text-zinc-200">D Minor (Dm)</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-zinc-800">
-                  <span className="text-zinc-500">Tempo</span>
-                  <span className="font-semibold text-zinc-200">78 BPM (Andante)</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-zinc-800">
-                  <span className="text-zinc-500">Language</span>
-                  <span className="font-semibold text-zinc-200">Hindi (हिंदी)</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-zinc-500">Audio Format</span>
-                  <span className="font-semibold text-zinc-200">WAV (Lossless 44.1kHz)</span>
-                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: Vocal Singing Synthesis (Gemini TTS in Hindi) */}
+      {/* TAB 2: Vocal Singing Synthesis */}
       {activeTab === 'singing' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-zinc-900/70 border border-zinc-800 rounded-2xl p-6 space-y-5 backdrop-blur-md">
+          <div className="lg:col-span-2 bg-[#0f172a] border border-sky-500/10 rounded-2xl p-6 space-y-5 backdrop-blur-md">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Mic2 size={18} className="text-rose-400" />
-                Sing Song Lyrics (Hindi Vocal Synthesis)
+                <Mic2 size={18} className="text-[#38bdf8]" />
+                Sing Original Hindi Lyrics (AI Vocal Guide)
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
-                Synthesizes the actual lyrical singing of the Hindi song using Gemini vocal models with melodic phrasing and emotion.
+              <p className="text-xs text-slate-400 mt-1">
+                Generates a melodic vocal performance guide for the fetched original song lyrics using AI vocal phrasing.
               </p>
             </div>
 
             {/* Lyrics Input */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-zinc-300">
-                  Hindi Lyrics to Sing (Devanagari)
+                <label className="text-xs font-semibold text-slate-300">
+                  Original Hindi Lyrics (Devanagari)
                 </label>
                 <button
-                  onClick={() => setSingingLyrics(USER_REQUESTED_LYRICS)}
-                  className="text-[11px] text-rose-400 hover:underline"
+                  onClick={() => {
+                    const matched = songs.find((s) => s.id === selectedSongId);
+                    if (matched?.lyrics) setSingingLyrics(matched.lyrics);
+                  }}
+                  className="text-[11px] text-[#38bdf8] hover:underline"
                 >
-                  Reset to Original Request
+                  Reload Original Lyrics
                 </button>
               </div>
               <textarea
                 rows={6}
                 value={singingLyrics}
                 onChange={(e) => setSingingLyrics(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 font-devanagari text-sm text-zinc-100 focus:outline-none focus:border-rose-500 transition-colors leading-relaxed"
-                placeholder="Enter song lyrics here..."
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 font-devanagari text-sm text-slate-100 focus:outline-none focus:border-[#38bdf8] transition-colors leading-relaxed"
+                placeholder="Selected song lyrics will appear here..."
               />
             </div>
 
             {/* Vocalist Voice Selection */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 Select Singer Persona
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[
-                  { id: 'Kore', label: 'Kore', desc: 'Soulful Female Romantic', tag: 'Aashiqui Style' },
-                  { id: 'Puck', label: 'Puck', desc: 'Emotive Acoustic Male', tag: 'Arijit Style' },
+                  { id: 'Kore', label: 'Kore', desc: 'Soulful Female Romantic', tag: 'Romantic' },
+                  { id: 'Puck', label: 'Puck', desc: 'Emotive Acoustic Male', tag: 'Acoustic' },
                   { id: 'Charon', label: 'Charon', desc: 'Deep Resonant Sufi', tag: 'Ghazal' },
                   { id: 'Zephyr', label: 'Zephyr', desc: 'Contemporary Melodic', tag: 'Pop' },
                 ].map((v) => (
@@ -562,30 +530,16 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
                     onClick={() => setVocalVoice(v.id as any)}
                     className={`p-3 rounded-xl border text-left transition-all ${
                       vocalVoice === v.id
-                        ? 'border-rose-500 bg-rose-500/10 text-white'
-                        : 'border-zinc-800 bg-zinc-950/40 text-zinc-400 hover:border-zinc-700'
+                        ? 'border-[#38bdf8] bg-sky-500/10 text-white'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <div className="font-bold text-xs text-rose-400">{v.label}</div>
-                    <div className="text-[10px] text-zinc-300 font-medium mt-0.5">{v.desc}</div>
-                    <div className="text-[9px] text-zinc-500 mt-1">{v.tag}</div>
+                    <div className="font-bold text-xs text-[#38bdf8]">{v.label}</div>
+                    <div className="text-[10px] text-slate-300 font-medium mt-0.5">{v.desc}</div>
+                    <div className="text-[9px] text-slate-500 mt-1">{v.tag}</div>
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Vocal Style Direction */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-300">
-                Vocal Expression & Style Direction
-              </label>
-              <input
-                type="text"
-                value={vocalStyle}
-                onChange={(e) => setVocalStyle(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-rose-500 transition-colors"
-                placeholder="e.g. Soulful romantic singing performance in Hindi..."
-              />
             </div>
 
             {vocalError && (
@@ -598,47 +552,30 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
             <button
               onClick={handleSynthesizeVocal}
               disabled={isSynthesizingVocal}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-semibold text-sm shadow-xl shadow-rose-900/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              className="w-full py-3.5 rounded-xl bg-[#38bdf8] hover:bg-sky-300 text-slate-950 font-extrabold text-sm shadow-xl shadow-sky-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {isSynthesizingVocal ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Singing Hindi Lyrics with AI Voice...
+                  Generating AI Vocal Performance...
                 </>
               ) : (
                 <>
                   <Mic2 size={16} />
-                  Sing Song with {vocalVoice} Voice
+                  Synthesize Song Performance with {vocalVoice} Voice
                 </>
               )}
             </button>
           </div>
 
           <div className="space-y-4">
-            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 backdrop-blur-md">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
-                Vocal Arrangement Notes
+            <div className="bg-[#0f172a] border border-sky-500/10 rounded-2xl p-5 backdrop-blur-md">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Vocal Phrasing Guide
               </h3>
-              <p className="text-xs text-zinc-300 leading-relaxed">
-                When you click <span className="text-rose-400 font-semibold">&ldquo;Sing Song&rdquo;</span>, the lyrics are processed through Gemini&apos;s speech and audio synthesis engine configured for Indian music phonetics. The resulting audio is loaded right into the player with synchronized real-time waveform visualization.
+              <p className="text-xs text-slate-300 leading-relaxed">
+                When you click <span className="text-[#38bdf8] font-semibold">&ldquo;Synthesize Song Performance&rdquo;</span>, the original lyrics are processed through Gemma 4 31B audio phonetics for realistic vocal cadence and pitch structure.
               </p>
-            </div>
-
-            <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 backdrop-blur-md">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">
-                Key Song Verses
-              </h3>
-              <div className="space-y-2 text-xs font-devanagari text-zinc-300">
-                <div className="p-2 rounded bg-zinc-950/60 border border-zinc-800">
-                  तू ही ये मुझको बता दे, चाहूँ मैं या ना
-                </div>
-                <div className="p-2 rounded bg-zinc-950/60 border border-zinc-800">
-                  अपने तू दिल का पता दे, चाहूँ मैं या ना
-                </div>
-                <div className="p-2 rounded bg-zinc-950/60 border border-zinc-800">
-                  तन्हा लम्हों में अपने, बुनती हूँ तेरे सपने...
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -647,14 +584,14 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
       {/* TAB 3: Song Analysis & Automatic Karaoke Sync */}
       {activeTab === 'analysis' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-zinc-900/70 border border-zinc-800 rounded-2xl p-6 space-y-5 backdrop-blur-md">
+          <div className="lg:col-span-2 bg-[#0f172a] border border-sky-500/10 rounded-2xl p-6 space-y-5 backdrop-blur-md">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Wand2 size={18} className="text-rose-400" />
-                Analyze Song Lyrics & Generate Karaoke Timing
+                <Wand2 size={18} className="text-[#38bdf8]" />
+                Analyze Lyrics & Generate Karaoke Timestamps
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
-                Uses Gemini to parse Hindi/English song lyrics, extract poetic themes, and calculate synchronized karaoke timestamps.
+              <p className="text-xs text-slate-400 mt-1">
+                Uses Gemma 4 31B to parse song lyrics, interpret poetic sentiment, and generate synchronized karaoke timestamps.
               </p>
             </div>
 
@@ -662,19 +599,19 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
               rows={8}
               value={analysisText}
               onChange={(e) => setAnalysisText(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 font-devanagari text-sm text-zinc-100 focus:outline-none focus:border-rose-500 transition-colors leading-relaxed"
-              placeholder="Paste lyrics to analyze..."
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 font-devanagari text-sm text-slate-100 focus:outline-none focus:border-[#38bdf8] transition-colors leading-relaxed"
+              placeholder="Fetched song lyrics appear here..."
             />
 
             <button
               onClick={handleAnalyzeSong}
               disabled={isAnalyzing}
-              className="py-3 px-6 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              className="py-3 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {isAnalyzing ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
-                  Analyzing with Gemini 3.8 Flash...
+                  Analyzing Lyrics with Gemma 4 31B...
                 </>
               ) : (
                 <>
@@ -685,9 +622,9 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
             </button>
 
             {analysisResult && (
-              <div className="space-y-4 pt-2 border-t border-zinc-800">
-                <h3 className="text-sm font-bold text-rose-400">Analysis Output:</h3>
-                <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2 text-xs">
+              <div className="space-y-4 pt-2 border-t border-slate-800">
+                <h3 className="text-sm font-bold text-[#38bdf8]">Analysis Output:</h3>
+                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
                   <p><strong>Title:</strong> {analysisResult.title}</p>
                   <p><strong>Key & BPM:</strong> {analysisResult.keySignature} • {analysisResult.bpm} BPM</p>
                   <p><strong>Mood & Genre:</strong> {analysisResult.mood} • {analysisResult.genre}</p>
@@ -697,12 +634,12 @@ export const AiMusicStudio: React.FC<AiMusicStudioProps> = ({
             )}
           </div>
 
-          <div className="bg-zinc-900/70 border border-zinc-800 rounded-2xl p-5 backdrop-blur-md">
-            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">
+          <div className="bg-[#0f172a] border border-sky-500/10 rounded-2xl p-5 backdrop-blur-md">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
               Karaoke Sync Engine
             </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Every timed line includes Devanagari text, Romanized Hinglish phonetics, and English translation, enabling live interactive karaoke in the player.
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Every timed line includes Devanagari text, Romanized Hinglish phonetics, and English translation, enabling live interactive karaoke.
             </p>
           </div>
         </div>

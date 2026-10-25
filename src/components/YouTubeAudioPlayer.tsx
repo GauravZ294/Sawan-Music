@@ -7,6 +7,7 @@ interface YouTubePlayer {
   pauseVideo: () => void;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
   setVolume: (volume: number) => void;
+  setPlaybackRate: (suggestedRate: number) => void;
   getCurrentTime: () => number;
   getDuration: () => number;
 }
@@ -63,6 +64,7 @@ interface YouTubeAudioPlayerProps {
   currentTime: number;
   seekVersion: number;
   volume: number;
+  playbackRate?: number;
   onTimeUpdate: (time: number, duration: number) => void;
   onPlaybackChange: (playing: boolean) => void;
   onEnded: () => void;
@@ -77,6 +79,7 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
   currentTime,
   seekVersion,
   volume,
+  playbackRate = 1.0,
   onTimeUpdate,
   onPlaybackChange,
   onEnded,
@@ -101,7 +104,7 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
     // controls this iframe; no video panel, popup, or iframe focus is exposed.
     const iframe = document.createElement('iframe');
     const params = new URLSearchParams({
-      autoplay: '0',
+      autoplay: isPlaying ? '1' : '0',
       controls: '0', enablejsapi: '1', playsinline: '1', rel: '0', fs: '0', disablekb: '1',
       origin: window.location.origin,
     });
@@ -137,8 +140,11 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
             readyRef.current = true;
             event.target.setVolume(Math.round(propsRef.current.volume * 100));
             if (propsRef.current.currentTime > 0) event.target.seekTo(propsRef.current.currentTime, true);
-            if (propsRef.current.isPlaying) event.target.playVideo();
-            else event.target.pauseVideo();
+            if (propsRef.current.isPlaying) {
+              try { event.target.playVideo(); } catch {}
+            } else {
+              try { event.target.pauseVideo(); } catch {}
+            }
           },
           onStateChange: (event: { data: number }) => {
             if (cancelled) return;
@@ -157,16 +163,19 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
                 const player = playerRef.current;
                 if (player) propsRef.current.onTimeUpdate(player.getCurrentTime(), player.getDuration());
               }, 500);
+            } else if (event.data === YT.PlayerState.ENDED) {
+              if (tickerRef.current !== null) window.clearInterval(tickerRef.current);
+              tickerRef.current = null;
+              propsRef.current.onEnded();
             } else {
-              if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-                if (event.data === YT.PlayerState.PAUSED && document.hidden && propsRef.current.isPlaying) {
+              if (event.data === YT.PlayerState.PAUSED) {
+                if (document.hidden && propsRef.current.isPlaying) {
                   propsRef.current.onError?.('YouTube paused this song in the background. Press Play to continue, or use an imported audio file for background listening.');
                 }
                 propsRef.current.onPlaybackChange(false);
               }
               if (tickerRef.current !== null) window.clearInterval(tickerRef.current);
               tickerRef.current = null;
-              if (event.data === YT.PlayerState.ENDED) propsRef.current.onEnded();
             }
           },
           onError: (event: { data: number }) => {
@@ -225,6 +234,16 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
   useEffect(() => {
     if (readyRef.current && seekVersion > 0) playerRef.current?.seekTo(currentTime, true);
   }, [seekVersion]);
+
+  useEffect(() => {
+    if (readyRef.current && playerRef.current && typeof playerRef.current.setPlaybackRate === 'function') {
+      try {
+        playerRef.current.setPlaybackRate(playbackRate || 1.0);
+      } catch (e) {
+        console.warn('YouTube setPlaybackRate warning:', e);
+      }
+    }
+  }, [playbackRate]);
 
   if (!isActive || !song?.youtubeId || song.audioSrc) return null;
 

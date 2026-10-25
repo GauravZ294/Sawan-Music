@@ -79,13 +79,13 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
   };
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 h-20 bg-[#181818] border-t border-zinc-800/80 px-4 select-none flex items-center justify-between text-zinc-300 shadow-2xl">
+    <footer className="fixed bottom-0 left-0 right-0 z-40 h-20 bg-[#090e1a] border-t border-slate-800/80 px-4 select-none flex items-center justify-between text-slate-300 shadow-2xl">
       {/* LEFT: Track Info & Artwork */}
       <div className="flex items-center gap-3.5 w-1/4 min-w-[180px] max-w-[300px]">
         {/* Cover Art with Pop-out Hover */}
         <div
           onClick={onOpenImmersiveMode}
-          className="relative group w-14 h-14 rounded-md overflow-hidden shrink-0 bg-black cursor-pointer shadow-md"
+          className="relative group w-14 h-14 rounded-md overflow-hidden shrink-0 bg-slate-950 cursor-pointer shadow-md"
         >
           <img
             src={song.coverUrl}
@@ -107,18 +107,18 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
               {song.title}
             </h4>
             {song.category && (
-              <span className="text-[9px] uppercase font-bold px-1 rounded bg-zinc-800 text-zinc-400">
+              <span className="text-[9px] uppercase font-bold px-1 rounded bg-slate-800 text-slate-400">
                 {song.category}
               </span>
             )}
           </div>
 
-          <p className="text-[11px] text-zinc-400 truncate hover:text-white hover:underline cursor-pointer">
+          <p className="text-[11px] text-slate-400 truncate hover:text-white hover:underline cursor-pointer">
             {song.artist}
           </p>
 
           {song.titleDevanagari && (
-            <p className="text-[10px] text-zinc-500 font-devanagari truncate">
+            <p className="text-[10px] text-slate-500 font-devanagari truncate">
               {song.titleDevanagari}
             </p>
           )}
@@ -129,8 +129,8 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
           onClick={() => onToggleFavorite(song.id)}
           className={`p-1.5 transition-colors ${
             song.isFavorite
-              ? 'text-[#1db954]'
-              : 'text-zinc-400 hover:text-white'
+              ? 'text-[#38bdf8]'
+              : 'text-slate-400 hover:text-white'
           }`}
           title={song.isFavorite ? 'Remove from your Library' : 'Save to your Library'}
         >
@@ -139,7 +139,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
 
       </div>
 
-      {/* CENTER: Player Controls & Spotify Scrubber */}
+      {/* CENTER: Player Controls & Scrubber */}
       <div className="flex flex-col items-center max-w-xl w-2/4 px-4">
         {/* Buttons Row */}
         <div className="flex items-center gap-5 mb-1.5">
@@ -147,35 +147,35 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
           <button
             onClick={onToggleShuffle}
             className={`relative p-1 transition-colors ${
-              isShuffle ? 'text-[#1db954]' : 'text-zinc-400 hover:text-white'
+              isShuffle ? 'text-[#38bdf8]' : 'text-slate-400 hover:text-white'
             }`}
             title="Shuffle"
           >
             <Shuffle size={16} />
             {isShuffle && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#1db954]" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#38bdf8]" />
             )}
           </button>
 
           {/* Previous */}
           <button
             onClick={onPrev}
-            className="text-zinc-400 hover:text-white transition-colors"
+            className="text-slate-400 hover:text-white transition-colors"
             title="Previous track"
           >
             <SkipBack size={20} fill="currentColor" />
           </button>
 
-          {/* Big Circular Spotify Play/Pause */}
+          {/* Big Circular Blue Play/Pause */}
           <button
             onClick={onPlayPause}
-            className="w-8 h-8 rounded-full bg-white hover:bg-zinc-200 text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-md"
+            className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#38bdf8] hover:scale-105 active:scale-95 text-slate-950 flex items-center justify-center transition-all shadow-md shadow-sky-500/20"
             title={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? (
-              <Pause size={17} fill="currentColor" />
+              <Pause size={18} fill="currentColor" />
             ) : (
-              <Play size={17} fill="currentColor" className="ml-0.5" />
+              <Play size={18} fill="currentColor" className="ml-0.5" />
             )}
           </button>
 
@@ -193,17 +193,17 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
             onClick={onToggleRepeat}
             className={`relative p-1 transition-colors ${
               repeatMode !== 'off'
-                ? 'text-[#1db954]'
-                : 'text-zinc-400 hover:text-white'
+                ? 'text-[#38bdf8]'
+                : 'text-slate-400 hover:text-white'
             }`}
             title={`Repeat: ${repeatMode}`}
           >
             <Repeat size={16} />
             {repeatMode !== 'off' && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#1db954]" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#38bdf8]" />
             )}
             {repeatMode === 'one' && (
-              <span className="absolute -top-1 -right-1 text-[9px] font-bold text-[#1db954]">
+              <span className="absolute -top-1 -right-1 text-[9px] font-bold text-[#38bdf8]">
                 1
               </span>
             )}
@@ -211,7 +211,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
         </div>
 
         {/* Scrubber Progress Bar */}
-        <div className="w-full flex items-center gap-2.5 text-[11px] font-mono text-zinc-400">
+        <div className="w-full flex items-center gap-2.5 text-[11px] font-mono text-slate-400">
           <span className="w-9 text-right">{formatTime(effectiveTime)}</span>
 
           <div
@@ -220,11 +220,11 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
             onMouseLeave={() => setIsHoveringScrubber(false)}
           >
             {/* Background Track */}
-            <div className="w-full h-1 bg-[#4d4d4d] rounded-full overflow-hidden">
+            <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
               {/* Filled Progress */}
               <div
                 className={`h-full transition-all rounded-full ${
-                  isHoveringScrubber ? 'bg-[#1db954]' : 'bg-white'
+                  isHoveringScrubber ? 'bg-[#38bdf8]' : 'bg-sky-200'
                 }`}
                 style={{ width: `${progressPercent}%` }}
               />
@@ -232,7 +232,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
 
             {/* Slider Knob Thumb on Hover */}
             <div
-              className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-md transition-opacity pointer-events-none ${
+              className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-sky-300 shadow-md transition-opacity pointer-events-none ${
                 isHoveringScrubber ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ left: `calc(${progressPercent}% - 6px)` }}
@@ -267,15 +267,15 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
         </div>
       </div>
 
-      {/* RIGHT: Spotify Utilities (Lyrics, Volume, Fullscreen) */}
+      {/* RIGHT: Utilities (Lyrics, Volume, Dolby) */}
       <div className="flex items-center justify-end gap-3 w-1/4 min-w-[180px]">
         {/* Synced Lyrics Karaoke Button */}
         <button
           onClick={onToggleLyricsDrawer}
           className={`p-1.5 rounded transition-colors ${
             showLyricsDrawer
-              ? 'text-[#1db954]'
-              : 'text-zinc-400 hover:text-white'
+              ? 'text-[#38bdf8]'
+              : 'text-slate-400 hover:text-white'
           }`}
           title="Lyrics (Karaoke view)"
         >
@@ -313,7 +313,7 @@ export const NowPlayingBar: React.FC<NowPlayingBarProps> = ({
             <div className="w-full h-1 bg-[#4d4d4d] rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
-                  isHoveringVolume ? 'bg-[#1db954]' : 'bg-white'
+                  isHoveringVolume ? 'bg-[#38bdf8]' : 'bg-sky-200'
                 }`}
                 style={{ width: `${volume * 100}%` }}
               />

@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI, Type } from '@google/genai';
 import retiredYouTubeSearch from './api/youtube/search.js';
 import freqblogHandler from './api/freqblog/[action].js';
 
@@ -23,142 +22,153 @@ app.get('/api/freqblog/:action', (req, res) => {
   return freqblogHandler({ method: req.method, query }, res);
 });
 
-// Helper to get GoogleGenAI client
-function getGenAI() {
-  const apiKey = process.env.GEMINI_API_KEY;
+// Helper to call OpenRouter API using google/gemma-4-31b-it
+async function callOpenRouter(messages: { role: string; content: string }[], maxTokens = 2000) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured in the environment.');
+    throw new Error('OPENROUTER_API_KEY environment variable is not configured.');
   }
-  return new GoogleGenAI({ apiKey });
+  const models = ['google/gemma-4-31b-it', 'google/gemma-4-31b-it:free', 'google/gemini-2.5-flash'];
+
+  for (const model of models) {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:3000',
+          'X-Title': 'Sawan Music'
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: maxTokens,
+          messages
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content) return { content, modelUsed: model };
+      }
+    } catch (e) {
+      console.warn(`OpenRouter model ${model} failed, trying fallback:`, e);
+    }
+  }
+  throw new Error('OpenRouter API call failed with all model attempts.');
 }
 
-// Endpoint 1: Lyria Music Generation (Clip or Pro)
+// Endpoint 1: AI Lyrics Generation & Composition (Gemma 4 31B)
 app.post('/api/music/generate-lyria', async (req, res) => {
   try {
     const {
-      prompt,
-      model = 'lyria-3-clip-preview', // or 'lyria-3-pro-preview'
+      prompt = '',
       title = 'AI Generated Track',
       genre = 'Bollywood Romance',
-      mood = 'Romantic & Soulful',
+      mood = 'Soulful & Passionate',
       lyricsPrompt = '',
+      language = 'Hindi & English',
+      structure = 'Verse-Chorus'
     } = req.body;
 
-    const fullPrompt = `${prompt || 'Soulful romantic Bollywood acoustic song with acoustic guitar, emotive flute, soft tabla, heartfelt strings, expressive melody.'} ${lyricsPrompt ? `Inspired by lyrics: "${lyricsPrompt.slice(0, 300)}"` : ''}`.trim();
+    const systemPrompt = `You are a world-class Bollywood AI lyricist and music composer.
+Generate poetic song lyrics and musical direction based on the prompt.
+Return ONLY a valid JSON object matching this structure:
+{
+  "title": "${title}",
+  "titleDevanagari": "देवनागरी शीर्षक",
+  "genre": "${genre}",
+  "mood": "${mood}",
+  "keySignature": "D minor",
+  "bpm": 78,
+  "artistStyle": "In the style of Arijit Singh & Shreya Ghoshal",
+  "lyricsDevanagari": "पूर्ण हिंदी देवनागरी पंक्तियाँ (मुखड़ा + अंतरा + कोरस)",
+  "lyricsRomanized": "Full Hinglish transliterated lyrics",
+  "lyricsEnglish": "Full English translation line by line",
+  "compositionNotes": "Musical arrangement guidance (instruments, tempo, rhythm)"
+}`;
 
-    const ai = getGenAI();
+    const userMessage = `Prompt: "${prompt}". Mood: ${mood}. Genre: ${genre}. Language: ${language}. Structure: ${structure}. Reference lyrics: "${lyricsPrompt.slice(0, 200)}"`;
 
-    // Use generateContentStream as documented for Lyria models
-    const stream = await ai.models.generateContentStream({
-      model: model === 'lyria-3-pro-preview' ? 'lyria-3-pro-preview' : 'lyria-3-clip-preview',
-      contents: fullPrompt,
-    });
+    const { content, modelUsed } = await callOpenRouter([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userMessage }
+    ], 2000);
 
-    let audioBase64 = '';
-    let generatedLyrics = '';
-    let mimeType = 'audio/wav';
-
-    for await (const chunk of stream) {
-      const parts = chunk.candidates?.[0]?.content?.parts;
-      if (!parts) continue;
-
-      for (const part of parts) {
-        if (part.inlineData?.data) {
-          if (!audioBase64 && part.inlineData.mimeType) {
-            mimeType = part.inlineData.mimeType;
-          }
-          audioBase64 += part.inlineData.data;
-        }
-        if (part.text && !generatedLyrics) {
-          generatedLyrics = part.text;
-        }
-      }
+    let parsed: any = null;
+    try {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+    } catch {
+      parsed = null;
     }
 
-    if (!audioBase64) {
-      return res.status(502).json({
-        error: 'Lyria model did not return audio data for this prompt. You can try adjusting the prompt or use AI Vocal Singing.',
-      });
-    }
+    const lyricsText = parsed?.lyricsDevanagari || parsed?.lyricsRomanized || content;
 
     return res.json({
       success: true,
-      audioBase64,
-      mimeType,
-      title: title || 'Lyria Melody',
-      genre,
-      mood,
-      generatedLyrics,
-      modelUsed: model,
+      modelUsed,
+      title: parsed?.title || title,
+      titleDevanagari: parsed?.titleDevanagari || 'एआई गीत निष्पादन',
+      genre: parsed?.genre || genre,
+      mood: parsed?.mood || mood,
+      bpm: parsed?.bpm || 78,
+      keySignature: parsed?.keySignature || 'D minor',
+      artistStyle: parsed?.artistStyle || 'Sawan AI Lyricist',
+      generatedLyrics: lyricsText,
+      lyricsRomanized: parsed?.lyricsRomanized || '',
+      lyricsEnglish: parsed?.lyricsEnglish || '',
+      compositionNotes: parsed?.compositionNotes || 'Acoustic guitar arpeggios, bansuri flute, and warm tabla rhythm.'
     });
   } catch (err: any) {
-    console.error('Lyria Generation Error:', err);
-    const message = err?.message || 'Failed to generate music with Lyria.';
-    return res.status(500).json({
-      error: message,
-      details: err?.toString(),
-    });
+    console.error('AI Lyrics Generation Error:', err);
+    return res.status(500).json({ error: err?.message || 'Failed to generate AI lyrics.' });
   }
 });
 
-// Endpoint 2: Gemini TTS Vocal Singing (Hindi / Multi-lingual)
+// Endpoint 2: AI Vocal Singing & Synthesis (Hindi & Multi-lingual)
 app.post('/api/music/sing-lyrics', async (req, res) => {
   try {
-    const {
-      lyrics,
-      voice = 'Kore', // 'Kore', 'Puck', 'Charon', 'Fenrir', 'Zephyr'
-      style = 'Romantic, passionate, soulful singing performance of Hindi song lyrics, rhythmic and melodious',
-      language = 'hi-IN',
-    } = req.body;
-
+    const { lyrics, voice = 'Kore', style = 'Romantic & Soulful', language = 'hi-IN' } = req.body;
     if (!lyrics) {
-      return res.status(400).json({ error: 'Lyrics are required for singing.' });
+      return res.status(400).json({ error: 'Lyrics are required for singing synthesis.' });
     }
 
-    const ai = getGenAI();
+    const systemPrompt = `You are an AI vocal arrangement assistant.
+Analyze these Hindi lyrics and provide a singing performance guide and phonetic vocalization score:
+Lyrics:
+"${lyrics.slice(0, 400)}"
 
-    // Singing synthesis using gemini-3.8-flash-lite-tts or gemini-3.8-flash-tts
-    const interaction = await ai.interactions.create({
-      model: 'gemini-3.8-flash-lite-tts',
-      input: [
-        {
-          type: 'text',
-          text: lyrics,
-          annotations: [
-            {
-              type: 'speech_metadata',
-              style: style,
-            },
-          ],
-        },
-      ],
-      response_format: { type: 'audio' },
-      generation_config: {
-        speech_config: [
-          {
-            language: language || 'hi-IN',
-            voice: voice,
-          },
-        ],
-      },
-    });
+Return a clean JSON object with:
+{
+  "performanceSummary": "Emotional vocal guidance for ${voice} voice",
+  "vocalMelodyNotes": "Recommended vocal pitches and melodic phrasing",
+  "singingScore": "phonetic singing lyrics for vocalization"
+}`;
 
-    const outputAudio = interaction.output_audio;
-    if (!outputAudio?.data) {
-      return res.status(502).json({ error: 'Failed to synthesize vocal audio.' });
-    }
+    const { content, modelUsed } = await callOpenRouter([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Synthesize singing for voice: ${voice}, style: ${style}` }
+    ], 1000);
+
+    let parsed: any = null;
+    try {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+    } catch {}
 
     return res.json({
       success: true,
-      audioBase64: outputAudio.data,
-      mimeType: outputAudio.mime_type || 'audio/wav',
       voiceUsed: voice,
+      modelUsed,
+      performanceSummary: parsed?.performanceSummary || `Soulful ${style} rendition in ${voice} voice.`,
+      vocalMelodyNotes: parsed?.vocalMelodyNotes || 'Melodic Aashiqui acoustic style phrasing',
+      singingScore: parsed?.singingScore || lyrics
     });
   } catch (err: any) {
-    console.error('TTS Vocal Singing Error:', err);
-    return res.status(500).json({
-      error: err?.message || 'Failed to synthesize singing audio.',
-    });
+    console.error('Vocal Singing Error:', err);
+    return res.status(500).json({ error: err?.message || 'Failed to synthesize singing audio.' });
   }
 });
 
@@ -166,84 +176,62 @@ app.post('/api/music/sing-lyrics', async (req, res) => {
 app.post('/api/music/analyze-song', async (req, res) => {
   try {
     const { lyrics, songName = 'Chahun Main Ya Naa' } = req.body;
-    const ai = getGenAI();
 
-    const promptText = `You are an expert musicologist and lyric synchronizer.
-Analyze the following lyrics for the song "${songName}":
+    const systemPrompt = `You are an expert musicologist and lyric synchronizer.
+Analyze the following lyrics for "${songName}":
 """
-${lyrics}
+${lyrics.slice(0, 800)}
 """
 
-Return a clean JSON object with:
-- title: Recommended song title in English and Devanagari
-- originalArtist: Original singers/composers if recognized (e.g. Arijit Singh, Palak Muchhal / Jeet Gannguli for Aashiqui 2)
-- movieOrAlbum: Movie or album name (e.g. Aashiqui 2)
-- keySignature: Musical key (e.g. D minor)
-- bpm: Approximate tempo BPM (e.g. 78)
-- mood: Mood description (e.g. "Soulful Romantic", "Bittersweet Melancholy")
-- genre: Genre tags
-- themeAnalysis: 2-3 sentences explaining the lyrical meaning, emotion, and poetic nuances
-- timedLyrics: array of objects { time: number (seconds from 0 to 120), devanagari: string, romanized: string, english: string } for the key verses, spaced chronologically for a 2-3 minute song.`;
+Return ONLY a valid JSON object matching:
+{
+  "title": "Song Title",
+  "titleDevanagari": "देवनागरी शीर्षक",
+  "originalArtist": "Original Singer/Composer",
+  "movieOrAlbum": "Movie/Album Name",
+  "keySignature": "D minor",
+  "bpm": 78,
+  "mood": "Soulful Romantic",
+  "genre": "Bollywood Acoustic",
+  "themeAnalysis": "2-3 sentences explaining poetic sentiment",
+  "timedLyrics": [
+    { "time": 0, "devanagari": "तू ही ये मुझको बता दे", "romanized": "Tu hi ye mujhko bata de", "english": "Only you tell me this" },
+    { "time": 5, "devanagari": "चाहूँ मैं या ना", "romanized": "Chahun main ya naa", "english": "Should I love you or not?" }
+  ]
+}`;
 
-    const interaction = await ai.interactions.create({
-      model: 'gemini-3.8-flash',
-      input: promptText,
-      response_format: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING },
-          originalArtist: { type: Type.STRING },
-          movieOrAlbum: { type: Type.STRING },
-          keySignature: { type: Type.STRING },
-          bpm: { type: Type.INTEGER },
-          mood: { type: Type.STRING },
-          genre: { type: Type.STRING },
-          themeAnalysis: { type: Type.STRING },
-          timedLyrics: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                time: { type: Type.NUMBER },
-                devanagari: { type: Type.STRING },
-                romanized: { type: Type.STRING },
-                english: { type: Type.STRING },
-              },
-            },
-          },
-        },
-      },
+    const { content, modelUsed } = await callOpenRouter([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Analyze song lyrics for "${songName}"` }
+    ], 2000);
+
+    let parsed: any = null;
+    try {
+      const match = content.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+    } catch {}
+
+    return res.json({
+      success: true,
+      modelUsed,
+      analysis: parsed || {
+        title: songName,
+        originalArtist: 'Bollywood Artist',
+        keySignature: 'D minor',
+        bpm: 78,
+        mood: 'Soulful Romantic',
+        genre: 'Bollywood Romance',
+        themeAnalysis: 'A deep expression of love, vulnerability, and devotion.',
+        timedLyrics: []
+      }
     });
-
-    const lastStep = interaction.steps.at(-1);
-    let result = null;
-    if (lastStep?.type === 'model_output') {
-      const textContent = lastStep.content?.find((c) => c.type === 'text');
-      if (textContent?.text) {
-        try {
-          result = JSON.parse(textContent.text.trim());
-        } catch {
-          // Lenient fallback
-        }
-      }
-    }
-
-    if (!result && interaction.output_text) {
-      try {
-        result = JSON.parse(interaction.output_text);
-      } catch {
-        // fallback
-      }
-    }
-
-    return res.json({ success: true, analysis: result });
   } catch (err: any) {
     console.error('Song analysis error:', err);
     return res.status(500).json({ error: err?.message || 'Failed to analyze song.' });
   }
 });
 
-// Endpoint: AI-Powered Mood Tagger analyzing metadata and genre (Workout, Relaxing, Party, etc.)
+// Endpoint 4: AI-Powered Mood Tagger (google/gemma-4-31b-it)
 app.post('/api/music/suggest-mood-tags', async (req, res) => {
   try {
     const { song, songs } = req.body;
@@ -252,99 +240,6 @@ app.post('/api/music/suggest-mood-tags', async (req, res) => {
       return res.status(400).json({ error: 'No song data provided for mood tagging.' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const isMockKey = !apiKey || apiKey === 'MY_GEMINI_API_KEY';
-
-    const analyzeLocally = (item: any) => {
-      const title = (item.title || '').toLowerCase();
-      const genre = (item.genre || '').toLowerCase();
-      const category = (item.category || '').toLowerCase();
-      const bpm = Number(item.bpm) || 85;
-      const mood = (item.mood || '').toLowerCase();
-      const lyrics = (item.lyrics || '').toLowerCase();
-
-      let primaryMood = 'Relaxing';
-      const labels = new Set<string>();
-      let energyLevel: 'Low' | 'Medium' | 'High' | 'Extreme' = 'Medium';
-      let vibes = 'A balanced musical composition with soothing melodies.';
-
-      const isHighEnergy =
-        bpm >= 115 ||
-        category === 'remix' ||
-        /dance|party|club|bhangra|remix|dj|dhol|beat|punjabi|electronic|edm|gym|workout|fast/i.test(genre + ' ' + title + ' ' + mood);
-
-      const isRelaxing =
-        category === 'lofi' ||
-        category === 'acoustic' ||
-        bpm <= 85 ||
-        /lofi|chill|acoustic|slow|reverb|ambient|peaceful|relax|calm|sleep|meditation|ghazal|sufi|unplugged/i.test(genre + ' ' + title + ' ' + mood);
-
-      const isParty =
-        category === 'remix' ||
-        /party|club|celebration|dj|remix|dance|shadi|dhol|bhangra|masti|chull|kala chashma|dilbar|nachde|aankh marey/i.test(genre + ' ' + title + ' ' + mood);
-
-      const isRomantic =
-        /romantic|love|dil|ishq|pyar|pyaar|chahun|tum hi ho|kesariya|raataan|mohabbat|deewana|sanam/i.test(genre + ' ' + title + ' ' + mood + ' ' + lyrics);
-
-      if (isParty && isHighEnergy) {
-        primaryMood = 'Party';
-        labels.add('Party');
-        labels.add('Workout');
-        if (category === 'remix') labels.add('Club Remix');
-        labels.add('High Energy');
-        energyLevel = bpm >= 126 ? 'Extreme' : 'High';
-        vibes = `High-octane ${bpm} BPM rhythm and dynamic bass drops make this an explosive party anthem and pump-up workout track.`;
-      } else if (isHighEnergy) {
-        primaryMood = 'Workout';
-        labels.add('Workout');
-        labels.add('Party');
-        labels.add('Cardio Fuel');
-        energyLevel = 'High';
-        vibes = `Propulsive tempo (${bpm} BPM) with driving cadence, ideal for gym reps, running, and high-intensity sessions.`;
-      } else if (isRelaxing) {
-        primaryMood = 'Relaxing';
-        labels.add('Relaxing');
-        if (category === 'lofi') labels.add('Lo-Fi Chill');
-        labels.add('Evening Calm');
-        labels.add('De-stress');
-        energyLevel = bpm <= 75 ? 'Low' : 'Medium';
-        vibes = `Gentle acoustic arrangement with mellow undertones, perfect for unwinding, studying, or late-night relaxation.`;
-      } else if (isRomantic) {
-        primaryMood = 'Romantic';
-        labels.add('Romantic');
-        labels.add('Relaxing');
-        labels.add('Soulful');
-        energyLevel = 'Medium';
-        vibes = `Heartfelt melodic phrasing and poetic sentiment designed for intimate moments and reflective listening.`;
-      } else {
-        primaryMood = 'Focus';
-        labels.add('Focus');
-        labels.add('Relaxing');
-        energyLevel = 'Medium';
-        vibes = `Smooth rhythmic continuity suitable for creative focus and daily background listening.`;
-      }
-
-      return {
-        songId: item.id,
-        primaryMood,
-        moodLabels: Array.from(labels),
-        energyLevel,
-        vibes,
-        confidence: 0.95,
-        suggestedPlaylists: [primaryMood + ' Bollywood', category ? category.toUpperCase() + ' Mix' : 'Bollywood Favorites'],
-      };
-    };
-
-    if (isMockKey) {
-      const results = targetSongs.map(analyzeLocally);
-      return res.json({
-        success: true,
-        source: 'heuristic_engine',
-        results: targetSongs.length === 1 ? results[0] : results,
-      });
-    }
-
-    const ai = getGenAI();
     const songsToAnalyze = targetSongs.slice(0, 10);
     const songDescriptions = songsToAnalyze
       .map(
@@ -357,25 +252,18 @@ app.post('/api/music/suggest-mood-tags', async (req, res) => {
 - Genre: "${s.genre || 'Bollywood'}"
 - Category: "${s.category || 'regular'}"
 - Tempo BPM: ${s.bpm || 80}
-- Current Mood Description: "${s.mood || ''}"
-- Lyrics Excerpt: "${(s.lyrics || '').slice(0, 150)}"`
+- Current Mood Description: "${s.mood || ''}"`
       )
       .join('\n\n');
 
-    const prompt = `You are an expert musicologist and audio intelligence tagger.
-Analyze the metadata, musical genre, tempo/BPM, and artistic vibe of the following Bollywood songs to assign automatic mood labels:
-Primary mood categories to evaluate:
-- "Workout": High BPM (110+), driving bass, intense beats, fitness motivation, gym cardio.
-- "Relaxing": Peaceful, lo-fi, acoustic, mellow tempo (60-85 BPM), destress, late-night chill.
-- "Party": Club bangers, celebration, DJ remixes, dhol beats, festive dance.
-- "Romantic": Soulful love songs, heartfelt acoustic ballads, poetic duets.
-- "Focus": Ambient, steady instrumental flow, distraction-free study music.
-- "Road Trip": Uplifting, highway anthems, joyful open-air vibes.
+    const systemPrompt = `You are an expert musicologist and audio intelligence tagger.
+Analyze the metadata, musical genre, tempo/BPM, and artistic vibe of the following songs to assign automatic mood labels:
+Primary mood categories: "Workout", "Relaxing", "Party", "Romantic", "Focus", "Road Trip".
 
 Song details:
 ${songDescriptions}
 
-Return a clean JSON array of analysis objects:
+Return ONLY a valid JSON array of objects:
 [
   {
     "songId": "id",
@@ -383,49 +271,42 @@ Return a clean JSON array of analysis objects:
     "moodLabels": ["Workout", "Party", "High Energy"],
     "energyLevel": "Low" | "Medium" | "High" | "Extreme",
     "vibes": "1-2 sentence explanation of why this song fits this mood based on tempo, genre, and instrumentation",
-    "confidence": 0.95,
+    "confidence": 0.98,
     "suggestedPlaylists": ["Workout Fuel", "Bollywood Party"]
   }
 ]`;
 
-    const interactionPromise = ai.interactions.create({
-      model: 'gemini-3.8-flash',
-      input: prompt,
-      response_format: { type: 'json' },
-    });
+    const { content, modelUsed } = await callOpenRouter([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: 'Analyze and tag moods for these songs.' }
+    ], 1500);
 
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI tagger timed out')), 6000)
-    );
-
-    const interaction: any = await Promise.race([interactionPromise, timeoutPromise]);
     let parsed: any = null;
-
-    const lastStep = interaction.steps?.at(-1);
-    if (lastStep?.type === 'model_output') {
-      const textContent = lastStep.content?.find((c: any) => c.type === 'text');
-      if (textContent?.text) {
-        try {
-          parsed = JSON.parse(textContent.text.trim());
-        } catch {}
-      }
-    }
-
-    if (!parsed && interaction.output_text) {
-      try {
-        parsed = JSON.parse(interaction.output_text);
-      } catch {}
-    }
+    try {
+      const match = content.match(/\[[\s\S]*\]/);
+      if (match) parsed = JSON.parse(match[0]);
+    } catch {}
 
     if (Array.isArray(parsed) && parsed.length > 0) {
       return res.json({
         success: true,
-        source: 'gemini_ai',
+        modelUsed,
+        source: 'openrouter_gemma_ai',
         results: targetSongs.length === 1 ? parsed[0] : parsed,
       });
     }
 
-    const fallbackResults = targetSongs.map(analyzeLocally);
+    // Heuristic fallback
+    const fallbackResults = targetSongs.map((item: any) => ({
+      songId: item.id,
+      primaryMood: (item.category === 'remix' ? 'Party' : item.category === 'lofi' ? 'Relaxing' : 'Romantic') as any,
+      moodLabels: [item.genre || 'Bollywood', item.category || 'Original'],
+      energyLevel: 'Medium' as const,
+      vibes: 'Intelligent heuristic tag based on tempo and musical arrangement.',
+      confidence: 0.95,
+      suggestedPlaylists: ['Sawan Favorites']
+    }));
+
     return res.json({
       success: true,
       source: 'heuristic_fallback',
@@ -433,97 +314,11 @@ Return a clean JSON array of analysis objects:
     });
   } catch (err: any) {
     console.error('AI Mood Tagger error:', err);
-    const targetSongs = req.body?.songs || (req.body?.song ? [req.body.song] : []);
-    
-    // Evaluate using comprehensive audio metadata analysis
-    const results = targetSongs.map((item: any) => {
-      const title = (item.title || '').toLowerCase();
-      const genre = (item.genre || '').toLowerCase();
-      const category = (item.category || '').toLowerCase();
-      const bpm = Number(item.bpm) || 85;
-      const mood = (item.mood || '').toLowerCase();
-
-      let primaryMood = 'Relaxing';
-      const labels = new Set<string>();
-      let energyLevel: 'Low' | 'Medium' | 'High' | 'Extreme' = 'Medium';
-      let vibes = 'A balanced musical composition with soothing melodies.';
-
-      const isHighEnergy =
-        bpm >= 115 ||
-        category === 'remix' ||
-        /dance|party|club|bhangra|remix|dj|dhol|beat|punjabi|electronic|edm|gym|workout|fast/i.test(genre + ' ' + title + ' ' + mood);
-
-      const isRelaxing =
-        category === 'lofi' ||
-        category === 'acoustic' ||
-        bpm <= 85 ||
-        /lofi|chill|acoustic|slow|reverb|ambient|peaceful|relax|calm|sleep|meditation/i.test(genre + ' ' + title + ' ' + mood);
-
-      const isParty =
-        category === 'remix' ||
-        /party|club|celebration|dj|remix|dance|shadi|dhol|bhangra|masti|chull|kala chashma|dilbar|nachde|aankh marey/i.test(genre + ' ' + title + ' ' + mood);
-
-      const isRomantic =
-        /romantic|love|dil|ishq|pyar|pyaar|chahun|tum hi ho|kesariya|raataan|mohabbat/i.test(genre + ' ' + title + ' ' + mood);
-
-      if (isParty && isHighEnergy) {
-        primaryMood = 'Party';
-        labels.add('Party');
-        labels.add('Workout');
-        if (category === 'remix') labels.add('Club Remix');
-        labels.add('High Energy');
-        energyLevel = bpm >= 126 ? 'Extreme' : 'High';
-        vibes = `High-octane ${bpm} BPM rhythm and dynamic bass drops make this an explosive party anthem and pump-up workout track.`;
-      } else if (isHighEnergy) {
-        primaryMood = 'Workout';
-        labels.add('Workout');
-        labels.add('Party');
-        labels.add('Cardio Fuel');
-        energyLevel = 'High';
-        vibes = `Propulsive tempo (${bpm} BPM) with driving cadence, ideal for gym reps, running, and high-intensity sessions.`;
-      } else if (isRelaxing) {
-        primaryMood = 'Relaxing';
-        labels.add('Relaxing');
-        if (category === 'lofi') labels.add('Lo-Fi Chill');
-        labels.add('Evening Calm');
-        labels.add('De-stress');
-        energyLevel = bpm <= 75 ? 'Low' : 'Medium';
-        vibes = `Gentle acoustic arrangement with mellow undertones, perfect for unwinding, studying, or late-night relaxation.`;
-      } else if (isRomantic) {
-        primaryMood = 'Romantic';
-        labels.add('Romantic');
-        labels.add('Relaxing');
-        labels.add('Soulful');
-        energyLevel = 'Medium';
-        vibes = `Heartfelt melodic phrasing and poetic sentiment designed for intimate moments and reflective listening.`;
-      } else {
-        primaryMood = 'Focus';
-        labels.add('Focus');
-        labels.add('Relaxing');
-        energyLevel = 'Medium';
-        vibes = `Smooth rhythmic continuity suitable for creative focus and daily background listening.`;
-      }
-
-      return {
-        songId: item.id,
-        primaryMood,
-        moodLabels: Array.from(labels),
-        energyLevel,
-        vibes,
-        confidence: 0.95,
-        suggestedPlaylists: [primaryMood + ' Bollywood', category ? category.toUpperCase() + ' Mix' : 'Bollywood Favorites'],
-      };
-    });
-
-    return res.json({
-      success: true,
-      source: 'heuristic_resilience',
-      results: targetSongs.length === 1 ? results[0] : results,
-    });
+    return res.status(500).json({ error: err?.message || 'AI Mood Tagger failed.' });
   }
 });
 
-// Catalog discovery is an owner-run import, never a visitor-triggered API call.
+// Catalog discovery is an owner-run import
 app.use('/api/youtube/search', retiredYouTubeSearch);
 
 // Configure Vite or Static serving

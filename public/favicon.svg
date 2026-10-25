@@ -1,15 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <circle cx="50" cy="50" r="48" fill="#070d1e" stroke="#38bdf8" stroke-width="4"/>
+  <circle cx="50" cy="50" r="40" fill="url(#blue-grad)" />
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1d2821" />
-      <stop offset="1" stop-color="#101312" />
+    <linearGradient id="blue-grad" x1="0" y1="0" x2="100" y2="100">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
     </linearGradient>
-    <linearGradient id="note" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#4ade80" />
-      <stop offset="1" stop-color="#1db954" />
+    <linearGradient id="note-grad" x1="0" y1="0" x2="100" y2="100">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="url(#bg)" />
-  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#1db954" stroke-opacity=".4" stroke-width="2" />
-  <path d="M39 13v27.2a9.4 9.4 0 1 1-5-8.3V21l17-4v19.2a9.4 9.4 0 1 1-5-8.3V13l-7 1.6Z" fill="url(#note)" />
+  <!-- Music Note Vector -->
+  <path d="M40 68 C 34 68 28 63 28 57 C 28 51 34 46 40 46 C 45 46 49 50 49 55 L 49 26 L 72 20 L 72 32 L 49 38 L 49 56 C 49 56 46 68 40 68 Z" fill="url(#note-grad)"/>
 </svg>

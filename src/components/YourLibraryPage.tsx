@@ -155,18 +155,18 @@ export const YourLibraryPage: React.FC<YourLibraryPageProps> = ({
             const isActive = song.id === activeSong?.id;
             const playing = isActive && isPlaying;
             return (
-              <div key={song.id} className={`group flex min-w-0 items-center gap-2 px-2 py-3 transition sm:gap-3 sm:px-4 ${isActive ? 'bg-[#1db954]/[0.08]' : 'hover:bg-white/[0.04]'}`}>
-                <button type="button" onClick={() => playing ? onPauseSong() : onPlaySong(song)} aria-label={`${playing ? 'Pause' : 'Play'} ${song.title}`} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1ed760] ${isActive ? 'bg-[#1db954] text-black hover:bg-[#1ed760]' : 'text-zinc-400 hover:bg-white/10 hover:text-white'}`}>
+              <div key={song.id} className={`group flex min-w-0 items-center gap-2 px-2 py-3 transition sm:gap-3 sm:px-4 ${isActive ? 'bg-[#38bdf8]/[0.08]' : 'hover:bg-white/[0.04]'}`}>
+                <button type="button" onClick={() => playing ? onPauseSong() : onPlaySong(song)} aria-label={`${playing ? 'Pause' : 'Play'} ${song.title}`} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#38bdf8] ${isActive ? 'bg-[#38bdf8] text-slate-950 hover:bg-sky-300' : 'text-slate-400 hover:bg-white/10 hover:text-white'}`}>
                   {playing ? <Pause size={17} fill="currentColor" aria-hidden="true" /> : <Play size={17} fill="currentColor" aria-hidden="true" />}
                 </button>
                 <div className="h-11 w-11 shrink-0"><CoverArt src={song.coverUrl} alt={`${song.title} artwork`} /></div>
                 <div className="min-w-0 flex-1">
-                  <p className={`truncate text-sm font-semibold ${isActive ? 'text-[#1ed760]' : 'text-white'}`}>{song.title}</p>
-                  <p className="mt-0.5 truncate text-xs text-zinc-400">{song.artist}{song.language ? ` · ${song.language}` : ''}</p>
+                  <p className={`truncate text-sm font-semibold ${isActive ? 'text-[#38bdf8]' : 'text-white'}`}>{song.title}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-400">{song.artist}{song.language ? ` · ${song.language}` : ''}</p>
                 </div>
-                <p className="hidden w-40 shrink-0 truncate text-xs text-zinc-400 lg:block">{song.album || '—'}</p>
-                <span className="hidden w-12 shrink-0 text-right text-xs tabular-nums text-zinc-500 sm:block">{formatDuration(song.duration)}</span>
-                {onToggleFavorite && <button type="button" onClick={() => onToggleFavorite(song.id)} aria-label={`${song.isFavorite ? 'Unlike' : 'Like'} ${song.title}`} aria-pressed={song.isFavorite} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1ed760] ${song.isFavorite ? 'text-[#1ed760]' : 'text-zinc-500 hover:text-white'}`}><Heart size={17} fill={song.isFavorite ? 'currentColor' : 'none'} aria-hidden="true" /></button>}
+                <p className="hidden w-40 shrink-0 truncate text-xs text-slate-400 lg:block">{song.album || '—'}</p>
+                <span className="hidden w-12 shrink-0 text-right text-xs tabular-nums text-slate-500 sm:block">{formatDuration(song.duration)}</span>
+                {onToggleFavorite && <button type="button" onClick={() => onToggleFavorite(song.id)} aria-label={`${song.isFavorite ? 'Unlike' : 'Like'} ${song.title}`} aria-pressed={song.isFavorite} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#38bdf8] ${song.isFavorite ? 'text-[#38bdf8]' : 'text-slate-500 hover:text-white'}`}><Heart size={17} fill={song.isFavorite ? 'currentColor' : 'none'} aria-hidden="true" /></button>}
               </div>
             );
           })}
@@ -183,7 +183,7 @@ export const YourLibraryPage: React.FC<YourLibraryPageProps> = ({
           <button type="button" key={playlist.id} onClick={() => onSelectPlaylist(playlist.id)} className={cardClass} aria-label={`Open ${playlist.name}, ${countLabel(count)}`}>
             <div className="relative">
               <CoverArt src={playlist.coverUrl} alt={`${playlist.name} playlist artwork`} />
-              <span className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#1ed760] text-black shadow-lg transition group-hover:scale-105"><ArrowUpRight size={19} aria-hidden="true" /></span>
+              <span className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#38bdf8] text-slate-950 shadow-lg transition group-hover:scale-105"><ArrowUpRight size={19} aria-hidden="true" /></span>
             </div>
             <p className="mt-3 truncate text-sm font-bold text-white">{playlist.name}</p>
             <p className="mt-1 truncate text-xs text-zinc-400">Playlist · {countLabel(count)}</p>
@@ -214,29 +214,28 @@ export const YourLibraryPage: React.FC<YourLibraryPageProps> = ({
   );
 
   const categories = [
-    { label: 'Originals', view: 'regular' as ViewMode, icon: Music2, count: songs.filter(song => song.category === 'regular').length, color: 'text-emerald-300 bg-emerald-400/10' },
+    { label: 'Originals', view: 'regular' as ViewMode, icon: Music2, count: songs.filter(song => song.category === 'regular').length, color: 'text-sky-300 bg-sky-400/10' },
     { label: 'Remixes', view: 'remix' as ViewMode, icon: Disc3, count: songs.filter(song => song.category === 'remix').length, color: 'text-orange-300 bg-orange-400/10' },
     { label: 'Lo-Fi', view: 'lofi' as ViewMode, icon: Headphones, count: songs.filter(song => song.category === 'lofi').length, color: 'text-purple-300 bg-purple-400/10' },
     { label: 'Mashups', view: 'mashup' as ViewMode, icon: Layers, count: songs.filter(song => song.category === 'mashup').length, color: 'text-cyan-300 bg-cyan-400/10' },
-    { label: 'Garba & Dandiya', view: 'garba' as ViewMode, icon: Music2, count: songs.filter(song => song.garbaStyles?.length).length, color: 'text-amber-300 bg-amber-400/10' },
   ];
 
   return (
-    <section aria-label="Your library" className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#121212] text-white">
-      <div className="border-b border-white/5 bg-gradient-to-br from-[#193d2b] via-[#172a20] to-[#121212] px-4 pb-6 pt-7 sm:px-7 sm:pb-7 sm:pt-9 lg:px-9">
+    <section aria-label="Your library" className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#0b1329] text-white">
+      <div className="border-b border-sky-500/10 bg-gradient-to-br from-[#0f2847] via-[#0f172a] to-[#0b1329] px-4 pb-6 pt-7 sm:px-7 sm:pb-7 sm:pt-9 lg:px-9">
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div className="min-w-0">
-            <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#91caa7]"><Library size={15} aria-hidden="true" /> Made for your music</div>
+            <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#38bdf8]"><Library size={15} aria-hidden="true" /> Made for your music</div>
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">Your library</h1>
-            <p className="mt-3 max-w-lg text-sm leading-relaxed text-zinc-300">Your playlists, favorites, and downloaded music. All in one place.</p>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-zinc-400">
+            <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-300">Your playlists, favorites, and downloaded music. All in one place.</p>
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-400">
               <span><strong className="font-semibold text-white">{songs.length.toLocaleString()}</strong> songs</span>
               <span><strong className="font-semibold text-white">{playlists.length.toLocaleString()}</strong> playlists</span>
               <span><strong className="font-semibold text-white">{artists.length.toLocaleString()}</strong> artists</span>
               <span><strong className="font-semibold text-white">{albums.length.toLocaleString()}</strong> albums</span>
             </div>
           </div>
-          <button type="button" onClick={onCreatePlaylist} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#1ed760] px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-black/10 transition hover:scale-[1.02] hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"><Plus size={19} aria-hidden="true" /> Create playlist</button>
+          <button type="button" onClick={onCreatePlaylist} className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#38bdf8] hover:bg-sky-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"><Plus size={19} aria-hidden="true" /> Create playlist</button>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
           <button type="button" onClick={onImportAudio} className={actionClass}><Upload size={15} aria-hidden="true" /> Import audio</button>
@@ -294,6 +293,12 @@ export const YourLibraryPage: React.FC<YourLibraryPageProps> = ({
         ) : (
           <section aria-label={activeTab === 'artists' ? 'Your artists' : 'Your albums'}>{sectionHeading(activeTab === 'artists' ? 'Your artists' : 'Your albums', (activeTab === 'artists' ? artists : albums).filter(collectionMatches).length)}{(activeTab === 'artists' ? artists : albums).filter(collectionMatches).length ? renderCollectionGrid((activeTab === 'artists' ? artists : albums).filter(collectionMatches), activeTab) : <EmptyState title={query ? `No matching ${activeTab}` : `No ${activeTab} yet`} description={query ? 'Try another artist, album, or song title.' : 'Add songs to your library and their artists and albums will appear here.'} action={query ? 'Clear search' : 'Import audio'} onAction={query ? () => setSearchQuery('') : onImportAudio} />}</section>
         )}
+
+        {/* Footer with Copyright */}
+        <footer className="mt-12 mb-6 border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-zinc-400">
+          <p>© 2026 Gaurav Zalavadiya. All rights reserved.</p>
+          <p className="text-zinc-500">Sawan Music • Designed & Developed by Gaurav Zalavadiya</p>
+        </footer>
       </div>
     </section>
   );

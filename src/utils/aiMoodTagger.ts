@@ -61,7 +61,7 @@ export const MOOD_DEFINITIONS: Record<
     textBadge: 'text-rose-400',
     borderBadge: 'border-rose-500/30',
     iconName: 'Heart',
-    sampleTracks: ['Chahun Main Ya Naa', 'Tum Hi Ho', 'Kesariya', 'Raataan Lambiyan'],
+    sampleTracks: ['Tum Hi Ho', 'Kesariya', 'Raataan Lambiyan', 'Apna Bana Le'],
   },
   Focus: {
     name: 'Focus',

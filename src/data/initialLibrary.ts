@@ -1,120 +1,12 @@
 import { Song, Playlist } from '../types/music';
 
-export const USER_REQUESTED_LYRICS = `तू ही ये मुझको बता दे
-चाहूँ मैं या ना
-अपने तू दिल का पता दे
-चाहूँ मैं या ना
-तू ही ये मुझको बता दे
-चाहूँ मैं या ना
-अपने तू दिल का पता दे
-चाहूँ मैं या ना
-इतना बता दूँ तुझको
-चाहत पे अपनी मुझको
-यूँ तो नहीं इख़्तियार
-फिर भी ये सोचा दिल ने
-अब जो लगा हूँ मिलने
-पूछूँ तुझे एक बार ओ ओ ओ
-तू ही ये मुझको बता दे
-चाहूँ मैं या ना
-अपने तू दिल का पता दे
-चाहूँ मैं या ना
-ऐसी कभी पहले
-हुई ना थी ख्वाहिशें ओ ओ ओ ओ
-किसी से भी मिलने
-की ना की थी कोशिशें
-उलझन मेरी सुलझा दे
-चाहूँ मैं या ना
-आँखों-आँखों में जता दे
-चाहूँ मैं या ना
-मेरे छोटे-छोटे ख्वाब हैं
-ख्वाबों में गीत हैं
-गीतों में ज़िन्दगी है
-चाहत है प्रीत है
-अभी मैं न देखूँ ख्वाब वो
-जिनमें न तू मिले
-ले खोले होंठ मैंने
-अब तक थे जो सिले
-मुझको ना जितना मुझपे
-उतना इस दिल को तुझपे
-होने लगा ऐतबार
-तन्हा लम्हों में अपने
-बुनती हूँ तेरे सपने
-तुझसे हुआ मुझको प्यार ओ
-पूछूंगी तुझको कभी ना
-चाहूँ मैं या ना
-तेरे ख़्वाबों में अब जीना
-चाहूँ मैं क्यूँ ना
-तू ही ये मुझको बता दे
-चाहूँ मैं या ना
-अपने तू दिल का पता दे
-चाहूँ मैं या ना`;
-
-export const CHAHUN_MAIN_TIMED_LYRICS = [
-  { time: 0, devanagari: "तू ही ये मुझको बता दे", romanized: "Tu hi ye mujhko bata de", english: "Only you tell me this" },
-  { time: 5, devanagari: "चाहूँ मैं या ना", romanized: "Chahun main ya naa", english: "Should I love you or not?" },
-  { time: 9, devanagari: "अपने तू दिल का पता दे", romanized: "Apne tu dil ka pata de", english: "Give me the address of your heart" },
-  { time: 14, devanagari: "चाहूँ मैं या ना", romanized: "Chahun main ya naa", english: "Should I love you or not?" },
-  { time: 19, devanagari: "तू ही ये मुझको बता दे", romanized: "Tu hi ye mujhko bata de", english: "Only you tell me this" },
-  { time: 24, devanagari: "चाहूँ मैं या ना", romanized: "Chahun main ya naa", english: "Should I love you or not?" },
-  { time: 29, devanagari: "अपने तू दिल का पता दे", romanized: "Apne tu dil ka pata de", english: "Give me the address of your heart" },
-  { time: 34, devanagari: "चाहूँ मैं या ना", romanized: "Chahun main ya naa", english: "Should I love you or not?" },
-  { time: 40, devanagari: "इतना बता दूँ तुझको, चाहत पे अपनी मुझको", romanized: "Itna bata doon tujhko, chaahat pe apni mujhko", english: "Let me tell you this much, over my own love" },
-  { time: 46, devanagari: "यूँ तो नहीं इख़्तियार", romanized: "Yoon toh nahi ikhtiyaar", english: "I have no real control" },
-  { time: 52, devanagari: "फिर भी ये सोचा दिल ने, अब जो लगा हूँ मिलने", romanized: "Phir bhi ye socha dil ne, ab jo laga hoon milne", english: "Yet my heart wondered, now that I have met you" },
-  { time: 58, devanagari: "पूछूँ तुझे एक बार ओ ओ ओ", romanized: "Poochoon tujhe ek baar oh oh oh", english: "Let me ask you just once" },
-  { time: 64, devanagari: "तू ही ये मुझको बता दे", romanized: "Tu hi ye mujhko bata de", english: "Only you tell me this" },
-  { time: 69, devanagari: "चाहूँ मैं या ना", romanized: "Chahun main ya naa", english: "Should I love you or not?" },
-  { time: 74, devanagari: "अपने तू दिल का पता दे", romanized: "Apne tu dil ka pata de", english: "Give me the address of your heart" },
-  { time: 79, devanagari: "चाहूँ मैं या ना", romanized: "Chahun main ya naa", english: "Should I love you or not?" },
-  { time: 85, devanagari: "ऐसी कभी पहले, हुई ना थी ख्वाहिशें ओ ओ ओ", romanized: "Aisi kabhi pehle, hui na thi khwahishein oh oh oh", english: "Never before did such desires arise in me" },
-  { time: 92, devanagari: "किसी से भी मिलने की ना की थी कोशिशें", romanized: "Kisi se bhi milne ki na ki thi koshishein", english: "Never tried to connect with anyone like this" },
-  { time: 99, devanagari: "उलझन मेरी सुलझा दे, चाहूँ मैं या ना", romanized: "Uljhan meri suljha de, chahun main ya naa", english: "Untangle this dilemma of mine: should I love you or not?" },
-  { time: 106, devanagari: "आँखों-आँखों में जता दे, चाहूँ मैं या ना", romanized: "Aankhon-aankhon mein jata de, chahun main ya naa", english: "Confess through your eyes: should I love you or not?" },
-  { time: 114, devanagari: "मेरे छोटे-छोटे ख्वाब हैं, ख्वाबों में गीत हैं", romanized: "Mere chhote-chhote khwaab hain, khwaabon mein geet hain", english: "I have modest little dreams, in my dreams are songs" },
-  { time: 121, devanagari: "गीतों में ज़िन्दगी है, चाहत है प्रीत है", romanized: "Geeton mein zindagi hai, chaahat hai preet hai", english: "In songs is life itself, passion and true love" },
-  { time: 128, devanagari: "अभी मैं न देखूँ ख्वाब वो जिनमें न तू मिले", romanized: "Abhi main na dekhoon khwaab woh jinmein na tu mile", english: "Now I refuse to dream any dream that doesn't have you" },
-  { time: 136, devanagari: "ले खोले होंठ मैंने, अब तक थे जो सिले", romanized: "Le khole honth maine, ab tak the jo sile", english: "Behold, I have opened my lips that were sealed until now" },
-  { time: 144, devanagari: "मुझको ना जितना मुझपे, उतना इस दिल को तुझपे", romanized: "Mujhko na jitna mujhpe, utna is dil ko tujhpe", english: "More than I trust myself, this heart trusts you" },
-  { time: 151, devanagari: "होने लगा ऐतबार", romanized: "Hone laga aitbaar", english: "Has begun to place its faith" },
-  { time: 157, devanagari: "तन्हा लम्हों में अपने, बुनती हूँ तेरे सपने", romanized: "Tanha lamhon mein apne, bunti hoon तेरे sapne", english: "In my solitary hours, I weave dreams of you" },
-  { time: 164, devanagari: "तुझसे हुआ मुझको प्यार ओ", romanized: "Tujhse hua mujhko pyaar oh", english: "I have fallen deeply in love with you" },
-  { time: 171, devanagari: "पूछूंगी तुझको कभी ना, चाहूँ मैं या ना", romanized: "Poochhoongi tujhko kabhi na, chahun main ya naa", english: "Never will I question again whether I should love you" },
-  { time: 178, devanagari: "तेरे ख़्वाबों में अब जीना, चाहूँ मैं क्यूँ ना", romanized: "Tere khwaabon mein ab jeena, chahun main kyoon na", english: "Living in your dreams: why wouldn't I want that?" },
-  { time: 185, devanagari: "तू ही ये मुझको बता दे, चाहूँ मैं या ना", romanized: "Tu hi ye mujhko bata de, chahun main ya naa", english: "Only you tell me this, should I love you or not?" },
-  { time: 192, devanagari: "अपने तू दिल का पता दे, चाहूँ मैं या ना", romanized: "Apne tu dil ka pata de, chahun main ya naa", english: "Give me the address of your heart, should I love you or not?" },
-];
+export const USER_REQUESTED_LYRICS = '';
+export const CHAHUN_MAIN_TIMED_LYRICS: { time: number; devanagari: string; romanized: string; english: string }[] = [];
 
 const RAW_INITIAL_SONGS: Song[] = [
   // ==========================================
   // 1. REGULAR BOLLYWOOD TRACKS (ORIGINALS)
   // ==========================================
-  {
-    id: 'chahun-main-ya-naa',
-    title: 'Chahun Main Ya Naa',
-    titleDevanagari: 'चाहूँ मैं या ना',
-    artist: 'Arijit Singh & Palak Muchhal',
-    artistDevanagari: 'अरिजीत सिंह और पलक मुच्छल',
-    album: 'Aashiqui 2',
-    coverUrl: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
-    duration: 202,
-    genre: 'Bollywood Romance',
-    category: 'regular',
-    year: 2013,
-    mood: 'Soulful & Passionate',
-    bpm: 78,
-    lyrics: USER_REQUESTED_LYRICS,
-    timedLyrics: CHAHUN_MAIN_TIMED_LYRICS,
-    audioPreset: 'chahun_main_acoustic',
-    youtubeId: 'jazrixVDB3o',
-    youtubeUrl: 'https://www.youtube.com/watch?v=jazrixVDB3o',
-    isYoutubeSource: true,
-    channelTitle: 'T-Series',
-    isFavorite: true,
-    playlistIds: ['regular-hits', 'romantic-hits'],
-    dateAdded: '2026-03-01',
-    playCount: 42,
-    themeNotes: 'Iconic romantic duet composed by Jeet Gannguli. The signature confessing love anthem.',
-  },
   {
     id: 'tum-hi-ho',
     title: 'Tum Hi Ho',
@@ -435,33 +327,6 @@ const RAW_INITIAL_SONGS: Song[] = [
   // 3. BOLLYWOOD LO-FI & SLOWED + REVERB
   // ==========================================
   {
-    id: 'chahun-main-lofi',
-    title: 'Chahun Main Ya Naa (Lo-Fi Slowed + Reverb)',
-    titleDevanagari: 'चाहूँ मैं या ना (लो-फ़ाई स्लोड + रीवर्ब)',
-    artist: 'Arijit Singh / Sawan Music Lo-Fi Lab',
-    artistDevanagari: 'अरिजीत सिंह / लो-फ़ाई क्लब',
-    album: 'Midnight Bollywood Lo-Fi, Vol. 1',
-    coverUrl: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=600&auto=format&fit=crop&q=80',
-    duration: 245,
-    genre: 'Lo-Fi Chillhop',
-    category: 'lofi',
-    year: 2024,
-    mood: 'Dreamy & Nostalgic',
-    bpm: 64,
-    lyrics: USER_REQUESTED_LYRICS,
-    timedLyrics: CHAHUN_MAIN_TIMED_LYRICS,
-    audioPreset: 'lofi_chill',
-    youtubeId: 'VYE6IVoYeKM',
-    youtubeUrl: 'https://www.youtube.com/watch?v=VYE6IVoYeKM',
-    isYoutubeSource: true,
-    channelTitle: 'Bollywood Lo-Fi Station',
-    isFavorite: true,
-    playlistIds: ['lofi-chill', 'romantic-hits'],
-    dateAdded: '2026-03-14',
-    playCount: 51,
-    themeNotes: 'Your requested lyrics slowed down with lush vinyl crackle, warm rhodes keys, and rainy window sound effects.',
-  },
-  {
     id: 'kesariya-midnight-lofi',
     title: 'Kesariya (Midnight Rain Lo-Fi)',
     titleDevanagari: 'केसरिया (मिडनाइट रेन लो-फ़ाई)',
@@ -581,8 +446,8 @@ const RAW_INITIAL_SONGS: Song[] = [
     year: 2024,
     mood: 'Emotional Rollercoaster',
     bpm: 84,
-    lyrics: `[Chahun Main Ya Naa]: तू ही ये मुझको बता दे, चाहूँ मैं या ना...\n[Tum Hi Ho]: क्यूँकि तुम ही हो, अब तुम ही हो ज़िन्दगी...\n[Muskurane]: मुस्कुराने की वजह तुम हो, गुनगुनाने की वजह तुम हो...\n[Hamari Adhuri Kahani]: खुशबू से तेरी यूँ महक रहे हैं...`,
-    audioPreset: 'chahun_main_acoustic',
+    lyrics: `[Tum Hi Ho]: क्यूँकि तुम ही हो, अब तुम ही हो ज़िन्दगी...\n[Muskurane]: मुस्कुराने की वजह तुम हो, गुनगुनाने की वजह तुम हो...\n[Hamari Adhuri Kahani]: खुशबू से तेरी यूँ महक रहे हैं...`,
+    audioPreset: 'tum_hi_ho_ballad',
     youtubeId: 'iIR2hFFtoMs',
     youtubeUrl: 'https://www.youtube.com/watch?v=iIR2hFFtoMs',
     isYoutubeSource: true,
@@ -591,7 +456,7 @@ const RAW_INITIAL_SONGS: Song[] = [
     playlistIds: ['mashup-hits', 'romantic-hits'],
     dateAdded: '2026-03-19',
     playCount: 68,
-    themeNotes: 'Seamless harmonic fusion weaving Chahun Main Ya Naa, Tum Hi Ho, Muskurane, and Hamari Adhuri Kahani together.',
+    themeNotes: 'Seamless harmonic fusion weaving Tum Hi Ho, Muskurane, and Hamari Adhuri Kahani together.',
   },
   {
     id: 'atif-arijit-legend-mashup',
@@ -1259,11 +1124,10 @@ export const INITIAL_PLAYLISTS: Playlist[] = [
   {
     id: 'regular-hits',
     name: '🔥 Bollywood Originals & Chartbusters',
-    description: 'Iconic film originals including Chahun Main Ya Naa, Tum Hi Ho, Kesariya, and Apna Bana Le.',
+    description: 'Iconic film originals including Tum Hi Ho, Kesariya, and Apna Bana Le.',
     coverUrl: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=600&auto=format&fit=crop&q=80',
-    color: '#1db954',
+    color: '#38bdf8',
     songIds: [
-      'chahun-main-ya-naa',
       'tum-hi-ho',
       'kesariya-original',
       'raataan-lambiyan',
@@ -1329,7 +1193,6 @@ export const INITIAL_PLAYLISTS: Playlist[] = [
       'pasoori-ali-sethi',
       'afreen-afreen',
       'kesariya-original',
-      'chahun-main-ya-naa',
     ],
     createdAt: '2026-03-05',
   },
@@ -1340,7 +1203,6 @@ export const INITIAL_PLAYLISTS: Playlist[] = [
     coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80',
     color: '#10b981',
     songIds: [
-      'chahun-main-ya-naa',
       'blinding-lights',
       'naatu-naatu',
       'illuminati-aavesham',
@@ -1358,7 +1220,6 @@ export const INITIAL_PLAYLISTS: Playlist[] = [
     coverUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80',
     color: '#6366f1',
     songIds: [
-      'chahun-main-lofi',
       'kesariya-midnight-lofi',
       'shayad-lofi-flip',
       'iktara-lofi-nostalgia',
@@ -1402,14 +1263,12 @@ export const INITIAL_PLAYLISTS: Playlist[] = [
   {
     id: 'romantic-hits',
     name: '💖 Dil Ki Dhadkan (Romantic Special)',
-    description: 'Soul-stirring romantic ballads featuring Chahun Main Ya Naa, Tum Hi Ho, and Agar Tum Saath Ho.',
+    description: 'Soul-stirring romantic ballads featuring Tum Hi Ho, Agar Tum Saath Ho, and Kesariya.',
     coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=80',
     color: '#e11d48',
     songIds: [
-      'chahun-main-ya-naa',
       'tum-hi-ho',
       'agar-tum-saath-ho',
-      'chahun-main-lofi',
       'arijit-singh-mega-mashup',
       'marakkuma-nenjam',
       'bhalobashar-morshum',
