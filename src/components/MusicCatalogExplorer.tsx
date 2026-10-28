@@ -176,30 +176,59 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
 
   const loadResults = useCallback(async (nextRequest: CatalogRequest) => {
     resultsController.current?.abort();
-    if (!hasServerCatalog()) {
-      setLoading(false);
-      setRequest(nextRequest);
-      setError('Online charts are unavailable on this static site. Showing songs from Sawan’s YouTube catalog.');
-      setResults(localYouTubeResults(songsRef.current, nextRequest));
-      return;
-    }
     const controller = new AbortController();
     resultsController.current = controller;
     setLoading(true);
     setError(null);
     setResults(null);
     setRequest(nextRequest);
-    try {
-      const next = await readJson<CatalogResults>(requestPath(nextRequest), controller.signal);
-      if (!Array.isArray(next.tracks)) throw new Error('The music catalog returned an unexpected response. Try again.');
-      if (!controller.signal.aborted) setResults(next);
-    } catch (failure) {
-      if (!controller.signal.aborted) {
-        setError(`Online discovery is unavailable. Showing songs from Sawan’s YouTube catalog.`);
-        setResults(localYouTubeResults(songsRef.current, nextRequest));
+
+    if (nextRequest.mode === 'search' || nextRequest.mode === 'artist') {
+      try {
+        const response = await fetch('/api/youtube/search-live', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: nextRequest.value }),
+          signal: controller.signal,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.songs && Array.isArray(data.songs) && data.songs.length > 0) {
+            const tracks: CatalogTrack[] = data.songs.map((s: any) => ({
+              id: s.youtubeId,
+              title: s.title,
+              artist: s.artist,
+              album: s.album || 'YouTube Search',
+              genre: s.genre || 'Music',
+              releaseDate: '2026-01-01',
+              duration: s.duration || 210,
+              explicit: null,
+              isrc: null,
+              artworkUrl: s.coverUrl,
+            }));
+
+            if (!controller.signal.aborted) {
+              setResults({
+                tracks,
+                total: tracks.length,
+                count: tracks.length,
+                hasMore: false,
+                nextOffset: tracks.length,
+              });
+              setLoading(false);
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Live YouTube search fallback:', err);
       }
-    } finally {
-      if (!controller.signal.aborted) setLoading(false);
+    }
+
+    if (!controller.signal.aborted) {
+      setResults(localYouTubeResults(songsRef.current, nextRequest));
+      setLoading(false);
     }
   }, []);
 
@@ -233,13 +262,30 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
 
   useEffect(() => {
     void loadStatus();
-    void loadResults({ mode: 'charts', value: 'IN', offset: 0 });
+    void loadResults({ mode: 'search', value: 'Bollywood Top Songs 2026', offset: 0 });
+    setMode('search');
     return () => {
       resultsController.current?.abort();
       genresController.current?.abort();
       statusController.current?.abort();
     };
   }, [loadResults, loadStatus]);
+
+  // Instant Live Search on Query or Artist input
+  useEffect(() => {
+    if (mode === 'search' && query.trim()) {
+      const timer = setTimeout(() => {
+        void loadResults({ mode: 'search', value: query.trim(), offset: 0 });
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+    if (mode === 'artist' && artist.trim()) {
+      const timer = setTimeout(() => {
+        void loadResults({ mode: 'artist', value: artist.trim(), offset: 0 });
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [query, artist, mode, loadResults]);
 
   const localSongsByTitle = useMemo(() => {
     const indexed = new Map<string, Song[]>();
@@ -362,7 +408,38 @@ export const MusicCatalogExplorer: React.FC<MusicCatalogExplorerProps> = ({ song
                     </div>
                     <div className="flex shrink-0 items-center justify-between gap-4 pl-15 sm:justify-end sm:pl-0">
                       <span className="font-mono text-xs text-slate-500">{formatDuration(track.duration)}</span>
-                      {linkedSong ? <button onClick={() => onPlaySong(linkedSong)} aria-label={`Play ${track.title} in Sawan`} className="inline-flex items-center gap-2 rounded-full bg-sky-400/10 px-3.5 py-2 text-xs font-bold text-sky-300 transition hover:bg-sky-400/20"><Play size={13} fill="currentColor" />Play in Sawan</button> : <a href={youtubeSearch(track)} target="_blank" rel="noopener noreferrer" aria-label={`Find ${track.title} by ${track.artist} on YouTube, opens in a new tab`} className="inline-flex items-center gap-2 rounded-full border border-slate-700 px-3.5 py-2 text-xs font-semibold text-slate-300 transition hover:border-slate-500 hover:text-white">Find on YouTube<ExternalLink size={12} /></a>}
+                      <button
+                        onClick={() => {
+                          if (linkedSong) {
+                            onPlaySong(linkedSong);
+                          } else {
+                            onPlaySong({
+                              id: `yt-live-${track.id}`,
+                              youtubeId: track.id,
+                              title: track.title,
+                              artist: track.artist || 'YouTube Artist',
+                              album: track.album || 'YouTube Search',
+                              coverUrl: track.artworkUrl || `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`,
+                              duration: track.duration || 210,
+                              genre: track.genre || 'Music',
+                              year: track.releaseDate ? Number(track.releaseDate.slice(0, 4)) : 2026,
+                              mood: 'Pop',
+                              bpm: 80,
+                              lyrics: '',
+                              isFavorite: false,
+                              playlistIds: [],
+                              dateAdded: new Date().toISOString().split('T')[0],
+                              playCount: 1,
+                              isYoutubeSource: true,
+                              isCatalogSong: true
+                            });
+                          }
+                        }}
+                        aria-label={`Play ${track.title} in Sawan`}
+                        className="inline-flex items-center gap-2 rounded-full bg-[#38bdf8] text-slate-950 px-4 py-2 text-xs font-extrabold hover:bg-sky-300 transition-all shadow-md shadow-sky-500/20"
+                      >
+                        <Play size={13} fill="currentColor" /> Play in Sawan
+                      </button>
                     </div>
                   </article>
                 );

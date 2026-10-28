@@ -37,6 +37,7 @@ import {
   Sun,
   Moon,
   Sunrise,
+  Loader2,
 } from 'lucide-react';
 import { MOOD_DEFINITIONS } from '../utils/aiMoodTagger';
 
@@ -225,6 +226,42 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
 
     return result;
   }, [songs, playlists, currentView, selectedPlaylistId, categoryFilter, moodFilter, genreFilter, searchQuery, garbaStyle, garbaLanguage]);
+
+  // Live YouTube Search State
+  const [liveYtResults, setLiveYtResults] = useState<Song[]>([]);
+  const [isSearchingYt, setIsSearchingYt] = useState(false);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setLiveYtResults([]);
+      setIsSearchingYt(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingYt(true);
+      try {
+        const response = await fetch('/api/youtube/search-live', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: searchQuery }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.songs && Array.isArray(data.songs)) {
+            setLiveYtResults(data.songs);
+          }
+        }
+      } catch (err) {
+        console.warn('Live YouTube search error:', err);
+      } finally {
+        setIsSearchingYt(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Specific categories for home shelf rows
   const regularHits = useMemo(() => songs.filter((s) => s.category === 'regular'), [songs]);
@@ -505,6 +542,73 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           </div>
         </div>
 
+        {/* LIVE YOUTUBE SEARCH RESULTS (Displays prominently at top when user searches) */}
+        {searchQuery.trim() && (
+          <div className="space-y-4 bg-[#0f172a] p-5 rounded-2xl border border-sky-500/20 shadow-xl">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div>
+                <h2 className="text-lg font-black text-white flex items-center gap-2">
+                  <Youtube size={22} className="text-red-500" />
+                  Live YouTube Music Search for &ldquo;{searchQuery}&rdquo;
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Play any song directly in Sawan Music from YouTube
+                </p>
+              </div>
+
+              {isSearchingYt ? (
+                <span className="text-xs text-[#38bdf8] flex items-center gap-2 font-mono font-bold bg-sky-500/10 px-3 py-1.5 rounded-full border border-sky-500/20">
+                  <Loader2 size={14} className="animate-spin" /> Searching YouTube live...
+                </span>
+              ) : (
+                <span className="text-xs font-mono text-slate-400 font-bold">
+                  {liveYtResults.length} live tracks found
+                </span>
+              )}
+            </div>
+
+            {liveYtResults.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 pt-1">
+                {liveYtResults.map((song) => (
+                  <div
+                    key={song.id}
+                    className="p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:border-sky-500/40 transition-all flex items-center gap-3.5 group shadow-md"
+                  >
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-800 shadow">
+                      <img
+                        src={song.coverUrl}
+                        alt={song.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Play size={20} className="text-[#38bdf8] fill-current" />
+                      </div>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-xs font-extrabold text-white truncate" title={song.title}>
+                        {song.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 truncate mt-0.5 font-medium">
+                        {song.artist}
+                      </p>
+                      <button
+                        onClick={() => onPlaySong(song)}
+                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#38bdf8] text-slate-950 text-[11px] font-black hover:bg-sky-300 transition-colors shadow-md shadow-sky-500/20 cursor-pointer"
+                      >
+                        <Play size={11} fill="currentColor" /> Play in Sawan
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : !isSearchingYt ? (
+              <div className="py-6 text-center text-xs text-slate-400">
+                Searching YouTube for &ldquo;{searchQuery}&rdquo;...
+              </div>
+            ) : null}
+          </div>
+        )}
+
         {/* Section Rows when 'all' is selected: Show curated Spotify rows */}
         {categoryFilter === 'all' && moodFilter === 'all' && !searchQuery && currentView === 'all-songs' && (
           <div className="space-y-8">
@@ -684,61 +788,41 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           </div>
         )}
 
-        {/* Complete Spotify Track Table */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-              <span>All Tracks in View</span>
-              <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">
-                {filteredSongs.length}
-              </span>
-              {moodFilter !== 'all' && (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  Mood: {moodFilter}
+        {/* Local Catalog Track Table (Only rendered if NOT searching, or if searching and local matches exist) */}
+        {(!searchQuery.trim() || filteredSongs.length > 0) && (
+          <div className="pt-2">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                <span>{searchQuery.trim() ? 'Local Library Matches' : 'All Tracks in View'}</span>
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                  {filteredSongs.length}
                 </span>
-              )}
-            </h3>
-
-          </div>
-
-          {/* Table Header */}
-          <div className="grid grid-cols-[3rem_1fr_10rem_9rem_6rem_4rem] px-4 py-2 text-xs font-semibold text-zinc-400 border-b border-zinc-800 uppercase tracking-wider">
-            <span className="text-center">#</span>
-            <span>Title</span>
-            <span className="hidden md:block">Album / Movie</span>
-            <span className="hidden sm:block">Mood / Genre</span>
-            <span className="hidden lg:block">Source</span>
-            <div className="flex justify-end pr-2">
-              <Clock size={14} />
+                {moodFilter !== 'all' && (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Mood: {moodFilter}
+                  </span>
+                )}
+              </h3>
             </div>
-          </div>
 
-          {/* Table Rows */}
-          <div className="divide-y divide-zinc-900/60">
-            {filteredSongs.length === 0 ? (
-              <div className="py-16 text-center text-zinc-500">
-                <Music size={36} className="mx-auto mb-2 opacity-30" />
-                <p className="text-sm font-semibold">No tracks match your current filters.</p>
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setCategoryFilter('all');
-                    setMoodFilter('all');
-                    setGenreFilter('all');
-                    setGarbaStyle('all');
-                    setGarbaLanguage('all');
-                  }}
-                  className="mt-3 px-4 py-1.5 bg-[#38bdf8] text-slate-950 font-bold text-xs rounded-full"
-                >
-                  Clear Filters
-                </button>
+            {/* Table Header */}
+            <div className="grid grid-cols-[3rem_1fr_10rem_9rem_6rem_4rem] px-4 py-2 text-xs font-semibold text-slate-400 border-b border-slate-800 uppercase tracking-wider">
+              <span className="text-center">#</span>
+              <span>Title</span>
+              <span className="hidden md:block">Album / Movie</span>
+              <span className="hidden sm:block">Mood / Genre</span>
+              <span className="hidden lg:block">Source</span>
+              <div className="flex justify-end pr-2">
+                <Clock size={14} />
               </div>
-            ) : (
-              filteredSongs.map((song, idx) => {
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-slate-800/60">
+              {filteredSongs.map((song, idx) => {
                 const isCurrentActive = activeSong?.id === song.id;
                 const isCurrentlyPlaying = isCurrentActive && isPlaying;
 
-                // Determine display mood label
                 const primaryMood =
                   song.aiMoodAnalysis?.primaryMood ||
                   (song.moodLabels && song.moodLabels[0]) ||
@@ -901,10 +985,10 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     </div>
                   </div>
                 );
-              })
-            )}
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Footer with Copyright */}
         <footer className="mt-12 mb-6 border-t border-zinc-800/60 pt-6 px-4 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-zinc-400">

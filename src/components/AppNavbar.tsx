@@ -12,8 +12,8 @@ interface AppNavbarProps {
   onHome: () => void;
   onOpenAccount: (mode: 'signup' | 'login') => void;
   onSignOut: () => void;
-  selectedLanguage: string;
-  onLanguageChange: (language: string) => void;
+  selectedLanguage?: string;
+  onLanguageChange?: (language: string) => void;
 }
 
 export const AppNavbar: React.FC<AppNavbarProps> = ({
@@ -142,7 +142,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
 
         <nav className="app-navbar-actions flex min-w-0 items-center gap-2" aria-label="Main navigation">
           <label className="sr-only" htmlFor="song-language">Song language</label>
-          <select id="song-language" value={selectedLanguage} onChange={(event) => onLanguageChange(event.target.value)} aria-label="Filter songs by language" className="h-10 min-w-0 max-w-28 rounded-full border border-zinc-700 bg-zinc-800 px-2 text-xs font-semibold text-zinc-100 outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760] sm:max-w-36 sm:px-3">
+          <select id="song-language" value={selectedLanguage || 'all'} onChange={(event) => onLanguageChange?.(event.target.value)} aria-label="Filter songs by language" className="h-10 min-w-0 max-w-28 rounded-full border border-slate-700 bg-slate-900 px-2 text-xs font-semibold text-slate-100 outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] sm:max-w-36 sm:px-3">
             <option value="all">All languages</option>
             {['Gujarati', 'Hindi', 'English', 'Telugu', 'Punjabi', 'Tamil'].map((language) => <option key={language} value={language}>{language}</option>)}
           </select>

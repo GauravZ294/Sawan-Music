@@ -5,6 +5,8 @@ interface YouTubePlayer {
   destroy: () => void;
   playVideo: () => void;
   pauseVideo: () => void;
+  loadVideoById: (videoId: string, startSeconds?: number) => void;
+  cueVideoById: (videoId: string, startSeconds?: number) => void;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
   setVolume: (volume: number) => void;
   setPlaybackRate: (suggestedRate: number) => void;
@@ -88,27 +90,51 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
 }) => {
   const hostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
+  const loadedVideoIdRef = useRef<string | null>(null);
   const readyRef = useRef(false);
   const tickerRef = useRef<number | null>(null);
   const canPlay = isActive && Boolean(song?.youtubeId) && !song?.audioSrc;
-  const propsRef = useRef({ isPlaying, currentTime, seekVersion, volume, onTimeUpdate, onPlaybackChange, onEnded, onError });
-  propsRef.current = { isPlaying, currentTime, seekVersion, volume, onTimeUpdate, onPlaybackChange, onEnded, onError };
+  const propsRef = useRef({ isPlaying, currentTime, seekVersion, volume, playbackRate, onTimeUpdate, onPlaybackChange, onEnded, onError });
+  propsRef.current = { isPlaying, currentTime, seekVersion, volume, playbackRate, onTimeUpdate, onPlaybackChange, onEnded, onError };
 
+  // Main YouTube Player Setup & Video Switcher
   useEffect(() => {
     if (!canPlay || !song?.youtubeId || !hostRef.current) return;
+    const targetVideoId = song.youtubeId;
+
+    // If player is already initialized and active, seamlessly load the new video without re-creating iframe!
+    if (readyRef.current && playerRef.current) {
+      if (loadedVideoIdRef.current !== targetVideoId) {
+        loadedVideoIdRef.current = targetVideoId;
+        try {
+          if (propsRef.current.isPlaying) {
+            playerRef.current.loadVideoById(targetVideoId, 0);
+          } else {
+            playerRef.current.cueVideoById(targetVideoId, 0);
+          }
+          playerRef.current.setVolume(Math.round(propsRef.current.volume * 100));
+          if (typeof playerRef.current.setPlaybackRate === 'function') {
+            playerRef.current.setPlaybackRate(propsRef.current.playbackRate || 1.0);
+          }
+        } catch (e) {
+          console.warn('YouTube loadVideoById warning:', e);
+        }
+      }
+      return;
+    }
+
     let cancelled = false;
     readyRef.current = false;
+    loadedVideoIdRef.current = targetVideoId;
     propsRef.current.onError?.(null);
 
-    // Keep playback independent of visible page sections. The app's music bar
-    // controls this iframe; no video panel, popup, or iframe focus is exposed.
     const iframe = document.createElement('iframe');
     const params = new URLSearchParams({
       autoplay: isPlaying ? '1' : '0',
       controls: '0', enablejsapi: '1', playsinline: '1', rel: '0', fs: '0', disablekb: '1',
       origin: window.location.origin,
     });
-    iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(song.youtubeId)}?${params}`;
+    iframe.src = `https://www.youtube.com/embed/${encodeURIComponent(targetVideoId)}?${params}`;
     iframe.title = `${song.title} — audio playback`;
     iframe.tabIndex = -1;
     iframe.setAttribute('aria-hidden', 'true');
@@ -121,13 +147,12 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
 
     loadYouTubeApi().then((YT) => {
       if (cancelled || !hostRef.current) return;
-      // Attach controls to the existing iframe instead of waiting to create it.
       playerRef.current = new YT.Player(iframe, {
         width: '100%',
         height: '100%',
-        videoId: song.youtubeId,
+        videoId: targetVideoId,
         playerVars: {
-          autoplay: 0,
+          autoplay: propsRef.current.isPlaying ? 1 : 0,
           controls: 0,
           enablejsapi: 1,
           origin: window.location.origin,
@@ -139,6 +164,9 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
             if (cancelled) return;
             readyRef.current = true;
             event.target.setVolume(Math.round(propsRef.current.volume * 100));
+            if (typeof event.target.setPlaybackRate === 'function') {
+              try { event.target.setPlaybackRate(propsRef.current.playbackRate || 1.0); } catch {}
+            }
             if (propsRef.current.currentTime > 0) event.target.seekTo(propsRef.current.currentTime, true);
             if (propsRef.current.isPlaying) {
               try { event.target.playVideo(); } catch {}
@@ -149,7 +177,6 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
           onStateChange: (event: { data: number }) => {
             if (cancelled) return;
             if (event.data === YT.PlayerState.PLAYING) {
-              // A late Playing event must not undo a pause from the music bar.
               if (!propsRef.current.isPlaying) {
                 playerRef.current?.pauseVideo();
                 if (tickerRef.current !== null) window.clearInterval(tickerRef.current);
@@ -170,7 +197,7 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
             } else {
               if (event.data === YT.PlayerState.PAUSED) {
                 if (document.hidden && propsRef.current.isPlaying) {
-                  propsRef.current.onError?.('YouTube paused this song in the background. Press Play to continue, or use an imported audio file for background listening.');
+                  propsRef.current.onError?.('YouTube paused this song in the background. Press Play to continue.');
                 }
                 propsRef.current.onPlaybackChange(false);
               }
@@ -180,7 +207,7 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
           },
           onError: (event: { data: number }) => {
             if (cancelled) return;
-            console.error('YouTube video playback error:', event.data, song.youtubeId);
+            console.error('YouTube video playback error:', event.data, targetVideoId);
             const message = event.data === 101 || event.data === 150
               ? 'The owner does not allow this song to play here. Open it on YouTube.'
               : event.data === 153
@@ -204,35 +231,37 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
       readyRef.current = false;
       playerRef.current?.destroy();
       playerRef.current = null;
+      loadedVideoIdRef.current = null;
       iframe.remove();
       propsRef.current.onError?.('Could not start this song. Check your connection and press Play to try again.');
       propsRef.current.onPlaybackChange(false);
     });
 
     return () => {
-      cancelled = true;
-      readyRef.current = false;
-      if (tickerRef.current !== null) window.clearInterval(tickerRef.current);
-      tickerRef.current = null;
-      playerRef.current?.destroy();
-      playerRef.current = null;
-      iframe.remove();
+      // Retain the initialized player for seamless track switching unless component unmounts
     };
   }, [song?.youtubeId, canPlay, playRequest]);
 
   useEffect(() => {
     const player = playerRef.current;
     if (!readyRef.current || !player) return;
-    if (isPlaying) player.playVideo();
-    else player.pauseVideo();
+    if (isPlaying) {
+      try { player.playVideo(); } catch {}
+    } else {
+      try { player.pauseVideo(); } catch {}
+    }
   }, [isPlaying, song?.youtubeId]);
 
   useEffect(() => {
-    if (readyRef.current) playerRef.current?.setVolume(Math.round(volume * 100));
+    if (readyRef.current && playerRef.current) {
+      try { playerRef.current.setVolume(Math.round(volume * 100)); } catch {}
+    }
   }, [volume]);
 
   useEffect(() => {
-    if (readyRef.current && seekVersion > 0) playerRef.current?.seekTo(currentTime, true);
+    if (readyRef.current && playerRef.current && seekVersion > 0) {
+      try { playerRef.current.seekTo(currentTime, true); } catch {}
+    }
   }, [seekVersion]);
 
   useEffect(() => {
